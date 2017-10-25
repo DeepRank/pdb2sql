@@ -36,7 +36,7 @@ xyz -= np.mean(xyz)
 db.update('x,y,z',xyz,chainID='A',resSeq=1)
 
 ```
-Translate the residue of resSeq 1 of chain A to the center of the coordinate. 
+Translate the residue of resSeq 1 of chain A to the center of the coordinate. Note that a dedicated module called transform.py will be developped to translate,rotate, .... xyz coordinates
 
 ## pdb2sqlAlchemy
 
@@ -100,3 +100,17 @@ db.get_contact_atoms()
 ```
 
 The methods get_contact_atoms() returns here the rowID of the contact atoms. A few options are available to define the interface.
+
+## Transform
+
+Contains simple tranformation of the pdb such as translation and rotation. 
+
+```python
+t0 = time()
+db = pdb2sql('5hvd.pdb')
+print('SQL %f' %(time()-t0))
+
+tr = np.array([1,2,3])
+translation(db,tr,chainID='A')
+```
+
