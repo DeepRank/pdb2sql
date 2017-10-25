@@ -389,3 +389,9 @@ if __name__ == "__main__":
 
 	# put the data back 
 	db.update('x,y,z',xyz,chainID='A',resName=['VAL','LEU'],no_name=['H'])
+
+	# extract atoms
+	atoms = db.get(chainID='A',resName=['VAL','LEU'],no_name=['H'])
+
+	for at in atoms:
+		print(at.name,at.x,at.y,at.z)

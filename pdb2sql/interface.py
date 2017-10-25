@@ -5,10 +5,12 @@ from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
 
 '''
 Class that allows to analyze itnerface between two chains
-of a gicen complex
+of a given complex
 
 Works with pdb2sql AND pdb2sql_alchemy
 Some methods an be made simpler using alcemy specific queries
+
+We could also returns a series of OBJECTS instead of the raw data
 
 '''
 
@@ -215,4 +217,5 @@ if __name__ == "__main__":
 
 	db = interface('1AK4.pdb')
 	db.get_contact_atoms()
+	db.get_contact_residues()
 	

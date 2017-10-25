@@ -432,9 +432,9 @@ class pdb2sql(object):
 
 		# check if the column exists
 		try:
-			self.c.execute("SELECT EXISTS(SELECT {an} FROM ATOM)".format(an=atnames))
+			self.c.execute("SELECT EXISTS(SELECT {an} FROM ATOM)".format(an=attribute))
 		except:
-			print('Error column %s not found in the database' %atnames)
+			print('Error column %s not found in the database' %attribute)
 			self.get_colnames()
 			return
 
@@ -454,7 +454,10 @@ class pdb2sql(object):
 		if natt != ncol:
 			raise ValueError('Number of attribute incompatible with the number of columns in the data')
 
-		nselect = len(self.get('rowID',**kwargs))
+		# get the row ID of the selection
+		rowID = self.get('rowID',**kwargs)
+		nselect = len(rowID)
+
 		if nselect != nrow:
 			raise ValueError('Number of data values incompatible with the given conditions')
 
@@ -462,16 +465,20 @@ class pdb2sql(object):
 		query = 'UPDATE ATOM SET '
 		query = query + ', '.join(map(lambda x: x+'=?',attribute))
 		if len(kwargs)>0:
-			query = query + ' WHERE '
-			query = query + ', '.join(map(lambda x: x+'=?',kwargs.keys()))
+			query = query + ' WHERE rowID=?'
+			
 
 		# prepare the data
 		data = []
 		for i,val in enumerate(values):
-			tmp_data = [v for v in val]
+
+			tmp_data = [ v for v in val ]
+
 			if len(kwargs)>0:
-				tmp_kwargs = [ cond for name,cond in kwargs.items()]
-				tmp_data = tmp_data + tmp_kwargs
+
+				# here the conversion of the indexes is a bit annoying
+				tmp_data += [rowID[i]+1]
+
 			data.append(tmp_data)
 
 		self.c.executemany(query,data)
@@ -669,3 +676,12 @@ if __name__ == "__main__":
 	t0 = time()
 	db = pdb2sql('5hvd.pdb')
 	print('SQL %f' %(time()-t0))
+
+
+	xyz = db.get('x,y,z',chainID='A',resName=['VAL','LEU'],name=['CA','C','O','N'])
+
+
+	xyz = db.get('x,y,z',chainID='A',resSeq=1)
+	xyz = np.array(xyz)
+	xyz -= np.mean(xyz)
+	db.update('x,y,z',xyz,chainID='A',resSeq=1)
