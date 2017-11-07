@@ -1,7 +1,9 @@
 import numpy as np
 from pdb2sql import pdb2sql
+from interface import interface
 #from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
-from pdb2sql import transform 
+#from pdb2sql import transform 
+import transform
 import sys,os,time,pickle
 
 '''
@@ -122,12 +124,12 @@ class StructureSimilarity(object):
 		tr_ref = self.get_trans_vect(xyz_ref_long)
 
 		# translate everything for 1
-		xyz_decoy_short = transform.translation(xyz_decoy_short,tr_decoy)
-		xyz_decoy_long = transform.translation(xyz_decoy_long,tr_decoy)
+		xyz_decoy_short += tr_decoy
+		xyz_decoy_long += tr_decoy
 
 		# translate everuthing for 2
-		xyz_ref_short = transform.translation(xyz_ref_short,tr_ref)
-		xyz_ref_long = transform.translation(xyz_ref_long,tr_ref)
+		xyz_ref_short += tr_ref
+		xyz_ref_long +=  tr_ref
 
 		# get the ideql rotation matrix
 		# to superimpose the A chains
@@ -144,8 +146,8 @@ class StructureSimilarity(object):
 	def compute_lzone(self,save_file=True,filename=None):
 
 		sql_ref = pdb2sql(self.ref)
-		nA = len(sql_ref.get('x,y,z',chain='A'))
-		nB = len(sql_ref.get('x,y,z',chain='B'))
+		nA = len(sql_ref.get('x,y,z',chainID='A'))
+		nB = len(sql_ref.get('x,y,z',chainID='B'))
 
 		# detect which chain is the longest
 		long_chain = 'A'
@@ -243,8 +245,8 @@ class StructureSimilarity(object):
 		tr_ref   = self.get_trans_vect(xyz_contact_ref)
 
 		# translate everything 
-		xyz_contact_decoy = transform.translation(xyz_contact_decoy,tr_decoy)
-		xyz_contact_ref   = transform.translation(xyz_contact_ref,tr_ref)
+		xyz_contact_decoy += tr_decoy
+		xyz_contact_ref   += tr_ref
 
 		# get the ideql rotation matrix
 		# to superimpose the A chains
@@ -260,13 +262,13 @@ class StructureSimilarity(object):
 
 	def compute_izone(self,cutoff=5.0,save_file=True,filename=None):
 
-		sql_ref = pdb2sql(self.ref)
+		sql_ref = interface(self.ref)
 		contact_ref = sql_ref.get_contact_atoms(cutoff=cutoff,extend_to_residue=True,return_only_backbone_atoms=True)
 		index_contact_ref = contact_ref[0]+contact_ref[1]
 
 		# get the xyz and atom identifier of the decoy contact atoms
-		xyz_contact_ref = sql_ref.get('x,y,z',index=index_contact_ref)
-		data_test = [tuple(data) for data in sql_ref.get('chainID,resSeq',index=index_contact_ref)]
+		xyz_contact_ref = sql_ref.get('x,y,z',rowID=index_contact_ref)
+		data_test = [tuple(data) for data in sql_ref.get('chainID,resSeq',rowID=index_contact_ref)]
 		data_test = sorted(set(data_test))
 
 		# close the sql
@@ -369,8 +371,8 @@ class StructureSimilarity(object):
 	# compute the residue pair of the reference
 	def compute_residue_pairs_ref(self,cutoff=5.0,save_file=True,filename=None):
 
-		sql_ref = pdb2sql(self.ref,sqlfile='mol2.db')
-		residue_pairs_ref   = sql_ref.get_contact_residue(cutoff=cutoff,return_contact_pairs=True,excludeH=True)
+		sql_ref = interface(self.ref)
+		residue_pairs_ref   = sql_ref.get_contact_residues(cutoff=cutoff,return_contact_pairs=True,excludeH=True)
 		sql_ref.close()
 
 		if save_file:
@@ -411,12 +413,12 @@ class StructureSimilarity(object):
 		sql_ref = pdb2sql(self.ref,sqlfile='ref.db')
 
 		# extract the pos of chains A
-		xyz_decoy_A = np.array(sql_decoy.get('x,y,z',chain='A'))
-		xyz_ref_A = np.array(sql_ref.get('x,y,z',chain='A'))
+		xyz_decoy_A = np.array(sql_decoy.get('x,y,z',chainID='A'))
+		xyz_ref_A = np.array(sql_ref.get('x,y,z',chainID='A'))
 
 		# extract the pos of chains B
-		xyz_decoy_B = np.array(sql_decoy.get('x,y,z',chain='B'))
-		xyz_ref_B = np.array(sql_ref.get('x,y,z',chain='B'))
+		xyz_decoy_B = np.array(sql_decoy.get('x,y,z',chainID='B'))
+		xyz_ref_B = np.array(sql_ref.get('x,y,z',chainID='B'))
 
 
 		# check the lengthes
@@ -448,12 +450,12 @@ class StructureSimilarity(object):
 		tr_ref = self.get_trans_vect(xyz_ref_long)
 
 		# translate everything for 1
-		xyz_decoy_short = transform.translation(xyz_decoy_short,tr_decoy)
-		xyz_decoy_long = transform.translation(xyz_decoy_long,tr_decoy)
+		xyz_decoy_short += tr_decoy
+		xyz_decoy_long  += tr_decoy
 
 		# translate everuthing for 2
-		xyz_ref_short = transform.translation(xyz_ref_short,tr_ref)
-		xyz_ref_long = transform.translation(xyz_ref_long,tr_ref)
+		xyz_ref_short += tr_ref
+		xyz_ref_long  += tr_ref
 
 		# get the ideal rotation matrix
 		# to superimpose the A chains
@@ -474,8 +476,8 @@ class StructureSimilarity(object):
 			xyz_ref = np.array(sql_ref.get('x,y,z'))
 
 			# translate
-			xyz_ref = transform.translation(xyz_ref,tr_ref)
-			xyz_decoy = transform.translation(xyz_decoy,tr_decoy)
+			xyz_ref   += tr_ref
+			xyz_decoy += tr_decoy
 			
 			# rotate decoy
 			xyz_decoy= transform.rotation_matrix(xyz_decoy,U,center=False)
@@ -500,8 +502,8 @@ class StructureSimilarity(object):
 	def get_identical_atoms(db1,db2,chain):
 
 		# get data
-		data1 = db1.get('chainID,resSeq,name',chain=chain)
-		data2 = db2.get('chainID,resSeq,name',chain=chain)
+		data1 = db1.get('chainID,resSeq,name',chainID=chain)
+		data2 = db2.get('chainID,resSeq,name',chainID=chain)
 
 		# tuplify
 		data1 = [tuple(d1) for d1 in data1]
@@ -552,8 +554,8 @@ class StructureSimilarity(object):
 
 
 		# get the xyz and atom identifier of the decoy contact atoms
-		xyz_contact_ref = sql_ref.get('x,y,z',index=index_contact_ref)
-		data_contact_ref = sql_ref.get('chainID,resSeq,resName,name',index=index_contact_ref)
+		xyz_contact_ref = sql_ref.get('x,y,z',rowID=index_contact_ref)
+		data_contact_ref = sql_ref.get('chainID,resSeq,resName,name',rowID=index_contact_ref)
 		
 		# get the xyz and atom indeitifier of the reference
 		xyz_decoy = sql_decoy.get('x,y,z')
@@ -584,8 +586,8 @@ class StructureSimilarity(object):
 
 
 		# check that we still have atoms in both chains
-		chain_decoy = list(set(sql_decoy.get('chainID',index=index_contact_decoy)))
-		chain_ref   = list(set(sql_ref.get('chainID',index=index_contact_ref)))
+		chain_decoy = list(set(sql_decoy.get('chainID',rowID=index_contact_decoy)))
+		chain_ref   = list(set(sql_ref.get('chainID',rowID=index_contact_ref)))
 		
 		if len(chain_decoy)<1 or len(chain_ref)<1:
 			raise ValueError('Error in i-rmsd: only one chain represented in one chain')
@@ -596,8 +598,8 @@ class StructureSimilarity(object):
 		tr_ref   = self.get_trans_vect(xyz_contact_ref)
 
 		# translate everything 
-		xyz_contact_decoy = transform.translation(xyz_contact_decoy,tr_decoy)
-		xyz_contact_ref   = transform.translation(xyz_contact_ref,tr_ref)
+		xyz_contact_decoy += tr_decoy
+		xyz_contact_ref   += tr_ref
 
 		# get the ideql rotation matrix
 		# to superimpose the A chains
@@ -615,11 +617,11 @@ class StructureSimilarity(object):
 		if exportpath is not None:
 
 			# update the sql database
-			sql_decoy.update_xyz(xyz_contact_decoy,index=index_contact_decoy)
-			sql_ref.update_xyz(xyz_contact_ref,index=index_contact_ref)
+			sql_decoy.update_xyz(xyz_contact_decoy,rowID=index_contact_decoy)
+			sql_ref.update_xyz(xyz_contact_ref,rowID=index_contact_ref)
 
-			sql_decoy.exportpdb(exportpath+'/irmsd_decoy.pdb',index=index_contact_decoy)
-			sql_ref.exportpdb(exportpath+'/irmsd_ref.pdb',index=index_contact_ref)
+			sql_decoy.exportpdb(exportpath+'/irmsd_decoy.pdb',rowID=index_contact_decoy)
+			sql_ref.exportpdb(exportpath+'/irmsd_ref.pdb',rowID=index_contact_ref)
 
 		# close the db
 		sql_decoy.close()
@@ -672,12 +674,12 @@ class StructureSimilarity(object):
 	def compute_Fnat_pdb2sql(self,cutoff=5.0):
 
 		# create the sql
-		sql_decoy = pdb2sql(self.decoy)
-		sql_ref = pdb2sql(self.ref)
+		sql_decoy = interface(self.decoy)
+		sql_ref = interface(self.ref)
 
 		# get the contact atoms
-		residue_pairs_decoy = sql_decoy.get_contact_residue(cutoff=cutoff,return_contact_pairs=True,excludeH=True)
-		residue_pairs_ref   = sql_ref.get_contact_residue(cutoff=cutoff,return_contact_pairs=True,excludeH=True)
+		residue_pairs_decoy = sql_decoy.get_contact_residues(cutoff=cutoff,return_contact_pairs=True,excludeH=True)
+		residue_pairs_ref   = sql_ref.get_contact_residues(cutoff=cutoff,return_contact_pairs=True,excludeH=True)
 
 
 		# form the pair data

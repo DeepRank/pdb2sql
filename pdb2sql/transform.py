@@ -70,7 +70,7 @@ def _rotation_euler(xyz,alpha,beta,gamma):
 	return np.dot(rot_mat,(xyz-xyz0).T).T + xyz0
 
 
-def _rotation_matrix(xyz,rot_mat,center=True):
+def rotation_matrix(xyz,rot_mat,center=True):
 	if center:
 		xyz0 = np.mean(xyz)
 		return np.dot(rot_mat,(xyz-xyz0).T).T + xyz0

@@ -28,6 +28,7 @@ class ATOM(Base):
 	z = Column(Float,nullable=False)
 	occ = Column(Float,nullable=False)
 	temp = Column(Float,nullable=False)
+	model = Column(Integer,nullable=False)
 
 
 class pdb2sql_alchemy(object):
@@ -64,7 +65,8 @@ class pdb2sql_alchemy(object):
 			   'y'       : 'REAL',
 			   'z'       : 'REAL',
 			   'occ'     : 'REAL',
-			   'temp'    : 'REAL'}
+			   'temp'    : 'REAL',
+			   'model'   : 'INT'}
 
 	    # delimtier of the column format
 	    # taken from http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
@@ -92,27 +94,40 @@ class pdb2sql_alchemy(object):
 		# read the pdb file a pure python way
 		# RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ... 
 		# we could do better than that. But the most time consuming step seems to be the CREATE TABLE query
-		with open(pdbfile,'r') as fi:
-			data = [line.split('\n')[0] for line in fi if line.startswith('ATOM')]
+		#with open(pdbfile,'r') as fi:
+		#	data = [line.split('\n')[0] for line in fi if line.startswith('ATOM')]
 
+		fi = open(pdbfile,'r')
+		self.nModel = 0
+		_check_format = True
 
-		# old format chain ID fix
-		del_copy = self.delimiter.copy()
-		if data[0][del_copy['chainID'][0]] == ' ':
-			del_copy['chainID'] = [72,73]
+		for line in fi:
 
-		for iatom,atom in enumerate(data):
+			if line.startswith('ATOM'):
+				line = line.split('\n')[0]
 
-			# sometimes we still have an empty line somewhere
-			if len(atom) == 0:
+			elif line.startswith('ENDMDL'):
+				self.nModel += 1
 				continue
+
+			else:
+				continue
+
+			if _check_format:
+				# old format chain ID fix
+				del_copy = self.delimiter.copy()
+				if line[del_copy['chainID'][0]] == ' ':
+					del_copy['chainID'] = [72,73]
+				_check_format_ = False 
+
 
 			# browse all attribute of each atom
 			at = {}
 			for ik,(colname,coltype) in enumerate(self.col.items()):
 
 				# get the piece of data
-				data = atom[del_copy[colname][0]:del_copy[colname][1]].strip()
+				if colname in del_copy.keys():
+					data = line[del_copy[colname][0]:del_copy[colname][1]].strip()
 
 				# convert it if necessary
 				if coltype == 'INT':
@@ -126,7 +141,7 @@ class pdb2sql_alchemy(object):
 			# create a new ATOM
 			newat = ATOM(serial=at['serial'],name=at['name'],altLoc=at['altLoc'],resName=at['resName'],
 				         chainID=at['chainID'],resSeq=at['resSeq'],iCode=at['iCode'],
-				         x=at['x'],y=at['y'],z=at['z'],occ=at['occ'],temp=at['temp'])
+				         x=at['x'],y=at['y'],z=at['z'],occ=at['occ'],temp=at['temp'],model=self.nModel)
 
 			# add the atom to the data base
 			self.session.add(newat)
@@ -161,6 +176,13 @@ class pdb2sql_alchemy(object):
 			if ',' in attribute:
 				attribute = attribute.split(',')
 
+
+		if 'model' not in kwargs.keys() and self.nModel > 0:
+			model_data = []
+			for iModel in range(self.nModel):
+				kwargs['model'] = iModel
+				model_data.append(self.get(attribute,**kwargs))
+			return model_data
 
 		# no selection specified
 		if len(kwargs) == 0:
@@ -262,6 +284,13 @@ class pdb2sql_alchemy(object):
 		nat = len(attribute)
 		if nat != ncol:
 			raise ValueError('Values and Attribute have incompatible sizes',nat,ncol)
+
+		# handle the multi model cases 
+		if 'model' not in kwargs.keys() and self.nModel > 0:
+			for iModel in range(self.nModel):
+				kwargs['model'] = iModel
+				self.update(attribute,values,**kwargs)
+			return 
 
 		# no selection
 		if len(kwargs) == 0:
@@ -372,6 +401,21 @@ class pdb2sql_alchemy(object):
 		# close
 		f.close()
 
+	def close(self,rmdb = True):
+		
+		if self.sqlfile is None:
+			self.conn.close()
+
+		else:
+
+			if rmdb:
+				self.conn.close() 
+				os.system('rm %s' %(self.sqlfile))
+			else:
+				self.commit()
+				self.conn.close() 
+
+
 
 
 
@@ -381,17 +425,17 @@ if __name__ == "__main__":
 
 	# create the data base
 	t0 = time()
-	db = pdb2sql_alchemy('5hvd.pdb')
+	db = pdb2sql_alchemy('test_model.pdb')
 	print('ALCH %f' %(time()-t0))
 
 	# extract the xyz position of all VAL and LEU resiues of chain A but not the H atoms
-	xyz = db.get('x,y,z',chainID='A',resName=['VAL','LEU'],no_name=['H'])
+	xyz = db.get('x,y,z',model=0) #chainID='A',resName=['VAL','LEU'],no_name=['H'])
 
 	# put the data back 
-	db.update('x,y,z',xyz,chainID='A',resName=['VAL','LEU'],no_name=['H'])
+	db.update('x,y,z',xyz)#,chainID='A',resName=['VAL','LEU'],no_name=['H'])
 
 	# extract atoms
-	atoms = db.get(chainID='A',resName=['VAL','LEU'],no_name=['H'])
+	#atoms = db.get(chainID='A',resName=['VAL','LEU'],no_name=['H'])
 
-	for at in atoms:
-		print(at.name,at.x,at.y,at.z)
+	#for at in atoms:
+	#	print(at.name,at.x,at.y,at.z)

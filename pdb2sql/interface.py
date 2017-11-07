@@ -1,7 +1,7 @@
 
 import numpy as np
-#from pdb2sql import pdb2sql
-from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
+from pdb2sql import pdb2sql
+#from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
 
 '''
 Class that allows to analyze itnerface between two chains
@@ -117,8 +117,8 @@ class interface(pdb2sql):
 	def _extend_contact_to_residue(self,index1,index2,only_backbone_atoms):
 
 		# extract the data
-		dataA = super().get('chainId,resName,resSeq',rowID=index1)
-		dataB = super().get('chainId,resName,resSeq',rowID=index2)
+		dataA = super().get('chainID,resName,resSeq',rowID=index1)
+		dataB = super().get('chainID,resName,resSeq',rowID=index2)
 
 		# create tuple cause we want to hash through it
 		dataA = list(map(lambda x: tuple(x),dataA))
