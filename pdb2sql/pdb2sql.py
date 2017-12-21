@@ -95,6 +95,10 @@ class pdb2sql(object):
 		if fix_chainID:
 			self._fix_chainID()
 
+		# hard limit for the number of SQL varaibles
+		self.SQLITE_LIMIT_VARIABLE_NUMBER = 999
+		self.max_sql_values = 950
+
 	##################################################################################
 	#
 	#	CREATION AND PRINTING
@@ -507,14 +511,35 @@ class pdb2sql(object):
 					neg = ''
 
 				# get if we have an array or a scalar
-				# and buino_ld the value tuple for the sql query
+				# and build the value tuple for the sql query
 				# deal with the indexing issue if rowID is required
 				if isinstance(v,list):
 					nv = len(v)
-					if k == 'rowID':
-						vals = vals + tuple([iv+1 for iv in v ])
+
+					# if we have a large number of values
+					# we must cut that in pieces because SQL has a hard limit
+					# that is 999. The limit is here set to 950
+					# so that we can have multiple conditions with a total number
+					# of values inferior to 999
+					if nv>self.max_sql_values:
+
+						# cut in chunck
+						chunck_size = self.max_sql_values
+						vchunck = [v[i:i+chunck_size] for i in range(0,nv,chunck_size)]
+
+						data = []
+						for v in vchunck:
+							new_kwargs = kwargs.copy()
+							new_kwargs[k] = v
+							data += self.get(atnames,**new_kwargs)
+						return data
+
+					# otherwise we just go on
 					else:
-						vals = vals + tuple(v)
+						if k == 'rowID':
+							vals = vals + tuple([iv+1 for iv in v ])
+						else:
+							vals = vals + tuple(v)
 				else:
 					nv = 1
 					if k == 'rowID':
@@ -527,6 +552,22 @@ class pdb2sql(object):
 
 			# stitch the conditions and append to the query
 			query += ' AND '.join(conditions)	
+
+			# error if vals is too long
+			if len(vals)>self.SQLITE_LIMIT_VARIABLE_NUMBER:
+				print('\nError : SQL Queries can only handle a total of 999 values')
+				print('      : The current query has %d values' %len(vals))
+				print('      : Hence it will fails.')
+				print('      : You are in a rare situation where MULTIPLE conditions have')
+				print('      : have a combined number of values that are too large')
+				print('      : These conditions are:')
+				ntot = 0
+				for k,v in kwargs.items():
+					print('      : --> %10s : %d values' %(k,len(v)))
+					ntot += len(v) 
+				print('      : --> %10s : %d values' %('Total',ntot))
+				print('      : Try to decrease max_sql_values in pdb2sql.py\n')
+				raise ValueError('Too many SQL variables')
 
 			# query the sql database and return the answer in a list
 			data = [list(row) for row in self.c.execute(query,vals)]

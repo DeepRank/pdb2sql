@@ -118,6 +118,8 @@ class pdb2sql_alchemy(object):
 				del_copy = self.delimiter.copy()
 				if line[del_copy['chainID'][0]] == ' ':
 					del_copy['chainID'] = [72,73]
+				if line[del_copy['chainID'][0]] == ' ':
+					raise ValueError('chainID not found sorry')
 				_check_format_ = False 
 
 
