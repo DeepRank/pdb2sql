@@ -999,7 +999,7 @@ if __name__ == '__main__':
 
 	import time
 	BM4 = '/home/nico/Documents/projects/deeprank/data/HADDOCK/BM4_dimers/'
-	decoy = BM4 + 'decoys_pdbFLs/1AK4/water/1AK4_3w.pdb'
+	decoy = BM4 + 'decoys_pdbFLs/1AK4/water/1AK4_324w.pdb'
 	ref = BM4 + 'BM4_dimers_bound/pdbFLs_ori/1AK4.pdb'
 
 	sim = StructureSimilarity(decoy,ref)

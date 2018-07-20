@@ -1,6 +1,7 @@
 
 import numpy as np
-from pdb2sql import pdb2sql
+from .pdb2sql import pdb2sql
+
 #from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
 
 '''
@@ -39,7 +40,7 @@ class interface(pdb2sql):
 
 		# index of b
 		index2 = super().get('rowID',chainID=chain2)
-		
+
 		# resName of the chains
 		resName1 = np.array(super().get('resName',chainID=chain1))
 		resName2 = np.array(super().get('resName',chainID=chain2))

@@ -673,7 +673,7 @@ class pdb2sql(object):
 		query = query + ', '.join(map(lambda x: x+'=?',attribute))
 		if len(kwargs)>0:
 			query = query + ' WHERE rowID=?'
-			
+
 
 		# prepare the data
 		data = []
@@ -775,7 +775,7 @@ class pdb2sql(object):
 if __name__ == "__main__":
 
 	t0 = time()
-	db = pdb2sql('test_model.pdb')
+	db = pdb2sql_creator('5hvd.pdb')
 	print('SQL %f' %(time()-t0))
 
 	xyz = db.get('x,y,z',model=0)

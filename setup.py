@@ -8,6 +8,5 @@ setup(
     packages=['pdb2sql'],
     install_requires=[
         'numpy',
-        'scipy',
-        'sqlite3']
+        'scipy']
 )
