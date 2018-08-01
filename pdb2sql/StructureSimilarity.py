@@ -1,9 +1,9 @@
 import numpy as np
-from pdb2sql import pdb2sql
-from interface import interface
+from .pdb2sqlcore import pdb2sql
+from .interface import interface
 #from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
-#from pdb2sql import transform 
-import transform
+#from pdb2sql import transform
+from . import transform
 import sys,os,time,pickle
 
 '''
@@ -22,12 +22,12 @@ import sys,os,time,pickle
 
 	LRMSD Calculation
 
-			compute_lrmsd_fast 			
+			compute_lrmsd_fast
 			compute_lrmsd_pdb2sql
 
-	IRMSD Calculation 
+	IRMSD Calculation
 
-			compute_irmsd_fast 			
+			compute_irmsd_fast
 			compute_irmsd_pdb2sql
 
 	FNAT Calculation
@@ -153,7 +153,7 @@ class StructureSimilarity(object):
 		long_chain = 'A'
 		if nA<nB:
 			long_chain = 'B'
-		
+
 		# extract data about the residue
 		data_test = [tuple(data) for data in sql_ref.get('chainID,resSeq',chainID=long_chain)]
 		data_test = sorted(set(data_test))
@@ -994,55 +994,4 @@ class StructureSimilarity(object):
 
 		return U
 
-if __name__ == '__main__':
 
-
-	import time
-	BM4 = '/home/nico/Documents/projects/deeprank/data/HADDOCK/BM4_dimers/'
-	decoy = BM4 + 'decoys_pdbFLs/1AK4/water/1AK4_324w.pdb'
-	ref = BM4 + 'BM4_dimers_bound/pdbFLs_ori/1AK4.pdb'
-
-	sim = StructureSimilarity(decoy,ref)
-
-	#----------------------------------------------------------------------
-	
-	t0 = time.time()
-	irmsd_fast = sim.compute_irmsd_fast(method='svd',izone='1AK4.izone')
-	t1 = time.time()-t0
-	print('\nIRMSD TIME FAST %f in %f sec' %(irmsd_fast,t1))
-
-	t0 = time.time()
-	irmsd = sim.compute_irmsd_pdb2sql(method='svd',izone='1AK4.izone')
-	t1 = time.time()-t0
-	print('IRMSD TIME SQL %f in %f sec' %(irmsd,t1))
-
-	#----------------------------------------------------------------------
-
-	t0 = time.time()
-	lrmsd_fast = sim.compute_lrmsd_fast(method='svd',lzone='1AK4.lzone',check=True)
-	t1 = time.time()-t0
-	print('\nLRMSD TIME FAST %f in %f sec' %(lrmsd_fast,t1))
-
-	t0 = time.time()
-	lrmsd = sim.compute_lrmsd_pdb2sql(exportpath=None,method='svd')
-	t1 = time.time()-t0
-	print('LRMSD TIME SQL %f in %f sec' %(lrmsd,t1))
-
-	#----------------------------------------------------------------------
-
-	t0 = time.time()
-	Fnat = sim.compute_Fnat_pdb2sql()
-	t1 = time.time()-t0
-	print('\nFNAT TIME SQL %f in %f sec' %(Fnat,t1))
-
-
-	t0 = time.time()
-	Fnat_fast = sim.compute_Fnat_fast(ref_pairs='1AK4.ref_pairs')
-	t1 = time.time()-t0
-	print('LRMSD TIME FAST %f in %f sec' %(Fnat_fast,t1))
-
-	#----------------------------------------------------------------------
-
-	dockQ = sim.compute_DockQScore(Fnat_fast,lrmsd_fast,irmsd_fast)
-	print('\nDockQ  %f' %dockQ )
-	

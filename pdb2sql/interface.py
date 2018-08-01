@@ -1,6 +1,6 @@
 
 import numpy as np
-from .pdb2sql import pdb2sql
+from .pdb2sqlcore import pdb2sql
 
 #from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
 
@@ -214,9 +214,3 @@ class interface(pdb2sql):
 			return residue_contact_A,residue_contact_B
 
 
-if __name__ == "__main__":
-
-	db = interface('1AK4.pdb')
-	db.get_contact_atoms()
-	db.get_contact_residues()
-	
