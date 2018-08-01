@@ -40,7 +40,7 @@ db.update('x,y,z',xyz,chainID='A',resSeq=1)
 
 
 
-###### SQL Queries
+#### SQL Queries
 
 SQL queries are quite versatile and can be used to return any attribute of the atoms with rather complex selections. As an example:
 
@@ -55,7 +55,7 @@ data = db.get('name,resSeq,resName',chainID='A')
 ```
 returns the name, residue number and residue name of all the atoms in chain A.
 
-###### Negative conditions
+#### Negative conditions
 
 Negative conditions can also be used to exclude some specific atoms from the selection. For example:
 
@@ -71,7 +71,7 @@ data = db.get('name,resSeq,resName',chainID='A',no_resName=['VAL','LEU'])
 
 will exclude the LEU and VAL residues from the selection.
 
-###### Modify the database
+#### Modify the database
 
 The values of the data base can also be update with the pdb2sql.update(attribute,values,kwargs) method. For example
 
@@ -118,7 +118,7 @@ xyz = db.get('x,y,z',chainID='A',resName=['VAL','LEU'],no_name=['H'])
 db.update('x,y,z',xyz,chainID='A',resName=['VAL','LEU'],no_name=['H'])
 ```
 
-###### Return ATOM objects
+#### Return ATOM objects
 
 The main difference is the possibility to to return ATOM objects. This is achieved when no attributes are specified in the .get() call
 
