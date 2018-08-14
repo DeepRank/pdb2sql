@@ -9,11 +9,11 @@ SQLalchemy allows to have a object oriented approach but seems a bit slower.
 
 ## Installation
 
-  .Clone the repository : `git clone https://github.com/DeepRank/pdb2sql`
+  1. Clone the repository : `git clone https://github.com/DeepRank/pdb2sql`
 
-  .Go in the repo and type : `pip install -e ./`
+  2. Go in the repo and type : `pip install -e ./`
 
-  .Test by going in the test folder and type : `pytest`
+  3. Test by going in the test folder and type : `pytest`
 
 ## pdb2sql
 

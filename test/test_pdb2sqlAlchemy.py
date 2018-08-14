@@ -16,7 +16,7 @@ class TestAlchemy(unittest.TestCase):
 		# extract the xyz position of all VAL and LEU resiues of chain A but not the H atoms
 		xyz = db.get('x,y,z',model=0) #chainID='A',resName=['VAL','LEU'],no_name=['H'])
 
-		# put the data back 
+		# put the data back
 		db.update('x,y,z',xyz)#,chainID='A',resName=['VAL','LEU'],no_name=['H'])
 
 		# extract atoms

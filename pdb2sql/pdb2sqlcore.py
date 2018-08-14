@@ -80,12 +80,13 @@ class pdb2sql(object):
 	CLASS that transsform  PDB file into a sqlite database
 	'''
 
-	def __init__(self,pdbfile,sqlfile=None,fix_chainID=False,verbose=False):
+	def __init__(self,pdbfile,sqlfile=None,fix_chainID=False,verbose=False,no_extra=True):
 
 		self.pdbfile = pdbfile
 		self.sqlfile = sqlfile
 		self.is_valid = True
 		self.verbose = verbose
+		self.no_extra = no_extra
 
 		# create the database
 		self._create_sql_model()
@@ -149,7 +150,11 @@ class pdb2sql(object):
 					'z'       :[46,54],
 					'occ'     :[54,60],
 					'temp'    :[60,66]}
-	    
+
+		if self.no_extra:
+			del self.col['occ']
+			del self.col['temp']
+
 	    # size of the things
 		ncol = len(self.col)
 		ndel = len(self.delimiter)
@@ -286,11 +291,16 @@ class pdb2sql(object):
 					'z'       :[46,54],
 					'occ'     :[54,60],
 					'temp'    :[60,66]}
-	    
+
+
+		if self.no_extra:
+			del self.col['occ']
+			del self.col['temp']
+
+
 	    # size of the things
 		ncol = len(self.col)
 		ndel = len(self.delimiter)
-
 
 	    # open the data base 
 	    # if we do not specify a db name 
@@ -746,8 +756,9 @@ class pdb2sql(object):
 			line += '{: 8.3f}'.format(d[7])	#x
 			line += '{: 8.3f}'.format(d[8])	#y
 			line += '{: 8.3f}'.format(d[9])	#z
-			line += '{: 6.2f}'.format(d[10])	# occ
-			line += '{: 6.2f}'.format(d[11])	# temp
+			if not self.no_extra:
+				line += '{: 6.2f}'.format(d[10])	# occ
+				line += '{: 6.2f}'.format(d[11])	# temp
 			line += '\n'
 
 			f.write(line)

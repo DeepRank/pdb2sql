@@ -20,7 +20,7 @@ class interface(pdb2sql):
 
 	def __init__(self,pdb):
 
-		super().__init__(pdb)
+		super().__init__(pdb,no_extra=True)
 		super()._create_sql()
 		self.backbone_type  = ['CA','C','N','O']
 
@@ -38,7 +38,9 @@ class interface(pdb2sql):
 		xyz1 = np.array(super().get('x,y,z',chainID=chain1))
 		xyz2 = np.array(super().get('x,y,z',chainID=chain2))
 
+		
 		# index of b
+		index1 = super().get('rowID',chainID=chain1)
 		index2 = super().get('rowID',chainID=chain2)
 
 		# resName of the chains
@@ -51,7 +53,7 @@ class interface(pdb2sql):
 
 
 		# loop through the first chain
-		# TO DO : loop through the smallest chain instead ... 
+		# TO DO : loop through the smallest chain instead ...
 		index_contact_1,index_contact_2 = [],[]
 		index_contact_pairs = {}
 
@@ -67,19 +69,19 @@ class interface(pdb2sql):
 			if len(contacts)>0 and any([not only_backbone_atoms, atName1[i] in self.backbone_type]):
 
 				# the contact atoms
-				index_contact_1 += [i]
+				index_contact_1 += [index1[i]]
 				index_contact_2 += [index2[k] for k in contacts if ( any( [atName2[k] in self.backbone_type,  not only_backbone_atoms]) and not (excludeH and atName2[k][0]=='H') ) ]
 				
 				# the pairs
 				pairs = [index2[k] for k in contacts if any( [atName2[k] in self.backbone_type,  not only_backbone_atoms] ) and not (excludeH and atName2[k][0]=='H') ]
 				if len(pairs) > 0:
-					index_contact_pairs[i] = pairs
+					index_contact_pairs[index1[i]] = pairs
 
 		# get uniques
 		index_contact_1 = sorted(set(index_contact_1))
 		index_contact_2 = sorted(set(index_contact_2))
 
-		# if no atoms were found	
+		# if no atoms were found
 		if len(index_contact_1)==0:
 			print('Warning : No contact atoms detected in pdb2sql')
 
@@ -104,7 +106,7 @@ class interface(pdb2sql):
 			for ind1,ind2_list in index_contact_pairs.items():
 
 				if atNames[ind1] in self.backbone_type:
-					tmp_dict[ind1] = [ind2 for ind2 in ind2_list if atNames[ind2] in self.backbone_type]
+					tmp_dict[index1[ind1]] = [ind2 for ind2 in ind2_list if atNames[ind2] in self.backbone_type]
 
 			index_contact_pairs = tmp_dict
 
@@ -156,8 +158,8 @@ class interface(pdb2sql):
 		# make sure that we don't have double (maybe optional)
 		index_contact_A = sorted(set(index_contact_A))
 		index_contact_B = sorted(set(index_contact_B))
-		
-		return index_contact_A,index_contact_B		
+
+		return index_contact_A,index_contact_B
 
 
 	# get the contact residue
