@@ -38,7 +38,6 @@ class interface(pdb2sql):
 		xyz1 = np.array(super().get('x,y,z',chainID=chain1))
 		xyz2 = np.array(super().get('x,y,z',chainID=chain2))
 
-		
 		# index of b
 		index1 = super().get('rowID',chainID=chain1)
 		index2 = super().get('rowID',chainID=chain2)
@@ -71,7 +70,7 @@ class interface(pdb2sql):
 				# the contact atoms
 				index_contact_1 += [index1[i]]
 				index_contact_2 += [index2[k] for k in contacts if ( any( [atName2[k] in self.backbone_type,  not only_backbone_atoms]) and not (excludeH and atName2[k][0]=='H') ) ]
-				
+
 				# the pairs
 				pairs = [index2[k] for k in contacts if any( [atName2[k] in self.backbone_type,  not only_backbone_atoms] ) and not (excludeH and atName2[k][0]=='H') ]
 				if len(pairs) > 0:
