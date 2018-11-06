@@ -733,7 +733,7 @@ class pdb2sql(object):
         self.conn.commit()
 
 
-    def exportpdb(self,fname,**kwargs):
+    def exportpdb(self,fname,periodic=False,**kwargs):
 
         '''
         Export a PDB file with kwargs selection
@@ -747,6 +747,7 @@ class pdb2sql(object):
         # the PDB format is pretty strict
         # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
         f = open(fname,'w')
+
         for d in data:
             line = 'ATOM  '
             line += '{:>5}'.format(d[0])    # serial

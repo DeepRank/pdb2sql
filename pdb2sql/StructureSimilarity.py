@@ -58,7 +58,7 @@ class StructureSimilarity(object):
 	################################################################################################
 	#
 	#	FAST ROUTINE TO COMPUTE THE L-RMSD
-	# 	Require the precalculation of the lzone 
+	# 	Require the precalculation of the lzone
 	#	A dedicated routine is implemented to comoute the lzone
 	#	if lzone is not given in argument the routine will compute them automatically
 	#
@@ -80,7 +80,7 @@ class StructureSimilarity(object):
 		elif not os.path.isfile(lzone):
 			self.compute_lzone(save_file=True,filename=lzone)
 			resData = self.read_zone(lzone)
-		else:	
+		else:
 			resData = self.read_zone(lzone)
 
 		if check:
@@ -239,12 +239,12 @@ class StructureSimilarity(object):
 			xyz_contact_decoy = self.read_xyz_zone(self.decoy,resData)
 			xyz_contact_ref   = self.read_xyz_zone(self.ref,resData)
 
-	
+
 		# get the translation so that both A chains are centered
 		tr_decoy = self.get_trans_vect(xyz_contact_decoy)
 		tr_ref   = self.get_trans_vect(xyz_contact_ref)
 
-		# translate everything 
+		# translate everything
 		xyz_contact_decoy += tr_decoy
 		xyz_contact_ref   += tr_ref
 
@@ -353,7 +353,7 @@ class StructureSimilarity(object):
 				residue_xyz[key].append([x,y,z])
 				residue_name[key].append(name)
 
-		# loop over the residue pairs of the 
+		# loop over the residue pairs of the
 		nCommon,nTotal = 0,0
 		for resA,resB_list in residue_pairs_ref.items():
 			xyzA = residue_xyz[resA]
