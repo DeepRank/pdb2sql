@@ -6,7 +6,5 @@ setup(
     version='0.1-dev0',
     url=' ',
     packages=['pdb2sql'],
-    install_requires=[
-        'numpy',
-        'scipy']
+    install_requires=['numpy']
 )
