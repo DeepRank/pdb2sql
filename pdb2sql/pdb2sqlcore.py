@@ -710,6 +710,26 @@ class pdb2sql(object):
     def update_xyz(self,xyz,**kwargs):
         self.update('x,y,z',xyz,**kwargs)
 
+    def update_column(self,colname,values,index=None):
+        '''Update a single column.
+
+        Args:
+            colname (str): name of the column to update
+            values (list): new values of the column
+            index (None, optional): index of the column to update (default all)
+
+        Example:
+        >>> db.update_column('x',np.random.rand(10),index=list(range(10)))
+        '''
+
+        if index==None:
+            data = [ [v,i+1] for i,v in enumerate(values) ]
+        else:
+            data = [ [v,ind] for v,ind in zip(values,index)] # shouldn't that be ind+1 ?
+
+        query = 'UPDATE ATOM SET {cn}=? WHERE rowID=?'.format(cn=colname)
+        self.c.executemany(query,data)
+        #self.conn.commit()
 
     def add_column(self,colname,coltype='FLOAT',default=0):
 
