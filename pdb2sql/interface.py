@@ -48,10 +48,11 @@ class interface(pdb2sql):
 
         for chain in chainIDs:
 
-            data = np.array(super().get('x,y,z,rowID,resName',chainID=chain))
+            data = np.array(super().get('x,y,z,rowID,resName,name',chainID=chain))
             xyz[chain] = data[:,:3].astype(float)
             index[chain] = data[:,3].astype(int)
-            resName[chain] = data[:,-1]
+            resName[chain] = data[:,-2]
+            atName[chain] = data[:,-1]
 
         # # xyz of the chains
         # xyz1 = np.array(super().get('x,y,z',chainID=chain1))
@@ -83,6 +84,10 @@ class interface(pdb2sql):
             xyz1 = xyz[chain1]
             xyz2 = xyz[chain2]
 
+            atName1 = atName[chain1]
+            atName2 = atName[chain2]
+
+
             if chain1 not in index_contact:
                 index_contact[chain1] = []
 
@@ -98,16 +103,16 @@ class interface(pdb2sql):
                 if excludeH and atName1[i][0] == 'H':
                     continue
 
-            if len(contacts)>0 and any([not only_backbone_atoms, atName1[i] in self.backbone_type]):
+                if len(contacts)>0 and any([not only_backbone_atoms, atName1[i] in self.backbone_type]):
 
-                # the contact atoms
-                index_contact[chain1] += [index[chain1][i]]
-                index_contact[chain2] += [index[chain2][k] for k in contacts if ( any( [atName2[k] in self.backbone_type,  not only_backbone_atoms]) and not (excludeH and atName2[k][0]=='H') ) ]
+                    # the contact atoms
+                    index_contact[chain1] += [index[chain1][i]]
+                    index_contact[chain2] += [index[chain2][k] for k in contacts if ( any( [atName2[k] in self.backbone_type,  not only_backbone_atoms]) and not (excludeH and atName2[k][0]=='H') ) ]
 
-                # the pairs
-                pairs = [index[chan2][k] for k in contacts if any( [atName2[k] in self.backbone_type,  not only_backbone_atoms] ) and not (excludeH and atName2[k][0]=='H') ]
-                if len(pairs) > 0:
-                    index_contact_pairs[index[chain1][i]] = pairs
+                    # the pairs
+                    pairs = [index[chain2][k] for k in contacts if any( [atName2[k] in self.backbone_type,  not only_backbone_atoms] ) and not (excludeH and atName2[k][0]=='H') ]
+                    if len(pairs) > 0:
+                        index_contact_pairs[index[chain1][i]] = pairs
 
         # get uniques
         for chain in chainIDs:
