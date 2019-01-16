@@ -48,29 +48,11 @@ class interface(pdb2sql):
 
         for chain in chainIDs:
 
-            print(chain)
             data = np.array(super().get('x,y,z,rowID,resName,name',chainID=chain))
-            print(data)
             xyz[chain] = data[:,:3].astype(float)
             index[chain] = data[:,3].astype(int)
             resName[chain] = data[:,-2]
             atName[chain] = data[:,-1]
-
-        # # xyz of the chains
-        # xyz1 = np.array(super().get('x,y,z',chainID=chain1))
-        # xyz2 = np.array(super().get('x,y,z',chainID=chain2))
-
-        # # index of b
-        # index1 = super().get('rowID',chainID=chain1)
-        # index2 = super().get('rowID',chainID=chain2)
-
-        # # resName of the chains
-        # resName1 = np.array(super().get('resName',chainID=chain1))
-        # resName2 = np.array(super().get('resName',chainID=chain2))
-
-        # # atomnames of the chains
-        # atName1 = np.array(super().get('name',chainID=chain1))
-        # atName2 = np.array(super().get('name',chainID=chain2))
 
 
         # loop through the first chain
@@ -246,18 +228,16 @@ class interface(pdb2sql):
         else:
 
             # get the contact atoms
-            contact_atoms = self.get_contact_atoms(cutoff=cutoff,allchains=allchains,chain1=chain1,chain2=chain2,
+            contact_atoms = self.get_contact_atoms(cutoff=cutoff,allchains=allchains,
+                                                   chain1=chain1,chain2=chain2,
                                                    return_contact_pairs=False)
 
             # get the residue info
             data = dict()
             residue_contact = dict()
+
             for chain in contact_atoms.keys():
-                print(chain)
-                print(type(contact_atoms[chain]))
-                print(contact_atoms[chain])
-                data[chain] = super().get('chainID,resSeq,resName',rowID=list(contact_atoms[chain]))
-                print(data[chain])
+                data[chain] = super().get('chainID,resSeq,resName',rowID=contact_atoms[chain])
                 residue_contact[chain] = sorted(set([tuple(resData) for resData in data[chain]]))
 
 
