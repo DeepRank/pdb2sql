@@ -582,7 +582,6 @@ class pdb2sql(object):
             # query the sql database and return the answer in a list
             data = [list(row) for row in self.c.execute(query,vals)]
 
-            
         # empty data
         if len(data)==0:
             print('Warning sqldb.get returned an empty')

@@ -7,7 +7,7 @@ class TestSim(unittest.TestCase):
 	def test_interface(self):
 
 		db = interface(self.pdb)
-		db.get_contact_atoms()
+		#db.get_contact_atoms()
 		db.get_contact_residues()
 
 	def setUp(self):

@@ -36,7 +36,7 @@ class interface(pdb2sql):
                           excludeH=False,return_only_backbone_atoms=False,return_contact_pairs=False):
 
         if allchains:
-            chainIDs =super().get_chains()
+            chainIDs = super().get_chains()
         else:
             chainIDs = [chain1,chain2]
         nchains = len(chainIDs)
@@ -48,7 +48,9 @@ class interface(pdb2sql):
 
         for chain in chainIDs:
 
+            print(chain)
             data = np.array(super().get('x,y,z,rowID,resName,name',chainID=chain))
+            print(data)
             xyz[chain] = data[:,:3].astype(float)
             index[chain] = data[:,3].astype(int)
             resName[chain] = data[:,-2]
@@ -214,7 +216,7 @@ class interface(pdb2sql):
             residue_contact_pairs = {}
 
             # get the contact atom pairs
-            atom_pairs = self.get_contact_atoms(cutoff=cutoff,allchains=False,chain1=chain1,chain2=chain2,
+            atom_pairs = self.get_contact_atoms(cutoff=cutoff,allchains=allchains,chain1=chain1,chain2=chain2,
                                                 only_backbone_atoms=only_backbone_atoms,
                                                 excludeH=excludeH,
                                                 return_contact_pairs=True)
@@ -244,13 +246,18 @@ class interface(pdb2sql):
         else:
 
             # get the contact atoms
-            contact_atoms = self.get_contact_atoms(cutoff=cutoff,allchains=False,chain1=chain1,chain2=chain2,return_contact_pairs=False)
+            contact_atoms = self.get_contact_atoms(cutoff=cutoff,allchains=allchains,chain1=chain1,chain2=chain2,
+                                                   return_contact_pairs=False)
 
             # get the residue info
             data = dict()
             residue_contact = dict()
             for chain in contact_atoms.keys():
-                data[chain] = super().get('chainID,resSeq,resName',rowID=contact_atoms[chain])
+                print(chain)
+                print(type(contact_atoms[chain]))
+                print(contact_atoms[chain])
+                data[chain] = super().get('chainID,resSeq,resName',rowID=list(contact_atoms[chain]))
+                print(data[chain])
                 residue_contact[chain] = sorted(set([tuple(resData) for resData in data[chain]]))
 
 
