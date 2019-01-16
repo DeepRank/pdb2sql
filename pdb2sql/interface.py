@@ -136,14 +136,14 @@ class interface(pdb2sql):
 		# contact of chain A
 		for resdata in resA:
 			chainID,resName,resSeq = resdata
-			
+
 			if only_backbone_atoms:
 				index = super().get('rowID',chainID=chainID,resName=resName,resSeq=resSeq)
 				name = super().get('name',chainID=chainID,resName=resName,resSeq=resSeq)
 				index_contact_A += [ ind for ind,n in zip(index,name) if n in self.backbone_type ]
 			else:
 				index_contact_A += super().get('rowID',chainID=chainID,resName=resName,resSeq=resSeq)
-		
+
 		# contact of chain B
 		for resdata in resB:
 			chainID,resName,resSeq = resdata
