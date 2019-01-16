@@ -64,7 +64,7 @@ class interface(pdb2sql):
         index_contact_pairs = {}
 
         for chain1,chain2 in itertools.combinations(chainIDs,2):
-
+            
             xyz1 = xyz[chain1]
             xyz2 = xyz[chain2]
 

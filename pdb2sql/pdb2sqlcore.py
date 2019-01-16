@@ -618,7 +618,7 @@ class pdb2sql(object):
         '''
         get the chain IDS
         '''
-        chains = self.get('chainID',**kwags)
+        chains = self.get('chainID',**kwargs)
         return sorted(set(chains))
 
 
