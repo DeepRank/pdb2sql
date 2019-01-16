@@ -615,6 +615,14 @@ class pdb2sql(object):
         res = [tuple(x) for x  in self.get('chainID,resName,resSeq',**kwargs)]
         return sorted(set(res),key=res.index)
 
+    def get_chains(self,**kwargs):
+        '''
+        get the chain IDS
+        '''
+        chains = self.get('chainID',**kwags)
+        return sorted(set(chains))
+
+
     ############################################################################################
     #
     #       UPDATE FUNCTIONS
