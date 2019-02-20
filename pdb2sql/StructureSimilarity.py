@@ -185,14 +185,12 @@ class StructureSimilarity(object):
 			return resData
 
 
-	
-
 	################################################################################################
 	#
 	#	FAST ROUTINE TO COMPUTE THE I-RMSD
-	# 	Require the precalculation of the izone 
+	# 	Require the precalculation of the izone
 	#	A dedicated routine is implemented to comoute the izone
-	#	if izone is not given in argument the routine will compute them autimatcally
+	#	if izone is not given in argument the routine will compute them automatcally
 	#
 	#################################################################################################
 
