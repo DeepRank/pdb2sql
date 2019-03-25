@@ -547,13 +547,13 @@ class pdb2sql(object):
                     # otherwise we just go on
                     else:
                         if k == 'rowID':
-                            vals = vals + tuple([iv+1 for iv in v ])
+                            vals = vals + tuple([int(iv+1) for iv in v ])
                         else:
                             vals = vals + tuple(v)
                 else:
                     nv = 1
                     if k == 'rowID':
-                        vals = vals + (v+1,)
+                        vals = vals + (int(v+1),)
                     else:
                         vals = vals + (v,)
 
@@ -561,7 +561,7 @@ class pdb2sql(object):
                 conditions.append(k + neg + ' in (' + ','.join('?'*nv) + ')')
 
             # stitch the conditions and append to the query
-            query += ' AND '.join(conditions)   
+            query += ' AND '.join(conditions)
 
             # error if vals is too long
             if len(vals)>self.SQLITE_LIMIT_VARIABLE_NUMBER:
@@ -582,7 +582,6 @@ class pdb2sql(object):
             # query the sql database and return the answer in a list
             data = [list(row) for row in self.c.execute(query,vals)]
 
-            
         # empty data
         if len(data)==0:
             print('Warning sqldb.get returned an empty')
@@ -614,6 +613,14 @@ class pdb2sql(object):
         '''
         res = [tuple(x) for x  in self.get('chainID,resName,resSeq',**kwargs)]
         return sorted(set(res),key=res.index)
+
+    def get_chains(self,**kwargs):
+        '''
+        get the chain IDS
+        '''
+        chains = self.get('chainID',**kwargs)
+        return sorted(set(chains))
+
 
     ############################################################################################
     #

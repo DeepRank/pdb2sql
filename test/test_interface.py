@@ -6,12 +6,14 @@ class TestSim(unittest.TestCase):
 
 	def test_interface(self):
 
+
 		db = interface(self.pdb)
-		db.get_contact_atoms()
-		db.get_contact_residues()
+
+		#db.get_contact_atoms()
+		db.get_contact_residues(chain1='A',chain2='C',allchains=True)
 
 	def setUp(self):
-		self.pdb = 'pdb/1AK4.pdb'
+		self.pdb = 'pdb/target136-scoring_0506_conv.pdb'
 
 if __name__ == '__main__':
     unittest.main()
