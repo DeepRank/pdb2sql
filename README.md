@@ -6,6 +6,7 @@ The project grew out of the developement of DeepRank and is still very much in d
 At the moment two strategies are developped one using SQLite3 and the other SQLalchemy.
 SQLalchemy allows to have a object oriented approach but seems a bit slower.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3232888.svg)](https://doi.org/10.5281/zenodo.3232888)
 
 ## Installation
 
