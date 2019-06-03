@@ -35,8 +35,10 @@ class interface(pdb2sql):
                           extend_to_residue=False,only_backbone_atoms=False,
                           excludeH=False,return_only_backbone_atoms=False,return_contact_pairs=False):
 
-        if allchains:
+        if allchains is True:
             chainIDs = super().get_chains()
+        elif isinstance(allchains,list):
+            chainIDs = allchains
         else:
             chainIDs = [chain1,chain2]
         nchains = len(chainIDs)

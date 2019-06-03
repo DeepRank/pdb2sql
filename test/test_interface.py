@@ -10,10 +10,11 @@ class TestSim(unittest.TestCase):
 		db = interface(self.pdb)
 
 		#db.get_contact_atoms()
-		db.get_contact_residues(chain1='A',chain2='C',allchains=True)
+		db.get_contact_residues(chain1='A',chain2='B',allchains=True)
 
 	def setUp(self):
-		self.pdb = 'pdb/target136-scoring_0506_conv.pdb'
+		#self.pdb = 'pdb/target136-scoring_0506_conv.pdb'
+		self.pdb = 'pdb/1AK4.pdb'
 
 if __name__ == '__main__':
     unittest.main()
