@@ -632,10 +632,10 @@ class pdb2sql(object):
     #                               'x,y,z'      --> update the x y z in an array of tuple
     #                               'resSeq'     --> update the resSeq in an array
     #
-    #           values    : an array of values that corresponds to the number of 
-    #                       attributes and number of atom seleted 
-    #                       format : nATOM x nAttribute 
-    #       
+    #           values    : an array of values that corresponds to the number of
+    #                       attributes and number of atom seleted
+    #                       format : nATOM x nAttribute
+    #
     #           **kwargs  : example name = ['CA','O'], return only the atom whose name are CA or O
     #                               chainID = 'A'      return only the atom of chainID A
     #                               no_name = ['H']    return all atoms except the H
@@ -649,7 +649,7 @@ class pdb2sql(object):
     def update(self,attribute,values,**kwargs):
 
         # the asked keys
-        keys = kwargs.keys()            
+        keys = kwargs.keys()
 
         # check if the column exists
         try:
