@@ -57,11 +57,11 @@ class interface(pdb2sql):
 
         # loop through the first chain
         # TO DO : loop through the smallest chain instead ...
-        index_contact_1,index_contact_2 = [],[]
-        index_contact_pairs = {}
+        #index_contact_1,index_contact_2 = [],[]
+        #index_contact_pairs = {}
 
         index_contact = dict()
-        index_contact_pairs = {}
+        index_contact_pairs = dict()
 
         for chain1,chain2 in itertools.combinations(chainIDs,2):
 
@@ -110,7 +110,7 @@ class interface(pdb2sql):
         # extend the list to entire residue
         if extend_to_residue:
             for chain in chainIDs:
-                index_contact[chain] = self._extend_contact_to_residue(index_contact_1,only_backbone_atoms)
+                index_contact[chain] = self._extend_contact_to_residue(index_contact[chain],only_backbone_atoms)
             #index_contact_1,index_contact_2 = self._extend_contact_to_residue(index_contact_1,index_contact_2,only_backbone_atoms)
 
 

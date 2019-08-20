@@ -262,7 +262,11 @@ class StructureSimilarity(object):
 
         sql_ref = interface(self.ref)
         contact_ref = sql_ref.get_contact_atoms(cutoff=cutoff,extend_to_residue=True,return_only_backbone_atoms=True)
-        index_contact_ref = contact_ref[0]+contact_ref[1]
+        
+        index_contact_ref = []
+        for k,v in contact_ref.items():
+        	index_contact_ref += v
+        #index_contact_ref = contact_ref[0]+contact_ref[1]
 
         # get the xyz and atom identifier of the decoy contact atoms
         xyz_contact_ref = sql_ref.get('x,y,z',rowID=index_contact_ref)
@@ -383,6 +387,7 @@ class StructureSimilarity(object):
 
             # save as pickle
             pickle.dump(residue_pairs_ref,f)
+            f.close()
             return
         else:
             return residue_pairs_ref
