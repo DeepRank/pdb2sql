@@ -4,7 +4,7 @@ from .pdb2sqlcore import pdb2sql
 
 '''
 This file contains several transformations of the
-molecular coordinate that might be usefull during the 
+molecular coordinate that might be usefull during the
 definition of the data set.
 '''
 
@@ -47,7 +47,7 @@ def _rotation_around_axis(xyz,axis,angle):
     # apply the rotation
     return np.dot(rot_mat,(xyz-xyz0).T).T + xyz0
 
-        
+
 def _rotation_euler(xyz,alpha,beta,gamma):
 
     # precomte the trig
@@ -82,7 +82,7 @@ def _get_xyz(db,**kwargs):
     return  np.array(db.get('x,y,z',**kwargs))
 
 def _update(db,xyz,**kwargs):
-    db.update('x,y,z',xyz,**kwargs) 
+    db.update('x,y,z',xyz,**kwargs)
 
 
 if __name__ == "__main__":

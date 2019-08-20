@@ -312,10 +312,12 @@ class StructureSimilarity(object):
 
         elif not os.path.isfile(ref_pairs):
             self.compute_residue_pairs_ref(cutoff,save_file=True,filename=ref_pairs)
-            residue_pairs_ref = pickle.load(open(ref_pairs,'rb'))
+            with open(ref_pairs,'rb') as f:
+            	residue_pairs_ref = pickle.load(f)
 
         else:
-            residue_pairs_ref = pickle.load(open(ref_pairs,'rb'))
+            with open(ref_pairs,'rb') as f:
+            	residue_pairs_ref = pickle.load(f)
 
         # create a dict of the ecoy data
         with open(self.decoy,'r') as f:
