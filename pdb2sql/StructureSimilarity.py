@@ -480,17 +480,25 @@ class StructureSimilarity(object):
             # extract the pos of the dimer
             xyz_decoy = np.array(sql_decoy.get('x,y,z'))
             xyz_ref = np.array(sql_ref.get('x,y,z'))
+            print(xyz_decoy)
 
             # translate
             xyz_ref   += tr_ref
             xyz_decoy += tr_decoy
-            
+            print(xyz_decoy)
+
             # rotate decoy
-            xyz_decoy= transform.rotation_matrix(xyz_decoy,U,center=False)
+            xyz_decoy = transform.rotation_matrix(xyz_decoy,U,center=False)
+            print(xyz_decoy)
 
             # update the sql database
-            sql_decoy.update_xyz(xyz_decoy)
-            sql_ref.update_xyz(xyz_ref)     
+            sql_decoy.update_column('x',xyz_decoy[:,0])
+            sql_decoy.update_column('y',xyz_decoy[:,1])
+            sql_decoy.update_column('z',xyz_decoy[:,2])
+
+            sql_ref.update_column('x',xyz_ref[:,0])
+            sql_ref.update_column('y',xyz_ref[:,1])
+            sql_ref.update_column('z',xyz_ref[:,2])     
 
             # export
             sql_decoy.exportpdb(exportpath+'/lrmsd_decoy.pdb')
@@ -552,12 +560,27 @@ class StructureSimilarity(object):
         sql_ref = pdb2sql(self.ref)
 
         # get the contact atoms
-        if izone is None:
-            contact_ref = sql_ref.get_contact_atoms(cutoff=cutoff,extend_to_residue=True,return_only_backbone_atoms=True)
-            index_contact_ref = contact_ref[0]+contact_ref[1]
-        else:
-            index_contact_ref = self.get_izone_rowID(sql_ref,izone,return_only_backbone_atoms=True)
+        # if izone is None:
+        #     contact_ref = sql_ref.get_contact_atoms(cutoff=cutoff,extend_to_residue=True,return_only_backbone_atoms=True)
+        #     index_contact = []
+        #     for k in contact_ref.keys():
+        #         index_contact_ref += contact_ref[k]
+        # else:
+        #     index_contact_ref = self.get_izone_rowID(sql_ref,izone,return_only_backbone_atoms=True)
 
+
+        # read the izone file
+        if izone is None:
+            resData = self.compute_izone(cutoff,save_file=False)
+        elif not os.path.isfile(izone):
+            self.compute_izone(cutoff,save_file=True,filename=izone)
+            resData = self.read_zone(izone)
+        else:
+            resData = self.read_zone(izone)
+
+        index_contact = []
+        for k in resData.keys():
+                index_contact_ref += resData[k]
 
         # get the xyz and atom identifier of the decoy contact atoms
         xyz_contact_ref = sql_ref.get('x,y,z',rowID=index_contact_ref)
