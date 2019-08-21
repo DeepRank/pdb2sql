@@ -109,6 +109,7 @@ class StructureSimilarity(object):
                     ind_ref = atom_ref_short.index(at)
                     xyz_decoy_short.append(data_decoy_short[ind_decoy][3:])
                     xyz_ref_short.append(data_ref_short[ind_ref][3:])
+                    
                 except:
                     pass
 
