@@ -1,4 +1,3 @@
 numpy
-sqlite3
 sqlalchemy
 pickle
