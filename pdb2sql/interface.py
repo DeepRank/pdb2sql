@@ -5,24 +5,14 @@ from .pdb2sqlcore import pdb2sql
 
 #from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
 
-'''
-Class that allows to analyze itnerface between two chains
-of a given complex
-
-Works with pdb2sql AND pdb2sql_alchemy
-Some methods an be made simpler using alcemy specific queries
-
-We could also returns a series of OBJECTS instead of the raw data
-
-'''
-
 
 class interface(pdb2sql):
 
     def __init__(self,pdb):
+        '''Identify interface between protein chains.'''
 
-        super().__init__(pdb,no_extra=True)
-        super()._create_sql()
+        pdb2sql.__init__(self,pdb,no_extra=True)
+        self._create_sql()
         self.backbone_type  = ['CA','C','N','O']
 
     ############################################################################
@@ -36,7 +26,7 @@ class interface(pdb2sql):
                           excludeH=False,return_only_backbone_atoms=False,return_contact_pairs=False):
 
         if allchains:
-            chainIDs = super().get_chains()
+            chainIDs = self.get_chains()
         else:
             chainIDs = [chain1,chain2]
         nchains = len(chainIDs)
@@ -48,12 +38,11 @@ class interface(pdb2sql):
 
         for chain in chainIDs:
 
-            data = np.array(super().get('x,y,z,rowID,resName,name',chainID=chain))
+            data = np.array(self.get('x,y,z,rowID,resName,name',chainID=chain))
             xyz[chain] = data[:,:3].astype(float)
             index[chain] = data[:,3].astype(int)
             resName[chain] = data[:,-2]
             atName[chain] = data[:,-1]
-
 
         # loop through the first chain
         # TO DO : loop through the smallest chain instead ...
@@ -111,7 +100,6 @@ class interface(pdb2sql):
         if extend_to_residue:
             for chain in chainIDs:
                 index_contact[chain] = self._extend_contact_to_residue(index_contact[chain],only_backbone_atoms)
-            #index_contact_1,index_contact_2 = self._extend_contact_to_residue(index_contact_1,index_contact_2,only_backbone_atoms)
 
 
         # filter only the backbone atoms
@@ -119,7 +107,7 @@ class interface(pdb2sql):
 
             # get all the names
             # there are better ways to do that !
-            atNames = np.array(super().get('name'))
+            atNames = np.array(self.get('name'))
 
             # change the index_contacts
             for chain in chainIDs:
@@ -145,8 +133,8 @@ class interface(pdb2sql):
     def _extend_contact_to_residue(self,index1,only_backbone_atoms):
 
         # extract the data
-        dataA = super().get('chainID,resName,resSeq',rowID=index1)
-        #dataB = super().get('chainID,resName,resSeq',rowID=index2)
+        dataA = self.get('chainID,resName,resSeq',rowID=index1)
+        #dataB = self.get('chainID,resName,resSeq',rowID=index2)
 
         # create tuple cause we want to hash through it
         dataA = list(map(lambda x: tuple(x),dataA))
@@ -164,27 +152,16 @@ class interface(pdb2sql):
             chainID,resName,resSeq = resdata
 
             if only_backbone_atoms:
-                index = super().get('rowID',chainID=chainID,resName=resName,resSeq=resSeq)
-                name = super().get('name',chainID=chainID,resName=resName,resSeq=resSeq)
+                index = self.get('rowID',chainID=chainID,resName=resName,resSeq=resSeq)
+                name = self.get('name',chainID=chainID,resName=resName,resSeq=resSeq)
                 index_contact_A += [ ind for ind,n in zip(index,name) if n in self.backbone_type ]
             else:
-                index_contact_A += super().get('rowID',chainID=chainID,resName=resName,resSeq=resSeq)
-
-        # # contact of chain B
-        # for resdata in resB:
-        #     chainID,resName,resSeq = resdata
-        #     if only_backbone_atoms:
-        #         index = self.get('rowID',chainID=chainID,resName=resName,resSeq=resSeq)
-        #         name = self.get('name',chainID=chainID,resName=resName,resSeq=resSeq)
-        #         index_contact_B += [ ind for ind,n in zip(index,name) if n in self.backbone_type ]
-        #     else:
-        #         index_contact_B += super().get('rowID',chainID=chainID,resName=resName,resSeq=resSeq)
+                index_contact_A += self.get('rowID',chainID=chainID,resName=resName,resSeq=resSeq)
 
         # make sure that we don't have double (maybe optional)
         index_contact_A = sorted(set(index_contact_A))
-        #index_contact_B = sorted(set(index_contact_B))
-
-        return index_contact_A #,index_contact_B
+        
+        return index_contact_A 
 
 
     # get the contact residue
@@ -207,14 +184,14 @@ class interface(pdb2sql):
             for iat1,atoms2 in atom_pairs.items():
 
                 # get the res info of the current atom
-                data1 = tuple(super().get('chainID,resSeq,resName',rowID=[iat1])[0])
+                data1 = tuple(self.get('chainID,resSeq,resName',rowID=[iat1])[0])
 
                 # create a new entry in the dict if necessary
                 if data1 not in residue_contact_pairs:
                     residue_contact_pairs[data1] = set()
 
                 # get the res info of the atom in the other chain
-                data2 = super().get('chainID,resSeq,resName',rowID=atoms2)
+                data2 = self.get('chainID,resSeq,resName',rowID=atoms2)
 
                 # store that in the dict without double
                 for resData in data2:
@@ -237,7 +214,7 @@ class interface(pdb2sql):
             residue_contact = dict()
 
             for chain in contact_atoms.keys():
-                data[chain] = super().get('chainID,resSeq,resName',rowID=contact_atoms[chain])
+                data[chain] = self.get('chainID,resSeq,resName',rowID=contact_atoms[chain])
                 residue_contact[chain] = sorted(set([tuple(resData) for resData in data[chain]]))
 
 
