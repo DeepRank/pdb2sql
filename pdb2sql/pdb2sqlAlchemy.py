@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.schema import Sequence
 from sqlalchemy.orm import sessionmaker
-
+from .pdb2sql_base import pdb2sql_base
 from time import time
 import re 
 
@@ -13,6 +13,7 @@ Base = declarative_base()
 
 
 class ATOM(Base):
+    '''SQLAlchemy object for atoms.'''
 
     __tablename__ = 'ATOM'
     rowID = Column(Integer,primary_key=True)
@@ -31,58 +32,14 @@ class ATOM(Base):
     model = Column(Integer,nullable=False)
 
 
-class pdb2sql_alchemy(object):
+class pdb2sql_alchemy(pdb2sql_base):
 
-    def __init__(self,pdbfile,sqlfile=None,fix_chainID=False,verbose=False):
-
-        self.pdbfile = pdbfile
-        self.sqlfile = sqlfile
-        self.verbose = verbose
-
+    def __init__(self,pdbfile,sqlfile=None,fix_chainID=False,verbose=False,no_extra=True):
+        '''Use sqlAlchemy to load the database.'''
+        super().__init__(pdbfile,sqlfile,fix_chainID,verbose,no_extra)
         self._create_sql()
 
-    ############################################################################################
-    #
-    #   CREATE THE DB
-    #
-    ############################################################################################
-
     def _create_sql(self):
-
-        pdbfile = self.pdbfile
-        sqlfile = self.sqlfile
-
-
-        # column names and types
-        self.col = {'serial' : 'INT',
-               'name'   : 'TEXT',
-               'altLoc' : 'TEXT',
-               'resName' : 'TEXT',
-               'chainID' : 'TEXT',
-               'resSeq'  : 'INT',
-               'iCode'   : 'TEXT',
-               'x'       : 'REAL',
-               'y'       : 'REAL',
-               'z'       : 'REAL',
-               'occ'     : 'REAL',
-               'temp'    : 'REAL',
-               'model'   : 'INT'}
-
-        # delimtier of the column format
-        # taken from http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
-        self.delimiter = {
-                    'serial' : [6,11],
-                    'name'   : [12,16],
-                    'altLoc' : [16,17],
-                    'resName' :[17,20],
-                    'chainID' :[21,22],
-                    'resSeq'  :[22,26],
-                    'iCode'   :[26,26],
-                    'x'       :[30,38],
-                    'y'       :[38,46],
-                    'z'       :[46,54],
-                    'occ'     :[54,60],
-                    'temp'    :[60,66]}
 
         # sqlalchemy init
         self.engine = create_engine('sqlite:///:memory:')
@@ -90,14 +47,13 @@ class pdb2sql_alchemy(object):
         DBSession = sessionmaker(bind=self.engine)
         self.session = DBSession()
 
-
         # read the pdb file a pure python way
         # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ... 
         # we could do better than that. But the most time consuming step seems to be the CREATE TABLE query
         #with open(pdbfile,'r') as fi:
         #   data = [line.split('\n')[0] for line in fi if line.startswith('ATOM')]
 
-        fi = open(pdbfile,'r')
+        fi = open(self.pdbfile,'r')
         self.nModel = 0
         _check_format = True
 
@@ -149,29 +105,23 @@ class pdb2sql_alchemy(object):
             self.session.add(newat)
 
         self.session.commit()
-
-
-    ############################################################################################
-    #
-    #       GET FUNCTIONS
-    #
-    #           get(self,attribute,selection) -> return the atribute(s) value(s) for the given selection 
-    #               
-    #           attribute : example ['x','y,'z'] --> return the x y z in an array of tuple
-    #                               'x,y,z'      --> return the x y z in an array of tuple
-    #                               'resSeq'     --> return the resSeq in an array
-    #                                None        --> return a list of ATOM objects
-    #       
-    #           **kwargs  : example name = ['CA','O'], return only the atom whose name are CA or O
-    #                               chainID = 'A'      return only the atom of chainID A
-    #                               no_name = ['H']    return all atoms except the H
-    #
-    #       RMK : The rowID starts at 0 in the SLQ database. The rowID are etherefore converted 
-    #             to start at 0 both in the attribute and the conditions
-    ###############################################################################################
-
+        fi.close()
+        
     def get(self,attribute=None,**kwargs):
+        '''Exectute a simple SQL query that extracts values of attributes for certain condition.
 
+        Args :
+            attribute (str) : attribute to retreive eg : ['x','y,'z'], 'xyz', 'resSeq'
+                              if None all the attributes are returned
+
+            **kwargs : argument to select atoms eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+
+        Returns:
+            data : array containing the value of the attributes
+        
+        Example :
+        >>> db.get('x,y,z',chainID='A',no_name=['H']")
+        '''
 
         # parse the commas in the attribute
         if attribute is not None:
@@ -245,31 +195,18 @@ class pdb2sql_alchemy(object):
                 else:
                     return [ atom.__dict__[attribute]-1 if attribute=='rowID' else atom.__dict__[attribute]   for atom in atom_list ]
 
-    ############################################################################################
-    #
-    #       UPDATE FUNCTIONS
-    #
-    #           update(self,attribute,values,selection) -> update the atribute(s) value(s) for the given selection 
-    #               
-    #           attribute : example ['x','y,'z'] --> update the x y z in an array of tuple
-    #                               'x,y,z'      --> update the x y z in an array of tuple
-    #                               'resSeq'     --> update the resSeq in an array
-    # 
-    #           values    : an array of values that corresponds to the number of 
-    #                       attributes and number of atom seleted 
-    #                       format : nATOM x nAttribute 
-    #       
-    #           **kwargs  : example name = ['CA','O'], return only the atom whose name are CA or O
-    #                               chainID = 'A'      return only the atom of chainID A
-    #                               no_name = ['H']    return all atoms except the H
-    #
-    #
-    #
-    #       RMK : The rowID starts at 0 in the SLQ database. The rowID are etherefore converted 
-    #             to start at 0 both in the attribute and the conditions
-    ###############################################################################################
 
     def update(self,attribute,values,**kwargs):
+        '''Update the database.
+
+        Args:
+            attribute (str) : string of attribute names eg. ['x','y,'z'], 'xyz', 'resSeq'
+
+            values (np.ndarray) : an array of values that corresponds 
+                                  to the number of attributes and atoms selected
+
+            **kwargs : selection arguments eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+        '''
 
         # parse the commas in the attribute
         if ',' in attribute:
@@ -359,63 +296,8 @@ class pdb2sql_alchemy(object):
             
         self.session.commit()
 
-    ###################################################################################################
-    #
-    #   Export a pdb file   
-    #
-    ###################################################################################################
 
-    def exportpdb(self,fname,**kwargs):
 
-        '''
-        Export a PDB file with kwargs selection
-        not pretty so far but functional
-        '''
-
-        # get the data
-        data = self.get('*',**kwargs)
-
-        # write each line
-        # the PDB format is pretty strict
-        # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
-        f = open(fname,'w')
-        for d in data:
-            line = 'ATOM  '
-            line += '{:>5}'.format(d[0])    # serial
-            line += ' '
-            line += '{:^4}'.format(d[1])    # name
-            line += '{:>1}'.format(d[2])    # altLoc
-            line += '{:>3}'.format(d[3])    #resname
-            line += ' '
-            line += '{:>1}'.format(d[4])    # chainID
-            line += '{:>4}'.format(d[5])    # resSeq
-            line += '{:>1}'.format(d[6])    # iCODE
-            line += '   '
-            line += '{: 8.3f}'.format(d[7]) #x
-            line += '{: 8.3f}'.format(d[8]) #y
-            line += '{: 8.3f}'.format(d[9]) #z
-            line += '{: 6.2f}'.format(d[10])    # occ
-            line += '{: 6.2f}'.format(d[11])    # temp
-            line += '\n'
-
-            f.write(line)
-
-        # close
-        f.close()
-
-    def close(self,rmdb = True):
-        
-        if self.sqlfile is None:
-            self.conn.close()
-
-        else:
-
-            if rmdb:
-                self.conn.close() 
-                os.system('rm %s' %(self.sqlfile))
-            else:
-                self.commit()
-                self.conn.close() 
 
 
 

@@ -4,93 +4,18 @@ import os
 import numpy as np
 from time import time
 
-'''
-Class that allows to create a SQL data base for a PDB file
-This allows to easily extract information of the PDB using SQL queries
-
-USAGE db = pdb2sql('XXX.pdb')
-
-A few SQL querry wrappers have been implemented 
-
-    
-    self.get(attribute_name,**kwargs)
-    
-        Get the value(s) of the attribute(s) for possible selection of the db
-
-        attributename   :   must be a valid attribute name. 
-                            you can get these names via the get_colnames()
-                            serial, name, atLoc,resName,chainID, resSeq,iCode,x,y,z,occ,temp
-                            you can specify more than one attribute name at once e.g 'x,y,z'
-
-        keyword args    :   Several options are possible
-                            None : return the entire table
-
-                            chainID = 'X' return the values of that chain
-                            name  = 'CA' only these atoms
-                            indexID = [0,1,2,3] return only those rows (not serial) 
+from .pdb2sql_base import pdb2sql_base
 
 
-        example         :
-
-                            db = pdb2sql(filename)
-                            xyz  = db.get('x,y,z',index=[0,1,2,3])
-                            name = db.get('name',where="resName='VAL'")
-
-    self.put(attribute_name,value,**kwargs)
-
-        Update the value of the attribute with value specified with possible selection
-
-        attributename   :   must be a valid attribute name. 
-                            you can get these names via the get_colnames()
-                            serial, name, atLoc,resName,chainID, resSeq,iCode,x,y,z,occ,temp
-                            you can specify more than one attribute name at once e.g 'x,y,z'
-
-        keyword args    :   Several options are possible
-                            None : put the value in the entire column
-
-                            index = [0,1,2,3] in only these indexes (not serial)
-                            where = "chainID='B'" only for this chain
-                            query = general SQL Query
-
-        example         :
-
-                            db = pdb2sql(filename)
-                            db.add_column('CHARGE')
-                            db.put('CHARGE',1.25,index=[1])                         
-                            db.close()
-
-
-    Other queries have been made user friendly
-
-    - self.add_column(column_name,coltype='FLOAT',default=0)
-    - self.update_column(colname,values,index=None)
-    - self.update_xyz(new_xyz,index=None)
-    - self.commit()
-
-    TO DO 
-
-    - Add more user friendly wrappers to SQL queries
-    - Make use of the ? more often to prevent quoting issues and SQL injection attack 
-
-'''
-
-class pdb2sql(object):
-
-    '''
-    CLASS that transsform  PDB file into a sqlite database
-    '''
+class pdb2sql(pdb2sql_base):
 
     def __init__(self,pdbfile,sqlfile=None,fix_chainID=False,verbose=False,no_extra=True):
+        '''Use SQLlite3 to load the database.'''
+        super().__init__(pdbfile,sqlfile,fix_chainID,verbose,no_extra)
 
-        self.pdbfile = pdbfile
-        self.sqlfile = sqlfile
-        self.is_valid = True
-        self.verbose = verbose
-        self.no_extra = no_extra
 
         # create the database
-        self._create_sql_model()
-
+        self._create_sql()
 
         # fix the chain ID
         if fix_chainID:
@@ -99,18 +24,10 @@ class pdb2sql(object):
         # hard limit for the number of SQL varaibles
         self.SQLITE_LIMIT_VARIABLE_NUMBER = 999
         self.max_sql_values = 950
+    
 
-    ##################################################################################
-    #
-    #   CREATION AND PRINTING
-    #
-    ##################################################################################
-
-    '''
-    Main function to create the SQL data base
-    '''
-    def _create_sql_model(self):
-
+    def _create_sql(self):
+        '''Create a sql database containg a model PDB.'''
         pdbfile = self.pdbfile
         sqlfile = self.sqlfile
 
@@ -248,139 +165,6 @@ class pdb2sql(object):
         #  close the file
         fi.close()
 
-    '''
-    Main function to create the SQL data base
-    '''
-    def _create_sql(self):
-
-        pdbfile = self.pdbfile
-        sqlfile = self.sqlfile
-
-        if self.verbose:
-            print('-- Create SQLite3 database')
-
-         #name of the table
-        table = 'ATOM'
-
-        # column names and types
-        self.col = {'serial' : 'INT',
-               'name'   : 'TEXT',
-               'altLoc' : 'TEXT',
-               'resName' : 'TEXT',
-               'chainID' : 'TEXT',
-               'resSeq'  : 'INT',
-               'iCode'   : 'TEXT',
-               'x'       : 'REAL',
-               'y'       : 'REAL',
-               'z'       : 'REAL',
-               'occ'     : 'REAL',
-               'temp'    : 'REAL'}
-
-        # delimtier of the column format
-        # taken from http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
-        self.delimiter = {
-                    'serial' : [6,11],
-                    'name'   : [12,16],
-                    'altLoc' : [16,17],
-                    'resName' :[17,20],
-                    'chainID' :[21,22],
-                    'resSeq'  :[22,26],
-                    'iCode'   :[26,26],
-                    'x'       :[30,38],
-                    'y'       :[38,46],
-                    'z'       :[46,54],
-                    'occ'     :[54,60],
-                    'temp'    :[60,66]}
-
-
-        if self.no_extra:
-            del self.col['occ']
-            del self.col['temp']
-
-
-        # size of the things
-        ncol = len(self.col)
-        ndel = len(self.delimiter)
-
-        # open the data base 
-        # if we do not specify a db name 
-        # the db is only in RAM
-        if self.sqlfile is None:
-            self.conn = sqlite3.connect(':memory:')
-
-        # or we create a new db file
-        else:
-            if os.path.isfile(sqlfile):
-                sp.call('rm %s' %sqlfile,shell=True)
-            self.conn = sqlite3.connect(sqlfile)
-        self.c = self.conn.cursor()
-
-        # intialize the header/placeholder
-        header,qm = '',''
-        for ic,(colname,coltype) in enumerate(self.col.items()):
-            header += '{cn} {ct}'.format(cn=colname,ct=coltype)
-            qm += '?'
-            if ic < ncol-1:
-                header += ', '
-                qm += ','
-
-        # create the table
-        query = 'CREATE TABLE ATOM ({hd})'.format(hd=header)
-        self.c.execute(query)
-        
-
-        # read the pdb file a pure python way
-        # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ... 
-        # we could do better than that. But the most time consuming step seems to be the CREATE TABLE query
-        with open(pdbfile,'r') as fi:
-            data = [line.split('\n')[0] for line in fi if line.startswith('ATOM')]
-
-
-        # if there is no ATOM in the file
-        if len(data)==1 and data[0]=='':
-            print("-- Error : No ATOM in the pdb file.")
-            self.is_valid = False
-            return
-
-        # old format chain ID fix
-        del_copy = self.delimiter.copy()
-        if data[0][del_copy['chainID'][0]] == ' ':
-            del_copy['chainID'] = [72,73]
-
-        # get all the data
-        data_atom = []
-        for iatom,atom in enumerate(data):
-
-            # sometimes we still have an empty line somewhere
-            if len(atom) == 0:
-                continue
-
-            # browse all attribute of each atom
-            at = ()
-            for ik,(colname,coltype) in enumerate(self.col.items()):
-
-                # get the piece of data
-                data = atom[del_copy[colname][0]:del_copy[colname][1]].strip()
-
-                # convert it if necessary
-                if coltype == 'INT':
-                    data = int(data)
-                elif coltype == 'REAL':
-                    data = float(data)
-
-                # append keep the comma !!
-                # we need proper tuple
-                at +=(data,)
-                
-
-            # append
-            data_atom.append(at)
-
-
-        # push in the database
-        self.c.executemany('INSERT INTO ATOM VALUES ({qm})'.format(qm=qm),data_atom)
-    
-
     # replace the chain ID by A,B,C,D, ..... in that order
     def _fix_chainID(self):
 
@@ -428,33 +212,22 @@ class pdb2sql(object):
         ctmp.execute("SELECT * FROM ATOM")
         print(ctmp.fetchall())
 
-
-    ############################################################################################
-    #
-    #       GET FUNCTIONS
-    #
-    #           get(self,attribute,selection) -> return the atribute(s) value(s) for the given selection 
-    #               
-    #           attribute : example ['x','y,'z'] --> return the x y z in an array of tuple
-    #                               'x,y,z'      --> return the x y z in an array of tuple
-    #                               'resSeq'     --> return the resSeq in an array
-    #                                None        --> return a list of all the attributes
-    #       
-    #           **kwargs  : example name = ['CA','O'], return only the atom whose name are CA or O
-    #                               chainID = 'A'      return only the atom of chainID A
-    #                               no_name = ['H']    return all atoms except the H
-    #
-    #       RMK : The rowID starts at 0 in the SLQ database. The rowID are therefore converted 
-    #             to start at 0 both in the attribute and the conditions
-    ###############################################################################################
-
     # get the properties
     def get(self,atnames,**kwargs):
 
-        '''
-        Exectute a simple SQL query that extracts values of attributes for certain condition
-        Ex  db.get('x,y,z',where="chainIN=='A'")
-        returns an array containing the value of the attributes
+        '''Exectute a simple SQL query that extracts values of attributes for certain condition.
+
+        Args :
+            attribute (str) : attribute to retreive eg : ['x','y,'z'], 'xyz', 'resSeq'
+                              if None all the attributes are returned
+
+            **kwargs : argument to select atoms eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+
+        Returns:
+            data : array containing the value of the attributes
+        
+        Example :
+        >>> db.get('x,y,z',chainID='A',no_name=['H']")
         '''
         
         # the asked keys
@@ -601,52 +374,17 @@ class pdb2sql(object):
 
         return data
 
-    def get_xyz(self,**kwargs):
-        '''
-        shortcut to get the xyz
-        '''
-        return self.get('x,y,z',**kwargs)
-
-    def get_residues(self,**kwargs):
-        '''
-        Get the sequence of the selection
-        '''
-        res = [tuple(x) for x  in self.get('chainID,resName,resSeq',**kwargs)]
-        return sorted(set(res),key=res.index)
-
-    def get_chains(self,**kwargs):
-        '''
-        get the chain IDS
-        '''
-        chains = self.get('chainID',**kwargs)
-        return sorted(set(chains))
-
-
-    ############################################################################################
-    #
-    #       UPDATE FUNCTIONS
-    #
-    #           update(self,attribute,values,selection) -> update the atribute(s) value(s) for the given selection 
-    #
-    #           attribute : example ['x','y,'z'] --> update the x y z in an array of tuple
-    #                               'x,y,z'      --> update the x y z in an array of tuple
-    #                               'resSeq'     --> update the resSeq in an array
-    #
-    #           values    : an array of values that corresponds to the number of
-    #                       attributes and number of atom seleted
-    #                       format : nATOM x nAttribute
-    #
-    #           **kwargs  : example name = ['CA','O'], return only the atom whose name are CA or O
-    #                               chainID = 'A'      return only the atom of chainID A
-    #                               no_name = ['H']    return all atoms except the H
-    #
-    #
-    #
-    #       RMK : The rowID starts at 0 in the SLQ database. The rowID are etherefore converted 
-    #             to start at 0 both in the attribute and the conditions
-    ###############################################################################################
-
     def update(self,attribute,values,**kwargs):
+        '''Update the database.
+
+        Args:
+            attribute (str) : string of attribute names eg. ['x','y,'z'], 'xyz', 'resSeq'
+
+            values (np.ndarray) : an array of values that corresponds 
+                                  to the number of attributes and atoms selected
+
+            **kwargs : selection arguments eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+        '''
 
         # the asked keys
         keys = kwargs.keys()
@@ -682,8 +420,6 @@ class pdb2sql(object):
         if natt != ncol:
             raise ValueError('Number of attribute incompatible with the number of columns in the data')
 
-
-
         # get the row ID of the selection
         rowID = self.get('rowID',**kwargs)
         nselect = len(rowID)
@@ -714,9 +450,6 @@ class pdb2sql(object):
         self.c.executemany(query,data)
 
 
-    def update_xyz(self,xyz,**kwargs):
-        self.update('x,y,z',xyz,**kwargs)
-
     def update_column(self,colname,values,index=None):
         '''Update a single column.
 
@@ -739,78 +472,110 @@ class pdb2sql(object):
         #self.conn.commit()
 
     def add_column(self,colname,coltype='FLOAT',default=0):
-
-        '''
-        Add an etra column to the ATOM table
-        '''
+        '''Add an etra column to the ATOM table.'''
         query = "ALTER TABLE ATOM ADD COLUMN '%s' %s DEFAULT %s" %(colname,coltype,str(default))
         self.c.execute(query)
 
-
-
-
-    ############################################################################################
-    #
-    #       COMMIT, EXPORT, CLOSE FUNCTIONS
-    #
-    ###############################################################################################
-
-
     def commit(self):
+        '''Cpmmit to the database.'''
         self.conn.commit()
 
+    
 
-    def exportpdb(self,fname,periodic=False,**kwargs):
+    # def _create_sql_nomodel(self):
+    #     '''Create the sql database.'''
 
-        '''
-        Export a PDB file with kwargs selection
-        not pretty so far but functional
-        '''
+    #     pdbfile = self.pdbfile
+    #     sqlfile = self.sqlfile
 
-        # get the data
-        data = self.get('*',**kwargs)
+    #     if self.verbose:
+    #         print('-- Create SQLite3 database')
 
-        # write each line
-        # the PDB format is pretty strict
-        # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
-        f = open(fname,'w')
+    #      #name of the table
+    #     table = 'ATOM'
 
-        for d in data:
-            line = 'ATOM  '
-            line += '{:>5}'.format(d[0])    # serial
-            line += ' '
-            line += '{:^4}'.format(d[1])    # name
-            line += '{:>1}'.format(d[2])    # altLoc
-            line += '{:>3}'.format(d[3])    #resname
-            line += ' '
-            line += '{:>1}'.format(d[4])    # chainID
-            line += '{:>4}'.format(d[5])    # resSeq
-            line += '{:>1}'.format(d[6])    # iCODE
-            line += '   '
-            line += '{: 8.3f}'.format(d[7]) #x
-            line += '{: 8.3f}'.format(d[8]) #y
-            line += '{: 8.3f}'.format(d[9]) #z
-            if not self.no_extra:
-                line += '{: 6.2f}'.format(d[10])    # occ
-                line += '{: 6.2f}'.format(d[11])    # temp
-            line += '\n'
+    #     if self.no_extra:
+    #         del self.col['occ']
+    #         del self.col['temp']
 
-            f.write(line)
+    #     # size of the things
+    #     ncol = len(self.col)
+    #     ndel = len(self.delimiter)
 
-        # close
-        f.close()
+    #     # open the data base 
+    #     # if we do not specify a db name 
+    #     # the db is only in RAM
+    #     if self.sqlfile is None:
+    #         self.conn = sqlite3.connect(':memory:')
 
-    # close the database 
-    def close(self,rmdb = True):
+    #     # or we create a new db file
+    #     else:
+    #         if os.path.isfile(sqlfile):
+    #             sp.call('rm %s' %sqlfile,shell=True)
+    #         self.conn = sqlite3.connect(sqlfile)
+    #     self.c = self.conn.cursor()
+
+    #     # intialize the header/placeholder
+    #     header,qm = '',''
+    #     for ic,(colname,coltype) in enumerate(self.col.items()):
+    #         header += '{cn} {ct}'.format(cn=colname,ct=coltype)
+    #         qm += '?'
+    #         if ic < ncol-1:
+    #             header += ', '
+    #             qm += ','
+
+    #     # create the table
+    #     query = 'CREATE TABLE ATOM ({hd})'.format(hd=header)
+    #     self.c.execute(query)
         
-        if self.sqlfile is None:
-            self.conn.close()
 
-        else:
+    #     # read the pdb file a pure python way
+    #     # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ... 
+    #     # we could do better than that. But the most time consuming step seems to be the CREATE TABLE query
+    #     with open(pdbfile,'r') as fi:
+    #         data = [line.split('\n')[0] for line in fi if line.startswith('ATOM')]
 
-            if rmdb:
-                self.conn.close() 
-                os.system('rm %s' %(self.sqlfile))
-            else:
-                self.commit()
-                self.conn.close() 
+
+    #     # if there is no ATOM in the file
+    #     if len(data)==1 and data[0]=='':
+    #         print("-- Error : No ATOM in the pdb file.")
+    #         self.is_valid = False
+    #         return
+
+    #     # old format chain ID fix
+    #     del_copy = self.delimiter.copy()
+    #     if data[0][del_copy['chainID'][0]] == ' ':
+    #         del_copy['chainID'] = [72,73]
+
+    #     # get all the data
+    #     data_atom = []
+    #     for iatom,atom in enumerate(data):
+
+    #         # sometimes we still have an empty line somewhere
+    #         if len(atom) == 0:
+    #             continue
+
+    #         # browse all attribute of each atom
+    #         at = ()
+    #         for ik,(colname,coltype) in enumerate(self.col.items()):
+
+    #             # get the piece of data
+    #             data = atom[del_copy[colname][0]:del_copy[colname][1]].strip()
+
+    #             # convert it if necessary
+    #             if coltype == 'INT':
+    #                 data = int(data)
+    #             elif coltype == 'REAL':
+    #                 data = float(data)
+
+    #             # append keep the comma !!
+    #             # we need proper tuple
+    #             at +=(data,)
+                
+
+    #         # append
+    #         data_atom.append(at)
+
+
+    #     # push in the database
+    #     self.c.executemany('INSERT INTO ATOM VALUES ({qm})'.format(qm=qm),data_atom)
