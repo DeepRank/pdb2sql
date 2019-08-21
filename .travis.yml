@@ -27,7 +27,8 @@ install:
 
 # command to run tests
 script:
-  - pytest --cov=pdb2sql test --cov-report xml:coverage.xml
+  - cd test
+  - pytest --cov=pdb2sql --cov-report xml:coverage.xml
   - mv coverage.xml ../
   - mv .coverage ../
   - cd ../
