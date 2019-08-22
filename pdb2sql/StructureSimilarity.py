@@ -1,54 +1,20 @@
 import numpy as np
 from .pdb2sqlcore import pdb2sql
 from .interface import interface
-#from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
-#from pdb2sql import transform
 from . import transform
 import sys,os,time,pickle
-
-'''
-    Replacement of ProFit by an internal module for simpler worflow
-
-    ARGUMENTS
-
-    decoy
-            path to a decoy pdb file
-
-    ref
-            path to a native pdb file
-
-
-    METHODS
-
-    LRMSD Calculation
-
-            compute_lrmsd_fast
-            compute_lrmsd_pdb2sql
-
-    IRMSD Calculation
-
-            compute_irmsd_fast
-            compute_irmsd_pdb2sql
-
-    FNAT Calculation
-
-            compute_Fnat_fast
-            compute_Fnat_pdb2sql
-
-    DockQ calculation
-
-            compute_DockQScore
-
-    zone calculation
-
-            compute_izone
-            compute_lzone
-
-'''
 
 class StructureSimilarity(object):
 
     def __init__(self,decoy,ref,verbose=False):
+
+        '''Compute structure similarity between two structures.
+
+        Args:
+            decoy : pdb file or sql database of the decoy conformation
+            ref : pdb file or sql database of the reference conformation
+            verbose (bool) : verbosity option
+        '''
 
         self.decoy = decoy
         self.ref = ref
@@ -559,28 +525,21 @@ class StructureSimilarity(object):
         sql_decoy = pdb2sql(self.decoy)
         sql_ref = pdb2sql(self.ref)
 
-        # get the contact atoms
-        # if izone is None:
-        #     contact_ref = sql_ref.get_contact_atoms(cutoff=cutoff,extend_to_residue=True,return_only_backbone_atoms=True)
-        #     index_contact = []
-        #     for k in contact_ref.keys():
-        #         index_contact_ref += contact_ref[k]
-        # else:
-        #     index_contact_ref = self.get_izone_rowID(sql_ref,izone,return_only_backbone_atoms=True)
-
-
-        # read the izone file
+        # if user doens want the izone file
         if izone is None:
-            resData = self.compute_izone(cutoff,save_file=False)
-        elif not os.path.isfile(izone):
-            self.compute_izone(cutoff,save_file=True,filename=izone)
-            resData = self.read_zone(izone)
+            izone = './.tmp_izone'
+            rmv_izone = True
         else:
-            resData = self.read_zone(izone)
+            rmv_izone = False
 
-        index_contact = []
-        for k in resData.keys():
-                index_contact_ref += resData[k]
+        # read the izone file    
+        if not os.path.isfile(izone):
+            self.compute_izone(cutoff,save_file=True,filename=izone)
+        index_contact_ref = self.get_izone_rowID(sql_ref,izone,return_only_backbone_atoms=True)
+
+        # clean up
+        if rmv_izone:
+            os.remove(izone)
 
         # get the xyz and atom identifier of the decoy contact atoms
         xyz_contact_ref = sql_ref.get('x,y,z',rowID=index_contact_ref)
