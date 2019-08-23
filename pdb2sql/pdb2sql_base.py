@@ -103,7 +103,7 @@ class pdb2sql_base(object):
         raise NotImplementedError()
 
 
-    def exportpdb(self,fname,periodic=False,**kwargs):
+    def exportpdb(self,fname,append=False,periodic=False,**kwargs):
         '''Export a PDB file with kwargs selection.'''
         
         # get the data
@@ -112,7 +112,10 @@ class pdb2sql_base(object):
         # write each line
         # the PDB format is pretty strict
         # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
-        f = open(fname,'w')
+        if append:
+            f = open(fname,'a')
+        else:
+            f = open(fname,'w')
 
         for d in data:
             line = 'ATOM  '

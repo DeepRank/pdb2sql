@@ -39,7 +39,7 @@ setup(
         'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
     test_suite='tests',
-    install_requires=['cython', 'sqlalchemy', 'matplotlib', 'numpy', 'pyyaml>=5.1',
+    install_requires=['cython', 'sqlalchemy', 'matplotlib', 'numpy',
 					  'schema',  'tqdm'],
     extras_require={
         'dev': ['prospector[with_pyroma]', 'yapf', 'isort'],
