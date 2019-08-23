@@ -34,9 +34,9 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
-        'intended audience :: science/research',
+        'Intended Audience :: Science/Research',
         'Programming Language :: Python :: 3.7',
-        'Topic :: Scientific/Engineering :: BioChemistry'
+        'Topic :: Scientific/Engineering :: Bio-Informatics'
     ],
     test_suite='tests',
     install_requires=['cython', 'sqlalchemy', 'matplotlib', 'numpy', 'pyyaml>=5.1',
