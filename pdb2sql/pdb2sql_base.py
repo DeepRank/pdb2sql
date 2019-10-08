@@ -55,7 +55,7 @@ class pdb2sql_base(object):
             'resName': [17, 20],
             'chainID': [21, 22],
             'resSeq': [22, 26],
-            'iCode': [26, 26],
+            'iCode': [26, 27],
             'x': [30, 38],
             'y': [38, 46],
             'z': [46, 54],
