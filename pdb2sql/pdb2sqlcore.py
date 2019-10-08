@@ -41,38 +41,6 @@ class pdb2sql(pdb2sql_base):
          # name of the table
         table = 'ATOM'
 
-        # column names and types
-        self.col = {'serial': 'INT',
-                    'name': 'TEXT',
-                    'altLoc': 'TEXT',
-                    'resName': 'TEXT',
-                    'chainID': 'TEXT',
-                    'resSeq': 'INT',
-                    'iCode': 'TEXT',
-                    'x': 'REAL',
-                    'y': 'REAL',
-                    'z': 'REAL',
-                    'occ': 'REAL',
-                    'temp': 'REAL',
-                    'model': 'INT'}
-
-        # delimtier of the column format
-        # taken from
-        # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
-        self.delimiter = {
-            'serial': [6, 11],
-            'name': [12, 16],
-            'altLoc': [16, 17],
-            'resName': [17, 20],
-            'chainID': [21, 22],
-            'resSeq': [22, 26],
-            'iCode': [26, 26],
-            'x': [30, 38],
-            'y': [38, 46],
-            'z': [46, 54],
-            'occ': [54, 60],
-            'temp': [60, 66]}
-
         if self.no_extra:
             del self.col['occ']
             del self.col['temp']
