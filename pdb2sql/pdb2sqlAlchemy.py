@@ -7,7 +7,7 @@ from sqlalchemy.schema import Sequence
 from sqlalchemy.orm import sessionmaker
 from .pdb2sql_base import pdb2sql_base
 from time import time
-import re 
+import re
 
 Base = declarative_base()
 
@@ -16,27 +16,33 @@ class ATOM(Base):
     '''SQLAlchemy object for atoms.'''
 
     __tablename__ = 'ATOM'
-    rowID = Column(Integer,primary_key=True)
-    serial = Column(Integer,nullable=False)
-    name = Column(String(5),nullable=False)
-    altLoc = Column(String(5),nullable=False)
-    resName = Column(String(5),nullable=False)
-    chainID = Column(String(5),nullable=False)
-    resSeq = Column(Integer,nullable=False)
-    iCode = Column(String(5),nullable=False)
-    x = Column(Float,nullable=False)
-    y = Column(Float,nullable=False)
-    z = Column(Float,nullable=False)
-    occ = Column(Float,nullable=False)
-    temp = Column(Float,nullable=False)
-    model = Column(Integer,nullable=False)
+    rowID = Column(Integer, primary_key=True)
+    serial = Column(Integer, nullable=False)
+    name = Column(String(5), nullable=False)
+    altLoc = Column(String(5), nullable=False)
+    resName = Column(String(5), nullable=False)
+    chainID = Column(String(5), nullable=False)
+    resSeq = Column(Integer, nullable=False)
+    iCode = Column(String(5), nullable=False)
+    x = Column(Float, nullable=False)
+    y = Column(Float, nullable=False)
+    z = Column(Float, nullable=False)
+    occ = Column(Float, nullable=False)
+    temp = Column(Float, nullable=False)
+    model = Column(Integer, nullable=False)
 
 
 class pdb2sql_alchemy(pdb2sql_base):
 
-    def __init__(self,pdbfile,sqlfile=None,fix_chainID=False,verbose=False,no_extra=True):
+    def __init__(
+            self,
+            pdbfile,
+            sqlfile=None,
+            fix_chainID=False,
+            verbose=False,
+            no_extra=True):
         '''Use sqlAlchemy to load the database.'''
-        super().__init__(pdbfile,sqlfile,fix_chainID,verbose,no_extra)
+        super().__init__(pdbfile, sqlfile, fix_chainID, verbose, no_extra)
         self._create_sql()
 
     def _create_sql(self):
@@ -48,12 +54,12 @@ class pdb2sql_alchemy(pdb2sql_base):
         self.session = DBSession()
 
         # read the pdb file a pure python way
-        # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ... 
+        # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ...
         # we could do better than that. But the most time consuming step seems to be the CREATE TABLE query
-        #with open(pdbfile,'r') as fi:
+        # with open(pdbfile,'r') as fi:
         #   data = [line.split('\n')[0] for line in fi if line.startswith('ATOM')]
 
-        fi = open(self.pdbfile,'r')
+        fi = open(self.pdbfile, 'r')
         self.nModel = 0
         _check_format = True
 
@@ -73,15 +79,14 @@ class pdb2sql_alchemy(pdb2sql_base):
                 # old format chain ID fix
                 del_copy = self.delimiter.copy()
                 if line[del_copy['chainID'][0]] == ' ':
-                    del_copy['chainID'] = [72,73]
+                    del_copy['chainID'] = [72, 73]
                 if line[del_copy['chainID'][0]] == ' ':
                     raise ValueError('chainID not found sorry')
-                _check_format_ = False 
-
+                _check_format_ = False
 
             # browse all attribute of each atom
             at = {}
-            for ik,(colname,coltype) in enumerate(self.col.items()):
+            for ik, (colname, coltype) in enumerate(self.col.items()):
 
                 # get the piece of data
                 if colname in del_copy.keys():
@@ -97,17 +102,28 @@ class pdb2sql_alchemy(pdb2sql_base):
                 at[colname] = data
 
             # create a new ATOM
-            newat = ATOM(serial=at['serial'],name=at['name'],altLoc=at['altLoc'],resName=at['resName'],
-                         chainID=at['chainID'],resSeq=at['resSeq'],iCode=at['iCode'],
-                         x=at['x'],y=at['y'],z=at['z'],occ=at['occ'],temp=at['temp'],model=self.nModel)
+            newat = ATOM(
+                serial=at['serial'],
+                name=at['name'],
+                altLoc=at['altLoc'],
+                resName=at['resName'],
+                chainID=at['chainID'],
+                resSeq=at['resSeq'],
+                iCode=at['iCode'],
+                x=at['x'],
+                y=at['y'],
+                z=at['z'],
+                occ=at['occ'],
+                temp=at['temp'],
+                model=self.nModel)
 
             # add the atom to the data base
             self.session.add(newat)
 
         self.session.commit()
         fi.close()
-        
-    def get(self,attribute=None,**kwargs):
+
+    def get(self, attribute=None, **kwargs):
         '''Exectute a simple SQL query that extracts values of attributes for certain condition.
 
         Args :
@@ -118,7 +134,7 @@ class pdb2sql_alchemy(pdb2sql_base):
 
         Returns:
             data : array containing the value of the attributes
-        
+
         Example :
         >>> db.get('x,y,z',chainID='A',no_name=['H']")
         '''
@@ -128,12 +144,11 @@ class pdb2sql_alchemy(pdb2sql_base):
             if ',' in attribute:
                 attribute = attribute.split(',')
 
-
         if 'model' not in kwargs.keys() and self.nModel > 0:
             model_data = []
             for iModel in range(self.nModel):
                 kwargs['model'] = iModel
-                model_data.append(self.get(attribute,**kwargs))
+                model_data.append(self.get(attribute, **kwargs))
             return model_data
 
         # no selection specified
@@ -149,12 +164,15 @@ class pdb2sql_alchemy(pdb2sql_base):
 
                 # extract data
                 # as a list of tuples if we have several attributes
-                if isinstance(attribute,list):
-                    return [  tuple( atom.__dict__[at]-1 if at=='rowID' else atom.__dict__[at] for at in attribute  ) for atom in self.session.query(ATOM) ]
+                if isinstance(attribute, list):
+                    return [tuple(atom.__dict__[at] - 1 if at == 'rowID' else atom.__dict__[at]
+                                  for at in attribute) for atom in self.session.query(ATOM)]
 
                 # or as a list if we have onlye one attribute
                 else:
-                    return [ atom.__dict__[attribute]-1 if attribute=='rowID' else atom.__dict__[attribute] for atom in self.session.query(ATOM) ]
+                    return [
+                        atom.__dict__[attribute] -
+                        1 if attribute == 'rowID' else atom.__dict__[attribute] for atom in self.session.query(ATOM)]
 
         # if we have a condition
         else:
@@ -163,22 +181,24 @@ class pdb2sql_alchemy(pdb2sql_base):
             atom_list = self.session.query(ATOM)
 
             # loop through the kwargs
-            for key,values in kwargs.items():
+            for key, values in kwargs.items():
 
                 # make sure the values are array for extraction
-                if not isinstance(values,list):
+                if not isinstance(values, list):
                     values = [values]
 
                 # fix indexing python v SQL
                 # 0 <--> 1
                 if 'rowID' in key:
-                    values = [v+1 for v in values]
+                    values = [v + 1 for v in values]
 
                 #  filter the atom list
                 if 'no_' in key:
-                    atom_list = atom_list.filter(~ATOM.__dict__[re.sub('no_','',key)].in_(values))
+                    atom_list = atom_list.filter(
+                        ~ATOM.__dict__[re.sub('no_', '', key)].in_(values))
                 else:
-                    atom_list = atom_list.filter(ATOM.__dict__[key].in_(values))
+                    atom_list = atom_list.filter(
+                        ATOM.__dict__[key].in_(values))
 
             # if no attribute specfied we return an array of ATOM objet
             if attribute is None:
@@ -188,21 +208,25 @@ class pdb2sql_alchemy(pdb2sql_base):
 
                 # or we extract data
                 # as a list of tuples if we have several attributes
-                if isinstance(attribute,list):
-                    return [  tuple( atom.__dict__[at]-1 if at=='rowID' else atom.__dict__[at]  for at in attribute  ) for atom in atom_list ]
+                if isinstance(attribute, list):
+                    return [
+                        tuple(
+                            atom.__dict__[at] -
+                            1 if at == 'rowID' else atom.__dict__[at] for at in attribute) for atom in atom_list]
 
                 # or as a list if we have onlye one attribute
                 else:
-                    return [ atom.__dict__[attribute]-1 if attribute=='rowID' else atom.__dict__[attribute]   for atom in atom_list ]
+                    return [
+                        atom.__dict__[attribute] -
+                        1 if attribute == 'rowID' else atom.__dict__[attribute] for atom in atom_list]
 
-
-    def update(self,attribute,values,**kwargs):
+    def update(self, attribute, values, **kwargs):
         '''Update the database.
 
         Args:
             attribute (str) : string of attribute names eg. ['x','y,'z'], 'xyz', 'resSeq'
 
-            values (np.ndarray) : an array of values that corresponds 
+            values (np.ndarray) : an array of values that corresponds
                                   to the number of attributes and atoms selected
 
             **kwargs : selection arguments eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
@@ -212,42 +236,44 @@ class pdb2sql_alchemy(pdb2sql_base):
         if ',' in attribute:
             attribute = attribute.split(',')
 
-        if not isinstance(attribute,list):
+        if not isinstance(attribute, list):
             attribute = [attribute]
 
-        # size of the values        
+        # size of the values
         nrow = len(values)
         ncol = len(values[0])
-    
 
         nat = len(attribute)
         if nat != ncol:
-            raise ValueError('Values and Attribute have incompatible sizes',nat,ncol)
+            raise ValueError(
+                'Values and Attribute have incompatible sizes', nat, ncol)
 
-        # handle the multi model cases 
+        # handle the multi model cases
         if 'model' not in kwargs.keys() and self.nModel > 0:
             for iModel in range(self.nModel):
                 kwargs['model'] = iModel
-                self.update(attribute,values,**kwargs)
-            return 
+                self.update(attribute, values, **kwargs)
+            return
 
         # no selection
         if len(kwargs) == 0:
 
             # check size
             if nrow != len(self.session.query(ATOM).all()):
-                raise ValueError('Wrong number of values for the ATOM selection')
+                raise ValueError(
+                    'Wrong number of values for the ATOM selection')
 
             # goes through all the ros
             for irow in range(nvalues):
 
                 # create  a dict of values
                 dict_values = {}
-                for icol,at in enumerate(attribute):
+                for icol, at in enumerate(attribute):
                     dict_values[at] = values[irow][icol]
 
                 # update
-                self.session.query(ATOM).filter(ATOM.rowID == irow).update(dict_values)
+                self.session.query(ATOM).filter(
+                    ATOM.rowID == irow).update(dict_values)
 
         # if there is a selection
         else:
@@ -256,48 +282,45 @@ class pdb2sql_alchemy(pdb2sql_base):
             atom_list = self.session.query(ATOM)
 
             # loop through the kwargs
-            for key,val in kwargs.items():
+            for key, val in kwargs.items():
 
                 # make sure the values are array for extraction
-                if not isinstance(val,list):
+                if not isinstance(val, list):
                     val = [val]
 
                 # fix indexing python v SQL
                 # 0 <--> 1
                 if 'rowID' in key:
-                    val = [v+1 for v in val]
+                    val = [v + 1 for v in val]
 
                 #  filter the atom list
                 if 'no_' in key:
-                    atom_list = atom_list.filter(~ATOM.__dict__[re.sub('no_','',key)].in_(val))
+                    atom_list = atom_list.filter(
+                        ~ATOM.__dict__[re.sub('no_', '', key)].in_(val))
                 else:
                     atom_list = atom_list.filter(ATOM.__dict__[key].in_(val))
 
             # check size
             if nrow != len(atom_list.all()):
-                raise ValueError('Wrong number of values for the ATOM selection')
+                raise ValueError(
+                    'Wrong number of values for the ATOM selection')
 
             # get the indexes
-            indexes = self.get('rowID',**kwargs)
+            indexes = self.get('rowID', **kwargs)
 
-            #here the conversion to 0 starting index is annoying
-            indexes = [i+1 for i in indexes]
+            # here the conversion to 0 starting index is annoying
+            indexes = [i + 1 for i in indexes]
 
             # goes through all the ros
-            for ival,ind in enumerate(indexes):
+            for ival, ind in enumerate(indexes):
 
                 # create  a dict of values
                 dict_values = {}
-                for icol,at in enumerate(attribute):
+                for icol, at in enumerate(attribute):
                     dict_values[at] = values[ival][icol]
 
                 # update
-                self.session.query(ATOM).filter(ATOM.rowID == ind).update(dict_values)
-            
+                self.session.query(ATOM).filter(
+                    ATOM.rowID == ind).update(dict_values)
+
         self.session.commit()
-
-
-
-
-
-
