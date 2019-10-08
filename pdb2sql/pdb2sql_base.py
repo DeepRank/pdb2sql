@@ -43,6 +43,7 @@ class pdb2sql_base(object):
                     'z': 'REAL',
                     'occ': 'REAL',
                     'temp': 'REAL',
+                    'element': 'TEXT',
                     'model': 'INT'}
 
         # delimtier of the column format
@@ -60,7 +61,8 @@ class pdb2sql_base(object):
             'y': [38, 46],
             'z': [46, 54],
             'occ': [54, 60],
-            'temp': [60, 66]}
+            'temp': [60, 66],
+            'element': [76,78]}
 
     ##########################################################################
     #
@@ -141,6 +143,7 @@ class pdb2sql_base(object):
             if not self.no_extra:
                 line += '{: 6.2f}'.format(d[10])    # occ
                 line += '{: 6.2f}'.format(d[11])    # temp
+                line += '{:>2}'.format(d[12])       # element
             line += '\n'
 
             f.write(line)

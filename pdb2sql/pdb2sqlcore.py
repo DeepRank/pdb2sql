@@ -44,6 +44,7 @@ class pdb2sql(pdb2sql_base):
         if self.no_extra:
             del self.col['occ']
             del self.col['temp']
+            del self.col['element']
 
         # size of the things
         ncol = len(self.col)
@@ -119,6 +120,10 @@ class pdb2sql(pdb2sql_base):
                     elif coltype == 'REAL':
                         data = float(data)
 
+                # get element if it does not exist
+                if colname == "element" and not data:
+                    data = pdb2sql._get_element(line)
+
                     # append keep the comma !!
                     # we need proper tuple
                     at += (data,)
@@ -136,6 +141,39 @@ class pdb2sql(pdb2sql_base):
 
         #  close the file
         fi.close()
+
+    @staticmethod
+    def _get_element(pdb_line):
+        """Get element type from the atom type of a pdb line
+
+        Notes:
+            Atom type occupies 13-16th columns of a PDB line.
+            http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
+            Four situations exist:
+                13 14 15 16
+                   C  A      The element is C
+                C  A         The element is Ca
+                1  H  G      The element is H
+                H  E  2  1   The element is H
+
+        Args:
+            pdb_line(str): one PDB ATOM line
+
+        Returns:
+            [str]: element name
+        """
+        first_char = pdb_line[12].strip()
+        last_char = pdb_line[15].strip()
+        if first_char:
+            if first_char in "0123456789":
+                elem = pdb_line[13]
+            elif first_char == "H" and last_char:
+                elem = "H"
+            else:
+                elem = pdb_line[12:14]
+        else:
+            elem = pdb_line[13]
+        return elem
 
     # replace the chain ID by A,B,C,D, ..... in that order
     def _fix_chainID(self):
