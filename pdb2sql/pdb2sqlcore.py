@@ -120,9 +120,9 @@ class pdb2sql(pdb2sql_base):
                     elif coltype == 'REAL':
                         data = float(data)
 
-                # get element if it does not exist
-                if colname == "element" and not data:
-                    data = pdb2sql._get_element(line)
+                    # get element if it does not exist
+                    if colname == "element" and not data:
+                        data = pdb2sql._get_element(line)
 
                     # append keep the comma !!
                     # we need proper tuple
