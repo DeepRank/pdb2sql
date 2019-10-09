@@ -1,6 +1,7 @@
 import sqlite3
 import subprocess as sp
 import os
+import warnings
 import numpy as np
 from time import time
 
@@ -137,12 +138,13 @@ class pdb2sql_base(object):
             line += '{:>4}'.format(d[5])    # resSeq
             line += '{:>1}'.format(d[6])    # iCODE
             line += '   '
-            line += pdb2sql._format_xyz(d[7]) # x
-            line += pdb2sql._format_xyz(d[8]) # y
-            line += pdb2sql._format_xyz(d[9])  # z
+            line += pdb2sql_base._format_xyz(d[7]) # x
+            line += pdb2sql_base._format_xyz(d[8]) # y
+            line += pdb2sql_base._format_xyz(d[9])  # z
             if not self.no_extra:
-                line += '{: 6.2f}'.format(d[10])    # occ
-                line += '{: 6.2f}'.format(d[11])    # temp
+                line += '{:>6.2f}'.format(d[10])    # occ
+                line += '{:>6.2f}'.format(d[11])    # temp
+                line += ' ' * 10
                 line += '{:>2}'.format(d[12])       # element
             line += '\n'
 
@@ -167,11 +169,17 @@ class pdb2sql_base(object):
         if lname in (1, 4):
             name = '{:^4}'.format(name)
         elif lname == 2:
-            if (self.no_extra and name == d[10]) or \
-                (not self.no_extra and name == d[12]):  # name == element
-                name = '{:<4}'.format(name)
+            # it is a problem when element is not avaiable
+            if not self.no_extra:
+                if name == data[12]:  # name == element
+                    name = '{:<4}'.format(name)
+                else:
+                    name = '{:^4}'.format(name)
             else:
                 name = '{:^4}'.format(name)
+                warnings.warn(
+                    f'Atom "{name}"" is assumed as one-letter atom name, '
+                    f'which starts at column 14 in a PDB line.')
         else:
             if name[0] in '0123456789':
                 name = '{:<4}'.format(name)
@@ -179,7 +187,7 @@ class pdb2sql_base(object):
                 name = '{:>4}'.format(name)
         return name
 
-   @staticmethod
+    @staticmethod
     def _format_xyz(i):
         """Format PDB coordinations x,y or z value.
 
