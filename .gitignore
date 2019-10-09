@@ -5,3 +5,5 @@ Byte-compiled / optimized
 *.izone
 *.lzone
 *.ref_pairs
+.vscode/settings.json
+.vscode/launch.json
