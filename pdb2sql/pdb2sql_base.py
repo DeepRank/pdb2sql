@@ -112,17 +112,27 @@ class pdb2sql_base(object):
     def exportpdb(self, fname, append=False, periodic=False, **kwargs):
         '''Export a PDB file with kwargs selection.'''
 
-        # get the data
-        data = self.get('*', **kwargs)
-
-        # write each line
-        # the PDB format is pretty strict
-        # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
         if append:
             f = open(fname, 'a')
         else:
             f = open(fname, 'w')
 
+        lines = self.sql2pdb(**kwargs)
+        for i in lines:
+            f.write(i + '\n')
+
+        f.close()
+
+    def sql2pdb(self, **kwargs):
+        """Convert sql pdb data to PDB formatted lines
+
+        Returns:
+            list: pdb-format lines
+        """
+        data = self.get('*', **kwargs)
+        pdb = []
+        # the PDB format is pretty strict
+        # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
         for d in data:
             line = 'ATOM  '
             line += '{:>5}'.format(d[0])    # serial
