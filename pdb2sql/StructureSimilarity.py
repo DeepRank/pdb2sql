@@ -290,8 +290,7 @@ class StructureSimilarity(object):
             	residue_pairs_ref = pickle.load(f)
 
         # create a dict of the ecoy data
-        with open(self.decoy,'r') as f:
-            data_decoy = f.readlines()
+        data_decoy = pdb2sql.read_pdb(self.decoy)
 
         # read the decoy data
         atom_decoy, xyz_decoy = [],[]
@@ -704,8 +703,7 @@ class StructureSimilarity(object):
     def read_xyz_zone(pdb_file,resData,return_not_in_zone=False):
 
         # read the ref file
-        with open(pdb_file,'r') as f:
-            data = f.readlines()
+        data = pdb2sql.read_pdb(pdb_file)
 
         # get the xyz of the
         xyz_in_zone = []
@@ -749,8 +747,7 @@ class StructureSimilarity(object):
     def read_data_zone(pdb_file,resData,return_not_in_zone=False):
 
         # read the ref file
-        with open(pdb_file,'r') as f:
-            data = f.readlines()
+        data = pdb2sql.read_pdb(pdb_file)
 
         # get the xyz of the
         data_in_zone = []
