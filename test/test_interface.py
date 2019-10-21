@@ -1,4 +1,4 @@
-from pdb2sql.interface import interface
+from pdb2sql import interface
 import unittest
 
 
