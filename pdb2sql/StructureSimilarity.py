@@ -293,7 +293,6 @@ class StructureSimilarity(object):
         data_decoy = pdb2sql.read_pdb(self.decoy)
 
         # read the decoy data
-        atom_decoy, xyz_decoy = [],[]
         residue_xyz = {}
         residue_name = {}
         for line in data_decoy:
@@ -318,22 +317,27 @@ class StructureSimilarity(object):
                     residue_xyz[key] = []
                     residue_name[key] = []
 
-                #if name in ['CA','C','N','O']:
-                residue_xyz[key].append([x,y,z])
-                residue_name[key].append(name)
+                #if name in ['CA','C','N','O']
+                # exclude Hydrogen
+                if name[0] != 'H':
+                    residue_xyz[key].append([x,y,z])
+                    residue_name[key].append(name)
 
         # loop over the residue pairs of the
         nCommon,nTotal = 0,0
         for resA,resB_list in residue_pairs_ref.items():
-            xyzA = residue_xyz[resA]
-            for resB in resB_list:
-                if resB in residue_xyz.keys():
-                    xyzB = residue_xyz[resB]
-                    dist_min = np.array([  np.sqrt(np.sum((np.array(p1)-np.array(p2))**2)) for p1 in xyzA for p2 in xyzB  ]).min()
-                    if dist_min<cutoff:
-                        nCommon += 1
-                nTotal += 1
-
+            if resA in residue_xyz.keys():
+                xyzA = residue_xyz[resA]
+                for resB in resB_list:
+                    if resB in residue_xyz.keys():
+                        xyzB = residue_xyz[resB]
+                        dist_min = np.array([  np.sqrt(np.sum((np.array(p1)-np.array(p2))**2)) for p1 in xyzA for p2 in xyzB  ]).min()
+                        if dist_min<cutoff:
+                            nCommon += 1
+                    nTotal += 1
+        #     else:
+        #         msg = f'\t FNAT: not find residue: {resA} in {decoy_name}'
+        #         warnings.warn(msg)
         # normalize
         return nCommon/nTotal
 
