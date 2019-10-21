@@ -21,7 +21,7 @@ def get_rot_axis_angle(seed=None):
     # define the axis
     # uniform distribution on a sphere
     # http://mathworld.wolfram.com/SpherePointPicking.html
-    if not seed:
+    if seed != None:
         np.random.seed(seed)
 
     u1, u2 = np.random.rand(), np.random.rand()
