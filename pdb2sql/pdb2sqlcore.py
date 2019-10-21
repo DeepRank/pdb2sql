@@ -14,10 +14,18 @@ class pdb2sql(pdb2sql_base):
             pdbfile,
             sqlfile=None,
             fix_chainID=False,
-            verbose=False,
-            no_extra=True):
-        '''Use SQLlite3 to load the database.'''
-        super().__init__(pdbfile, sqlfile, fix_chainID, verbose, no_extra)
+            verbose=False):
+
+        """Use SQLlite3 to load the database.
+
+        Args:
+            pdbfile(file, list, np.ndarray): pdb data
+            sqlfile ([type], optional): [description]. Defaults to None.
+            fix_chainID (bool, optional): [description]. Defaults to False.
+            verbose (bool, optional): [description]. Defaults to False.
+        """
+
+        super().__init__(pdbfile, sqlfile, fix_chainID, verbose)
 
         # create the database
         self._create_sql()
@@ -40,11 +48,6 @@ class pdb2sql(pdb2sql_base):
 
          # name of the table
         table = 'ATOM'
-
-        if self.no_extra:
-            del self.col['occ']
-            del self.col['temp']
-            del self.col['element']
 
         # size of the things
         ncol = len(self.col)
@@ -535,10 +538,6 @@ class pdb2sql(pdb2sql_base):
 
     #      #name of the table
     #     table = 'ATOM'
-
-    #     if self.no_extra:
-    #         del self.col['occ']
-    #         del self.col['temp']
 
     #     # size of the things
     #     ncol = len(self.col)

@@ -13,8 +13,7 @@ class pdb2sql_base(object):
             pdbfile,
             sqlfile=None,
             fix_chainID=False,
-            verbose=False,
-            no_extra=True):
+            verbose=False):
         '''Base class for the definition of sql database.
 
         Args:
@@ -22,14 +21,12 @@ class pdb2sql_base(object):
             sqlfile : name of the sql file (if None the db is stored in memeory)
             fix_chainID : bool to rename chain ID from A, B, C, ....
             verbose : bool verbose
-            no_extra : bool don't consider the 'temp' and 'model' column
         '''
 
         self.pdbfile = pdbfile
         self.sqlfile = sqlfile
         self.is_valid = True
         self.verbose = verbose
-        self.no_extra = no_extra
 
         # column names and types
         self.col = {'serial': 'INT',
@@ -141,17 +138,14 @@ class pdb2sql_base(object):
             line += pdb2sql_base._format_xyz(d[7]) # x
             line += pdb2sql_base._format_xyz(d[8]) # y
             line += pdb2sql_base._format_xyz(d[9])  # z
-            if not self.no_extra:
-                line += '{:>6.2f}'.format(d[10])    # occ
-                line += '{:>6.2f}'.format(d[11])    # temp
-                line += ' ' * 10
-                line += '{:>2}'.format(d[12])       # element
-            line += '\n'
+            line += '{:>6.2f}'.format(d[10])    # occ
+            line += '{:>6.2f}'.format(d[11])    # temp
+            line += ' ' * 10
+            line += '{:>2}'.format(d[12])       # element
+            # line += '\n'
+            pdb.append(line)
 
-            f.write(line)
-
-        # close
-        f.close()
+        return pdb
 
     def _format_atomname(self, data):
         """Format atom name to align with PDB reqireuments:
@@ -169,17 +163,10 @@ class pdb2sql_base(object):
         if lname in (1, 4):
             name = '{:^4}'.format(name)
         elif lname == 2:
-            # it is a problem when element is not avaiable
-            if not self.no_extra:
-                if name == data[12]:  # name == element
-                    name = '{:<4}'.format(name)
-                else:
-                    name = '{:^4}'.format(name)
+            if name == data[12]:  # name == element
+                name = '{:<4}'.format(name)
             else:
                 name = '{:^4}'.format(name)
-                warnings.warn(
-                    f'Atom "{name}"" is assumed as one-letter atom name, '
-                    f'which starts at column 14 in a PDB line.')
         else:
             if name[0] in '0123456789':
                 name = '{:<4}'.format(name)

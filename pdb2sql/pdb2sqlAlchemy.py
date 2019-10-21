@@ -39,10 +39,9 @@ class pdb2sql_alchemy(pdb2sql_base):
             pdbfile,
             sqlfile=None,
             fix_chainID=False,
-            verbose=False,
-            no_extra=True):
+            verbose=False):
         '''Use sqlAlchemy to load the database.'''
-        super().__init__(pdbfile, sqlfile, fix_chainID, verbose, no_extra)
+        super().__init__(pdbfile, sqlfile, fix_chainID, verbose)
         self._create_sql()
 
     def _create_sql(self):
