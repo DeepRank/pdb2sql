@@ -269,11 +269,11 @@ class StructureSimilarity(object):
 
     ################################################################################################
     #
-    #   ROUTINE TO COMPUTE THE FNAT QUICKLY
+    #   ROUTINE TO COMPUTE THE fnat QUICKLY
     #
     #################################################################################################
 
-    def compute_Fnat_fast(self,ref_pairs=None,cutoff=5):
+    def compute_fnat_fast(self,ref_pairs=None,cutoff=5):
 
 
         # read the izone file
@@ -654,11 +654,11 @@ class StructureSimilarity(object):
 
     ################################################################################################
     #
-    #   ROUTINE TO COMPUTE THE FNAT USING PDB2SQL
+    #   ROUTINE TO COMPUTE THE fnat USING PDB2SQL
     #
     #################################################################################################
 
-    def compute_Fnat_pdb2sql(self,cutoff=5.0):
+    def compute_fnat_pdb2sql(self,cutoff=5.0):
 
         # create the sql
         sql_decoy = interface(self.decoy)
@@ -684,12 +684,12 @@ class StructureSimilarity(object):
         nCommon = len(set(data_pair_ref).intersection(data_pair_decoy))
 
         # normalize
-        Fnat = nCommon/len(data_pair_ref)
+        fnat = nCommon/len(data_pair_ref)
 
         sql_decoy.close()
         sql_ref.close()
 
-        return Fnat
+        return fnat
 
 
 
@@ -824,12 +824,12 @@ class StructureSimilarity(object):
 
     # compute the DockQ score from the different elements
     @staticmethod
-    def compute_DockQScore(Fnat,lrmsd,irmsd,d1=8.5,d2=1.5):
+    def compute_DockQScore(fnat,lrmsd,irmsd,d1=8.5,d2=1.5):
 
         def scale_rms(rms,d):
             return(1./(1+(rms/d)**2))
 
-        return 1./3 * (  Fnat + scale_rms(lrmsd,d1) + scale_rms(irmsd,d2) )
+        return 1./3 * (  fnat + scale_rms(lrmsd,d1) + scale_rms(irmsd,d2) )
 
 
     # compute the RMSD of two sets of points

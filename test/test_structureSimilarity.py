@@ -38,12 +38,12 @@ class TestSim(unittest.TestCase):
         # ----------------------------------------------------------------------
 
         t0 = time.time()
-        Fnat = sim.compute_Fnat_pdb2sql()
+        Fnat = sim.compute_fnat_pdb2sql()
         t1 = time.time() - t0
         print('\nFNAT TIME SQL %f in %f sec' % (Fnat, t1))
 
         t0 = time.time()
-        Fnat_fast = sim.compute_Fnat_fast(ref_pairs='1AK4.ref_pairs')
+        Fnat_fast = sim.compute_fnat_fast(ref_pairs='1AK4.ref_pairs')
         t1 = time.time() - t0
         print('LRMSD TIME FAST %f in %f sec' % (Fnat_fast, t1))
 
