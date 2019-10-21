@@ -17,7 +17,8 @@ def translation(db, vect, **kwargs):
 
 def rot_axis(db, axis, angle, **kwargs):
     xyz = _get_xyz(db, **kwargs)
-    xyz = _rotation_around_axis(xyz, axis, angle)
+    center = np.mean(xyz, 0)
+    xyz = _rotation_around_axis(xyz, axis, angle, center)
     _update(db, xyz, **kwargs)
 
 
@@ -33,14 +34,22 @@ def rot_mat(db, mat, **kwargs):
     _update(db, xyz, **kwargs)
 
 
-def _rotation_around_axis(xyz, axis, angle):
+def _rotation_around_axis(xyz, axis, angle, center):
+    """Get the rotated xyz.
+
+    Args:
+        xyz(np.array): original xyz coordinates
+        axis (list(float)): axis of rotation
+        angle (float): angle of rotation
+        center (list(float)): center of rotation
+
+    Returns:
+        np.array: rotated xyz coordinates
+    """
 
     # get the data
     ct, st = np.cos(angle), np.sin(angle)
     ux, uy, uz = axis
-
-    # get the center of the molecule
-    xyz0 = np.mean(xyz, 0)
 
     # definition of the rotation matrix
     # see https://en.wikipedia.org/wiki/Rotation_matrix
@@ -55,7 +64,7 @@ def _rotation_around_axis(xyz, axis, angle):
                          ct + uz**2 * (1 - ct)]])
 
     # apply the rotation
-    return np.dot(rot_mat, (xyz - xyz0).T).T + xyz0
+    return np.dot(rot_mat, (xyz - center).T).T + center
 
 
 def _rotation_euler(xyz, alpha, beta, gamma):
