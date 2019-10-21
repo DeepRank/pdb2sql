@@ -8,6 +8,33 @@ molecular coordinate that might be usefull during the
 definition of the data set.
 '''
 
+def get_rot_axis_angle(seed=None):
+    """Get the rotation angle/axis.
+
+    Args:
+        seed(int): random seed for numpy
+
+    Returns:
+        list(float): axis of rotation
+        float: angle of rotation
+    """
+    # define the axis
+    # uniform distribution on a sphere
+    # http://mathworld.wolfram.com/SpherePointPicking.html
+    if not seed:
+        np.random.seed(seed)
+
+    u1, u2 = np.random.rand(), np.random.rand()
+    teta, phi = np.arccos(2 * u1 - 1), 2 * np.pi * u2
+    axis = [np.sin(teta) * np.cos(phi),
+            np.sin(teta) * np.sin(phi),
+            np.cos(teta)]
+
+    # and the rotation angle
+    angle = -np.pi + np.pi * np.random.rand()
+
+    return axis, angle
+
 
 def translation(db, vect, **kwargs):
     xyz = _get_xyz(db, **kwargs)
