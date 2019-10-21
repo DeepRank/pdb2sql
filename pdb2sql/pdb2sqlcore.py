@@ -76,11 +76,9 @@ class pdb2sql(pdb2sql_base):
         query = 'CREATE TABLE ATOM ({hd})'.format(hd=header)
         self.c.execute(query)
 
-        # read the pdb file a pure python way
-        # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ...
-        # we could do better than that. But the most time consuming step seems
-        # to be the CREATE TABLE query
-        fi = open(pdbfile, 'r')
+        # get pdb data
+        pdbdata = pdb2sql.read_pdb(pdbfile)
+
         self.nModel = 0
         _check_format_ = True
         data_atom = []
@@ -139,8 +137,37 @@ class pdb2sql(pdb2sql_base):
             'INSERT INTO ATOM VALUES ({qm})'.format(
                 qm=qm), data_atom)
 
-        #  close the file
-        fi.close()
+    @staticmethod
+    def read_pdb(pdbfile):
+        # read the pdb file a pure python way
+        # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ...
+        # we could do better than that. But the most time consuming step seems
+        # to be the CREATE TABLE query
+        if isinstance(pdbfile, str):
+            if os.path.isfile(pdbfile):
+                with open(pdbfile, 'r') as fi:
+                    pdbdata = fi.readlines()
+            else:
+                raise FileNotFoundError(f'PDB file {pdbfile} not found')
+        elif isinstance(pdbfile, list):
+            if isinstance(pdbfile[0], str):
+                pdbdata = pdbfile
+            elif isinstance(pdbfile[0], bytes):
+                pdbdata = [line.decode() for line in pdbfile]
+            else:
+                raise ValueError(f'Non-valid pdb input {pdbfile}')
+        elif isinstance(pdbfile, np.ndarray):
+            pdbfile = pdbfile.tolist()
+            if isinstance(pdbfile[0], str):
+                pdbdata = pdbfile
+            elif isinstance(pdbfile[0], bytes):
+                pdbdata = [line.decode() for line in pdbfile]
+            else:
+                raise ValueError(f'Non-valid pdb input {pdbfile}')
+        else:
+            raise ValueError(f'Non-valid pdb input: {pdbfile}')
+
+        return pdbdata
 
     @staticmethod
     def _get_element(pdb_line):
