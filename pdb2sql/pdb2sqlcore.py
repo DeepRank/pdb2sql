@@ -86,7 +86,8 @@ class pdb2sql(pdb2sql_base):
         _check_format_ = True
         data_atom = []
 
-        for line in fi:
+        for line in pdbdata:
+            line = str(line)
 
             if line.startswith('ATOM'):
                 line = line.split('\n')[0]
@@ -443,6 +444,7 @@ class pdb2sql(pdb2sql_base):
             self.get_colnames()
             return
 
+        # TODO
         # handle the multi model cases
         if 'model' not in keys and self.nModel > 0:
             for iModel in range(self.nModel):
@@ -477,8 +479,7 @@ class pdb2sql(pdb2sql_base):
         # prepare the query
         query = 'UPDATE ATOM SET '
         query = query + ', '.join(map(lambda x: x + '=?', attribute))
-        if len(kwargs) > 0:
-            query = query + ' WHERE rowID=?'
+        query = query + ' WHERE rowID=?'
 
         # prepare the data
         data = []
@@ -486,10 +487,8 @@ class pdb2sql(pdb2sql_base):
 
             tmp_data = [v for v in val]
 
-            if len(kwargs) > 0:
-
-                # here the conversion of the indexes is a bit annoying
-                tmp_data += [rowID[i] + 1]
+            # here the conversion of the indexes is a bit annoying
+            tmp_data += [rowID[i] + 1]
 
             data.append(tmp_data)
 
