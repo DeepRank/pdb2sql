@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from .pdb2sqlcore import pdb2sql
 from .interface import interface
@@ -87,8 +88,7 @@ class StructureSimilarity(object):
         if lzone is None:
             resData = self.compute_lzone(save_file=False)
         elif not os.path.isfile(lzone):
-            self.compute_lzone(save_file=True,filename=lzone)
-            resData = self.read_zone(lzone)
+            resData = self.compute_lzone(save_file=True,filename=lzone)
         else:
             resData = self.read_zone(lzone)
 
@@ -115,8 +115,9 @@ class StructureSimilarity(object):
                     ind_ref = atom_ref_long.index(at)
                     xyz_decoy_long.append(data_decoy_long[ind_decoy][3:])
                     xyz_ref_long.append(data_ref_long[ind_ref][3:])
-                except:
-                    pass
+                except ValueError:
+                    warnings.warn(
+                        f'Decoy atom {at} not found in reference pdb')
 
             atom_decoy_short = [data[:3] for data in data_decoy_short]
             atom_ref_short   = [data[:3] for data in data_ref_short]
@@ -127,9 +128,9 @@ class StructureSimilarity(object):
                     ind_ref = atom_ref_short.index(at)
                     xyz_decoy_short.append(data_decoy_short[ind_decoy][3:])
                     xyz_ref_short.append(data_ref_short[ind_ref][3:])
-                except:
-                    pass
-
+                except ValueError:
+                    warnings.warn(
+                        f'Decoy atom {at} not found in reference pdb')
 
         # extract the xyz
         else:
@@ -202,18 +203,16 @@ class StructureSimilarity(object):
                 num = res[1]
                 f.write('zone %s%d-%s%d\n' %(chain,num,chain,num) )
             f.close()
-            return
 
-        else:
-            resData = {}
-            for res in data_test:
-                chain = res[0]
-                num = res[1]
+        resData = {}
+        for res in data_test:
+            chain = res[0]
+            num = res[1]
 
-                if chain not in resData.keys():
-                    resData[chain] = []
-                resData[chain].append(num)
-            return resData
+            if chain not in resData.keys():
+                resData[chain] = []
+            resData[chain].append(num)
+        return resData
 
 
     ################################################################################################
@@ -253,8 +252,7 @@ class StructureSimilarity(object):
         if izone is None:
             resData = self.compute_izone(cutoff,save_file=False)
         elif not os.path.isfile(izone):
-            self.compute_izone(cutoff,save_file=True,filename=izone)
-            resData = self.read_zone(izone)
+            resData = self.compute_izone(cutoff,save_file=True,filename=izone)
         else:
             resData = self.read_zone(izone)
 
@@ -273,8 +271,9 @@ class StructureSimilarity(object):
                     ind_ref = atom_ref.index(at)
                     xyz_contact_decoy.append(data_decoy[ind_decoy][3:])
                     xyz_contact_ref.append(data_ref[ind_ref][3:])
-                except:
-                    pass
+                except ValueError:
+                    warnings.warn(
+                        f'Decoy atom {at} not found in reference pdb')
 
         # extract the xyz
         else:
@@ -318,10 +317,8 @@ class StructureSimilarity(object):
         index_contact_ref = []
         for k,v in contact_ref.items():
         	index_contact_ref += v
-        #index_contact_ref = contact_ref[0]+contact_ref[1]
 
         # get the xyz and atom identifier of the decoy contact atoms
-        xyz_contact_ref = sql_ref.get('x,y,z',rowID=index_contact_ref)
         data_test = [tuple(data) for data in sql_ref.get('chainID,resSeq',rowID=index_contact_ref)]
         data_test = sorted(set(data_test))
 
@@ -340,18 +337,16 @@ class StructureSimilarity(object):
                 num = res[1]
                 f.write('zone %s%d-%s%d\n' %(chain,num,chain,num) )
             f.close()
-            return
 
-        else:
-            resData = {}
-            for res in data_test:
-                chain = res[0]
-                num = res[1]
+        resData = {}
+        for res in data_test:
+            chain = res[0]
+            num = res[1]
 
-                if chain not in resData.keys():
-                    resData[chain] = []
-                resData[chain].append(num)
-            return resData
+            if chain not in resData.keys():
+                resData[chain] = []
+            resData[chain].append(num)
+        return resData
 
     ################################################################################################
     #
@@ -378,13 +373,11 @@ class StructureSimilarity(object):
         """
         # read the izone file
         if ref_pairs is None:
-            residue_pairs_ref = self.compute_residue_pairs_ref(cutoff,save_file=False)
-
+            residue_pairs_ref = self.compute_residue_pairs_ref(
+                cutoff,save_file=False)
         elif not os.path.isfile(ref_pairs):
-            self.compute_residue_pairs_ref(cutoff,save_file=True,filename=ref_pairs)
-            with open(ref_pairs,'rb') as f:
-            	residue_pairs_ref = pickle.load(f)
-
+            residue_pairs_ref = self.compute_residue_pairs_ref(
+                cutoff,save_file=True,filename=ref_pairs)
         else:
             with open(ref_pairs,'rb') as f:
             	residue_pairs_ref = pickle.load(f)
@@ -431,13 +424,16 @@ class StructureSimilarity(object):
                 for resB in resB_list:
                     if resB in residue_xyz.keys():
                         xyzB = residue_xyz[resB]
-                        dist_min = np.array([  np.sqrt(np.sum((np.array(p1)-np.array(p2))**2)) for p1 in xyzA for p2 in xyzB  ]).min()
-                        if dist_min<cutoff:
+                        dist_min = np.min(np.array(
+                            [np.sqrt(np.sum((np.array(p1) - np.array(p2))**2))
+                            for p1 in xyzA for p2 in xyzB]))
+                        if dist_min <= cutoff:
                             nCommon += 1
                     nTotal += 1
-        #     else:
-        #         msg = f'\t FNAT: not find residue: {resA} in {decoy_name}'
-        #         warnings.warn(msg)
+            else:
+                msg = f'\t FNAT: not find residue: {resA} in {decoy_name}'
+                warnings.warn(msg)
+
         # normalize
         return nCommon/nTotal
 
@@ -468,9 +464,8 @@ class StructureSimilarity(object):
             # save as pickle
             pickle.dump(residue_pairs_ref,f)
             f.close()
-            return
-        else:
-            return residue_pairs_ref
+
+        return residue_pairs_ref
 
 
 
@@ -664,24 +659,19 @@ class StructureSimilarity(object):
             float: i-RMSD value of the conformation
         """
         # create thes sql
-        sql_decoy = pdb2sql(self.decoy)
-        sql_ref = pdb2sql(self.ref)
+        sql_decoy = interface(self.decoy)
+        sql_ref = interface(self.ref)
 
-        # if user doens want the izone file
+        # get the contact atoms
         if izone is None:
-            izone = './.tmp_izone'
-            rmv_izone = True
+            contact_ref = sql_ref.get_contact_atoms(
+                cutoff=cutoff,
+                extend_to_residue=True,
+                return_only_backbone_atoms=True)
+            index_contact_ref = contact_ref['A'] + contact_ref['B']
         else:
-            rmv_izone = False
-
-        # read the izone file
-        if not os.path.isfile(izone):
-            self.compute_izone(cutoff,save_file=True,filename=izone)
-        index_contact_ref = self.get_izone_rowID(sql_ref,izone,return_only_backbone_atoms=True)
-
-        # clean up
-        if rmv_izone:
-            os.remove(izone)
+            index_contact_ref = self.get_izone_rowID(
+                sql_ref, izone, return_only_backbone_atoms=True)
 
         # get the xyz and atom identifier of the decoy contact atoms
         xyz_contact_ref = sql_ref.get('x,y,z',rowID=index_contact_ref)
@@ -704,7 +694,7 @@ class StructureSimilarity(object):
                 index = data_decoy.index(atom)
                 index_contact_decoy.append(index)
                 xyz_contact_decoy.append(xyz_decoy[index])
-            except:
+            except Exception:
                 xyz_contact_ref[iat] = None
                 index_contact_ref[iat] = None
                 clean_ref = True
@@ -976,7 +966,7 @@ class StructureSimilarity(object):
         """
         # read the izone file
         if not os.path.isfile(zone_file):
-            raise FileNotFoundError('i-zone file not found',zone_file)
+            raise FileNotFoundError('zone file not found',zone_file)
 
         with open(zone_file,'r') as f:
             data=f.readlines()
@@ -988,9 +978,19 @@ class StructureSimilarity(object):
             # or line = zone A-4-A-4 for negative resNum
             # that happens for example in 2OUL
 
-            res = line.split()[1].split('-')[0]
-            chainID,resSeq = res[0],int(res[1:])
+            # split the line
+            res = line.split()[1].split('-')
 
+            # if the resnum was positive
+            # we have e.g res = [A4,A4]
+            if len(res) == 2:
+                res = res[0]
+                chainID, resSeq = res[0], int(res[1:])
+
+            # if the resnum was negative was negtive
+            # we have e.g res = [A,4,A,4]
+            elif len(res) == 4:
+                chainID, resSeq = res[0], -int(res[1])
 
             if chainID not in resData.keys():
                 resData[chainID] = []
@@ -1160,10 +1160,9 @@ class StructureSimilarity(object):
         pshape = P.shape
         qshape = Q.shape
 
-        if pshape[0] == qshape[0]:
-            npts = pshape[0]
-        else:
-            raise ValueError("Matrix don't have the same number of points",P.shape,Q.shape)
+        if pshape[0] != qshape[0]:
+            raise ValueError("Matrix don't have the same number of points",
+                P.shape, Q.shape)
 
         p0,q0 = np.abs(np.mean(P,0)),np.abs(np.mean(Q,0))
         eps = 1E-6
