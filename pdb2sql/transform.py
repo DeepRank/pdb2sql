@@ -45,7 +45,7 @@ def translation(db, vect, **kwargs):
 def rot_axis(db, axis, angle, **kwargs):
     xyz = _get_xyz(db, **kwargs)
     center = np.mean(xyz, 0)
-    xyz = _rotation_around_axis(xyz, axis, angle, center)
+    xyz = rot_xyz_around_axis(xyz, axis, angle, center)
     _update(db, xyz, **kwargs)
 
 
@@ -61,7 +61,7 @@ def rot_mat(db, mat, **kwargs):
     _update(db, xyz, **kwargs)
 
 
-def _rotation_around_axis(xyz, axis, angle, center):
+def rot_xyz_around_axis(xyz, axis, angle, center):
     """Get the rotated xyz.
 
     Args:
