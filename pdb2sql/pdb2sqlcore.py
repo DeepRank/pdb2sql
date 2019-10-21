@@ -16,15 +16,6 @@ class pdb2sql(pdb2sql_base):
             fix_chainID=False,
             verbose=False):
 
-        """Use SQLlite3 to load the database.
-
-        Args:
-            pdbfile(file, list, np.ndarray): pdb data
-            sqlfile ([type], optional): [description]. Defaults to None.
-            fix_chainID (bool, optional): [description]. Defaults to False.
-            verbose (bool, optional): [description]. Defaults to False.
-        """
-
         super().__init__(pdbfile, sqlfile, fix_chainID, verbose)
 
         # create the database

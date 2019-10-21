@@ -17,10 +17,13 @@ class pdb2sql_base(object):
         '''Base class for the definition of sql database.
 
         Args:
-            pdbbfile : name of the pdbfile
-            sqlfile : name of the sql file (if None the db is stored in memeory)
-            fix_chainID : bool to rename chain ID from A, B, C, ....
-            verbose : bool verbose
+            pdbfile (str, list(str/bytes), ndarray) : name of pdbfile or
+                list or ndarray containing the pdb data
+            sqlfile (str, optional): name of the sqlfile.
+                By default it is created in memory only.
+            fix_chainID (bool, optinal): check if the name of the chains
+                are A,B,C, .... and fix it if not.
+            verbose (bool): probably print stuff
         '''
 
         self.pdbfile = pdbfile
