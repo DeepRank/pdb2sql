@@ -91,14 +91,15 @@ class pdb2sql_alchemy(pdb2sql_base):
                 if colname in del_copy.keys():
                     data = line[del_copy[colname][0]:del_copy[colname][1]].strip()
 
-                # convert it if necessary
-                if coltype == 'INT':
-                    data = int(data)
-                elif coltype == 'REAL':
-                    data = float(data)
+                    # convert it if necessary
+                    if coltype == 'INT':
+                        data = int(data)
+                    elif coltype == 'REAL':
+                        data = float(data)
 
-                # append to dict
-                at[colname] = data
+
+                    # append to dict
+                    at[colname] = data
 
             # create a new ATOM
             newat = ATOM(
@@ -263,7 +264,7 @@ class pdb2sql_alchemy(pdb2sql_base):
                     'Wrong number of values for the ATOM selection')
 
             # goes through all the ros
-            for irow in range(nvalues):
+            for irow in range(nrow):
 
                 # create  a dict of values
                 dict_values = {}
