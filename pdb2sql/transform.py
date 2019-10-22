@@ -44,8 +44,7 @@ def translation(db, vect, **kwargs):
 
 def rot_axis(db, axis, angle, **kwargs):
     xyz = _get_xyz(db, **kwargs)
-    center = np.mean(xyz, 0)
-    xyz = rot_xyz_around_axis(xyz, axis, angle, center)
+    xyz = rot_xyz_around_axis(xyz, axis, angle)
     _update(db, xyz, **kwargs)
 
 
@@ -77,18 +76,23 @@ def rot_mat(db, mat, **kwargs):
     _update(db, xyz, **kwargs)
 
 
-def rot_xyz_around_axis(xyz, axis, angle, center):
+def rot_xyz_around_axis(xyz, axis, angle, center=None):
     """Get the rotated xyz.
 
     Args:
         xyz(np.array): original xyz coordinates
         axis (list(float)): axis of rotation
         angle (float): angle of rotation
-        center (list(float)): center of rotation
+        center (list(float)): center of rotation,
+            defaults to the mean of input xyz.
 
     Returns:
         np.array: rotated xyz coordinates
     """
+
+    # check center
+    if center == None:
+        center = np.mean(xyz, 0)
 
     # get the data
     ct, st = np.cos(angle), np.sin(angle)
