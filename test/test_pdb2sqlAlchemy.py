@@ -14,20 +14,16 @@ class TestAlchemy(unittest.TestCase):
         db = pdb2sql_alchemy(self.pdb)
         print('ALCH %f' % (time() - t0))
 
-        # extract the xyz position of all VAL and LEU resiues of chain A but
-        # not the H atoms
-        # chainID='A',resName=['VAL','LEU'],no_name=['H'])
+        # extract the xyz position
         xyz = db.get('x,y,z', model=0)
 
         # put the data back
-        # ,chainID='A',resName=['VAL','LEU'],no_name=['H'])
         db.update('x,y,z', xyz)
 
-        # extract atoms
-        #atoms = db.get(chainID='A',resName=['VAL','LEU'],no_name=['H'])
-
-        # for at in atoms:
-        #   print(at.name,at.x,at.y,at.z)
+        # extract atoms but not 'H' atoms
+        atoms = db.get(chainID='A',resName=['THR','GLN'],no_element=['H'], model=0)
+        for at in atoms:
+            print(at.resName, at.name, at.x, at.y, at.z, at.element)
 
     def setUp(self):
         self.pdb = 'pdb/test_model.pdb'
