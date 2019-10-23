@@ -18,17 +18,18 @@ class ATOM(Base):
     __tablename__ = 'ATOM'
     rowID = Column(Integer, primary_key=True)
     serial = Column(Integer, nullable=False)
-    name = Column(String(5), nullable=False)
-    altLoc = Column(String(5), nullable=False)
-    resName = Column(String(5), nullable=False)
-    chainID = Column(String(5), nullable=False)
+    name = Column(String(6), nullable=False)
+    altLoc = Column(String(1), nullable=False)
+    resName = Column(String(3), nullable=False)
+    chainID = Column(String(1), nullable=False)
     resSeq = Column(Integer, nullable=False)
-    iCode = Column(String(5), nullable=False)
+    iCode = Column(String(1), nullable=False)
     x = Column(Float, nullable=False)
     y = Column(Float, nullable=False)
     z = Column(Float, nullable=False)
     occ = Column(Float, nullable=False)
     temp = Column(Float, nullable=False)
+    element = Column(String(2), nullable=False)
     model = Column(Integer, nullable=False)
 
 
@@ -39,10 +40,9 @@ class pdb2sql_alchemy(pdb2sql_base):
             pdbfile,
             sqlfile=None,
             fix_chainID=False,
-            verbose=False,
-            no_extra=True):
+            verbose=False):
         '''Use sqlAlchemy to load the database.'''
-        super().__init__(pdbfile, sqlfile, fix_chainID, verbose, no_extra)
+        super().__init__(pdbfile, sqlfile, fix_chainID, verbose)
         self._create_sql()
 
     def _create_sql(self):
@@ -92,14 +92,15 @@ class pdb2sql_alchemy(pdb2sql_base):
                 if colname in del_copy.keys():
                     data = line[del_copy[colname][0]:del_copy[colname][1]].strip()
 
-                # convert it if necessary
-                if coltype == 'INT':
-                    data = int(data)
-                elif coltype == 'REAL':
-                    data = float(data)
+                    # convert it if necessary
+                    if coltype == 'INT':
+                        data = int(data)
+                    elif coltype == 'REAL':
+                        data = float(data)
 
-                # append to dict
-                at[colname] = data
+
+                    # append to dict
+                    at[colname] = data
 
             # create a new ATOM
             newat = ATOM(
@@ -115,6 +116,7 @@ class pdb2sql_alchemy(pdb2sql_base):
                 z=at['z'],
                 occ=at['occ'],
                 temp=at['temp'],
+                element=at['element'],
                 model=self.nModel)
 
             # add the atom to the data base
@@ -264,7 +266,7 @@ class pdb2sql_alchemy(pdb2sql_base):
                     'Wrong number of values for the ATOM selection')
 
             # goes through all the ros
-            for irow in range(nvalues):
+            for irow in range(nrow):
 
                 # create  a dict of values
                 dict_values = {}

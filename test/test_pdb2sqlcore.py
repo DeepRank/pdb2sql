@@ -1,6 +1,6 @@
 from time import time
 import numpy as np
-from pdb2sql.pdb2sqlcore import pdb2sql
+from pdb2sql import pdb2sql
 import unittest
 
 

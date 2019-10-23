@@ -14,10 +14,9 @@ class pdb2sql(pdb2sql_base):
             pdbfile,
             sqlfile=None,
             fix_chainID=False,
-            verbose=False,
-            no_extra=True):
-        '''Use SQLlite3 to load the database.'''
-        super().__init__(pdbfile, sqlfile, fix_chainID, verbose, no_extra)
+            verbose=False):
+
+        super().__init__(pdbfile, sqlfile, fix_chainID, verbose)
 
         # create the database
         self._create_sql()
@@ -40,42 +39,6 @@ class pdb2sql(pdb2sql_base):
 
          # name of the table
         table = 'ATOM'
-
-        # column names and types
-        self.col = {'serial': 'INT',
-                    'name': 'TEXT',
-                    'altLoc': 'TEXT',
-                    'resName': 'TEXT',
-                    'chainID': 'TEXT',
-                    'resSeq': 'INT',
-                    'iCode': 'TEXT',
-                    'x': 'REAL',
-                    'y': 'REAL',
-                    'z': 'REAL',
-                    'occ': 'REAL',
-                    'temp': 'REAL',
-                    'model': 'INT'}
-
-        # delimtier of the column format
-        # taken from
-        # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
-        self.delimiter = {
-            'serial': [6, 11],
-            'name': [12, 16],
-            'altLoc': [16, 17],
-            'resName': [17, 20],
-            'chainID': [21, 22],
-            'resSeq': [22, 26],
-            'iCode': [26, 26],
-            'x': [30, 38],
-            'y': [38, 46],
-            'z': [46, 54],
-            'occ': [54, 60],
-            'temp': [60, 66]}
-
-        if self.no_extra:
-            del self.col['occ']
-            del self.col['temp']
 
         # size of the things
         ncol = len(self.col)
@@ -107,16 +70,15 @@ class pdb2sql(pdb2sql_base):
         query = 'CREATE TABLE ATOM ({hd})'.format(hd=header)
         self.c.execute(query)
 
-        # read the pdb file a pure python way
-        # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ...
-        # we could do better than that. But the most time consuming step seems
-        # to be the CREATE TABLE query
-        fi = open(pdbfile, 'r')
+        # get pdb data
+        pdbdata = pdb2sql.read_pdb(pdbfile)
+
         self.nModel = 0
         _check_format_ = True
         data_atom = []
 
-        for line in fi:
+        for line in pdbdata:
+            line = str(line)
 
             if line.startswith('ATOM'):
                 line = line.split('\n')[0]
@@ -151,6 +113,10 @@ class pdb2sql(pdb2sql_base):
                     elif coltype == 'REAL':
                         data = float(data)
 
+                    # get element if it does not exist
+                    if colname == "element" and not data:
+                        data = pdb2sql._get_element(line)
+
                     # append keep the comma !!
                     # we need proper tuple
                     at += (data,)
@@ -166,8 +132,70 @@ class pdb2sql(pdb2sql_base):
             'INSERT INTO ATOM VALUES ({qm})'.format(
                 qm=qm), data_atom)
 
-        #  close the file
-        fi.close()
+    @staticmethod
+    def read_pdb(pdbfile):
+        # read the pdb file a pure python way
+        # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ...
+        # we could do better than that. But the most time consuming step seems
+        # to be the CREATE TABLE query
+        if isinstance(pdbfile, str):
+            if os.path.isfile(pdbfile):
+                with open(pdbfile, 'r') as fi:
+                    pdbdata = fi.readlines()
+            else:
+                raise FileNotFoundError(f'PDB file {pdbfile} not found')
+        elif isinstance(pdbfile, list):
+            if isinstance(pdbfile[0], str):
+                pdbdata = pdbfile
+            elif isinstance(pdbfile[0], bytes):
+                pdbdata = [line.decode() for line in pdbfile]
+            else:
+                raise ValueError(f'Non-valid pdb input {pdbfile}')
+        elif isinstance(pdbfile, np.ndarray):
+            pdbfile = pdbfile.tolist()
+            if isinstance(pdbfile[0], str):
+                pdbdata = pdbfile
+            elif isinstance(pdbfile[0], bytes):
+                pdbdata = [line.decode() for line in pdbfile]
+            else:
+                raise ValueError(f'Non-valid pdb input {pdbfile}')
+        else:
+            raise ValueError(f'Non-valid pdb input: {pdbfile}')
+
+        return pdbdata
+
+    @staticmethod
+    def _get_element(pdb_line):
+        """Get element type from the atom type of a pdb line
+
+        Notes:
+            Atom type occupies 13-16th columns of a PDB line.
+            http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
+            Four situations exist:
+                13 14 15 16
+                   C  A      The element is C
+                C  A         The element is Ca
+                1  H  G      The element is H
+                H  E  2  1   The element is H
+
+        Args:
+            pdb_line(str): one PDB ATOM line
+
+        Returns:
+            [str]: element name
+        """
+        first_char = pdb_line[12].strip()
+        last_char = pdb_line[15].strip()
+        if first_char:
+            if first_char in "0123456789":
+                elem = pdb_line[13]
+            elif first_char == "H" and last_char:
+                elem = "H"
+            else:
+                elem = pdb_line[12:14]
+        else:
+            elem = pdb_line[13]
+        return elem
 
     # replace the chain ID by A,B,C,D, ..... in that order
     def _fix_chainID(self):
@@ -407,6 +435,7 @@ class pdb2sql(pdb2sql_base):
             self.get_colnames()
             return
 
+        # TODO
         # handle the multi model cases
         if 'model' not in keys and self.nModel > 0:
             for iModel in range(self.nModel):
@@ -441,8 +470,7 @@ class pdb2sql(pdb2sql_base):
         # prepare the query
         query = 'UPDATE ATOM SET '
         query = query + ', '.join(map(lambda x: x + '=?', attribute))
-        if len(kwargs) > 0:
-            query = query + ' WHERE rowID=?'
+        query = query + ' WHERE rowID=?'
 
         # prepare the data
         data = []
@@ -450,10 +478,8 @@ class pdb2sql(pdb2sql_base):
 
             tmp_data = [v for v in val]
 
-            if len(kwargs) > 0:
-
-                # here the conversion of the indexes is a bit annoying
-                tmp_data += [rowID[i] + 1]
+            # here the conversion of the indexes is a bit annoying
+            tmp_data += [rowID[i] + 1]
 
             data.append(tmp_data)
 
@@ -502,10 +528,6 @@ class pdb2sql(pdb2sql_base):
 
     #      #name of the table
     #     table = 'ATOM'
-
-    #     if self.no_extra:
-    #         del self.col['occ']
-    #         del self.col['temp']
 
     #     # size of the things
     #     ncol = len(self.col)

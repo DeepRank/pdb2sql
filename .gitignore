@@ -5,3 +5,7 @@ Byte-compiled / optimized
 *.izone
 *.lzone
 *.ref_pairs
+.vscode/settings.json
+.vscode/launch.json
+.vscode/.ropeproject/config.py
+.vscode/.ropeproject/objectdb

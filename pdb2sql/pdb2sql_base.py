@@ -1,6 +1,7 @@
 import sqlite3
 import subprocess as sp
 import os
+import warnings
 import numpy as np
 from time import time
 
@@ -12,23 +13,23 @@ class pdb2sql_base(object):
             pdbfile,
             sqlfile=None,
             fix_chainID=False,
-            verbose=False,
-            no_extra=True):
+            verbose=False):
         '''Base class for the definition of sql database.
 
         Args:
-            pdbbfile : name of the pdbfile
-            sqlfile : name of the sql file (if None the db is stored in memeory)
-            fix_chainID : bool to rename chain ID from A, B, C, ....
-            verbose : bool verbose
-            no_extra : bool don't consider the 'temp' and 'model' column
+            pdbfile (str, list(str/bytes), ndarray) : name of pdbfile or
+                list or ndarray containing the pdb data
+            sqlfile (str, optional): name of the sqlfile.
+                By default it is created in memory only.
+            fix_chainID (bool, optinal): check if the name of the chains
+                are A,B,C, .... and fix it if not.
+            verbose (bool): probably print stuff
         '''
 
         self.pdbfile = pdbfile
         self.sqlfile = sqlfile
         self.is_valid = True
         self.verbose = verbose
-        self.no_extra = no_extra
 
         # column names and types
         self.col = {'serial': 'INT',
@@ -43,6 +44,7 @@ class pdb2sql_base(object):
                     'z': 'REAL',
                     'occ': 'REAL',
                     'temp': 'REAL',
+                    'element': 'TEXT',
                     'model': 'INT'}
 
         # delimtier of the column format
@@ -55,12 +57,13 @@ class pdb2sql_base(object):
             'resName': [17, 20],
             'chainID': [21, 22],
             'resSeq': [22, 26],
-            'iCode': [26, 26],
+            'iCode': [26, 27],
             'x': [30, 38],
             'y': [38, 46],
             'z': [46, 54],
             'occ': [54, 60],
-            'temp': [60, 66]}
+            'temp': [60, 66],
+            'element': [76,78]}
 
     ##########################################################################
     #
@@ -112,41 +115,109 @@ class pdb2sql_base(object):
     def exportpdb(self, fname, append=False, periodic=False, **kwargs):
         '''Export a PDB file with kwargs selection.'''
 
-        # get the data
-        data = self.get('*', **kwargs)
-
-        # write each line
-        # the PDB format is pretty strict
-        # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
         if append:
             f = open(fname, 'a')
         else:
             f = open(fname, 'w')
 
+        lines = self.sql2pdb(**kwargs)
+        for i in lines:
+            f.write(i + '\n')
+
+        f.close()
+
+    def sql2pdb(self, **kwargs):
+        """Convert sql pdb data to PDB formatted lines
+
+        Returns:
+            list: pdb-format lines
+        """
+        data = self.get('*', **kwargs)
+        pdb = []
+        # the PDB format is pretty strict
+        # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
         for d in data:
             line = 'ATOM  '
             line += '{:>5}'.format(d[0])    # serial
             line += ' '
-            line += '{:^4}'.format(d[1])    # name
+            line += self._format_atomname(d) # name
             line += '{:>1}'.format(d[2])    # altLoc
-            line += '{:>3}'.format(d[3])  # resname
+            line += '{:>3}'.format(d[3])    # resname
             line += ' '
             line += '{:>1}'.format(d[4])    # chainID
             line += '{:>4}'.format(d[5])    # resSeq
             line += '{:>1}'.format(d[6])    # iCODE
             line += '   '
-            line += '{: 8.3f}'.format(d[7])  # x
-            line += '{: 8.3f}'.format(d[8])  # y
-            line += '{: 8.3f}'.format(d[9])  # z
-            if not self.no_extra:
-                line += '{: 6.2f}'.format(d[10])    # occ
-                line += '{: 6.2f}'.format(d[11])    # temp
-            line += '\n'
+            line += pdb2sql_base._format_xyz(d[7]) # x
+            line += pdb2sql_base._format_xyz(d[8]) # y
+            line += pdb2sql_base._format_xyz(d[9])  # z
+            line += '{:>6.2f}'.format(d[10])    # occ
+            line += '{:>6.2f}'.format(d[11])    # temp
+            line += ' ' * 10
+            line += '{:>2}'.format(d[12])       # element
+            # line += '\n'
+            pdb.append(line)
 
-            f.write(line)
+        return pdb
 
-        # close
-        f.close()
+    def _format_atomname(self, data):
+        """Format atom name to align with PDB reqireuments:
+             - alignment of one-letter atom name starts at column 14,
+             - while two-letter atom name such as FE starts at column 13.
+
+        Args:
+            data(list): sql output for one pdb line
+
+        Returns:
+            str: formatted atom name
+        """
+        name = data[1]
+        lname = len(name)
+        if lname in (1, 4):
+            name = '{:^4}'.format(name)
+        elif lname == 2:
+            if name == data[12]:  # name == element
+                name = '{:<4}'.format(name)
+            else:
+                name = '{:^4}'.format(name)
+        else:
+            if name[0] in '0123456789':
+                name = '{:<4}'.format(name)
+            else:
+                name = '{:>4}'.format(name)
+        return name
+
+    @staticmethod
+    def _format_xyz(i):
+        """Format PDB coordinations x,y or z value.
+
+        Note: PDB has a fixed 8-column space for x,y or z value.
+            Thus the value should be in the range of (-1e7, 1e8).
+
+        Args:
+            i(float): PDB coordinations x, y or z.
+
+        Raises:
+            ValueError: Exceed the range of (-1e7, 1e8)
+
+        Returns:
+            str: formated x, y or z value.
+        """
+
+        if i >= 1e8 - 0.5 or i <= -1e7 + 0.5:
+            raise ValueError(
+                f'PDB coordination {i} exceeds the range of (-1e7, 1e8) '
+                f'after rounding.')
+        elif i >= 1e6 - 0.5 or i <= -1e5 + 0.5:
+            i = '{:>8.0f}'.format(i)
+        elif i >= 1e5 - 0.5 or i <= -1e4 + 0.5:
+            i = '{:>8.1f}'.format(i)
+        elif i >= 1e4 - 0.5 or i <= -1e3 + 0.5:
+            i = '{:>8.2f}'.format(i)
+        else:
+            i = '{:>8.3f}'.format(i)
+
+        return i
 
     def close(self, rmdb=True):
 
