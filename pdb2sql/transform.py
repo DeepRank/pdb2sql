@@ -91,7 +91,7 @@ def rot_xyz_around_axis(xyz, axis, angle, center=None):
     """
 
     # check center
-    if center == None:
+    if center is None:
         center = np.mean(xyz, 0)
 
     # get the data
