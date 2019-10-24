@@ -30,8 +30,6 @@ def get_rot_axis_angle(seed=None):
             np.sin(teta) * np.sin(phi),
             np.cos(teta)]
 
-    # and the rotation angle
-    angle = -np.pi + np.pi * np.random.rand()
 
     return axis, angle
 
@@ -74,6 +72,8 @@ def rot_mat(db, mat, **kwargs):
     xyz = _get_xyz(db, **kwargs)
     xyz = _rotation_matrix(xyz, mat)
     _update(db, xyz, **kwargs)
+    # define the rotation angle
+    angle =  2 * np.pi * np.random.rand()
 
 
 def rot_xyz_around_axis(xyz, axis, angle, center=None):
