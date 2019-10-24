@@ -127,9 +127,10 @@ def _rotation_euler(xyz, alpha, beta, gamma):
     # rotation matrices
     rx = np.array([[1, 0, 0], [0, ca, -sa], [0, sa, ca]])
     ry = np.array([[cb, 0, sb], [0, 1, 0], [-sb, 0, cb]])
-    rz = np.array([[cg, -sg, 0], [sg, cs, 0], [0, 0, 1]])
+    rz = np.array([[cg, -sg, 0], [sg, cg, 0], [0, 0, 1]])
 
-    rot_mat = np.dot(rz, np.dot(ry, rz))
+    # get rotation matrix
+    rot_mat = np.dot(rz, np.dot(ry, rx))
 
     # apply the rotation
     return np.dot(rot_mat, (xyz - xyz0).T).T + xyz0
