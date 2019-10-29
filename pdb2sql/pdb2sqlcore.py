@@ -25,10 +25,6 @@ class pdb2sql(pdb2sql_base):
         if fix_chainID:
             self._fix_chainID()
 
-        # hard limit for the number of SQL varaibles
-        self.SQLITE_LIMIT_VARIABLE_NUMBER = 999
-        self.max_sql_values = 950
-
     def _create_sql(self):
         '''Create a sql database containg a model PDB.'''
         pdbfile = self.pdbfile
