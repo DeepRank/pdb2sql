@@ -171,6 +171,7 @@ class pdb2sql(pdb2sql_base):
         elif linelen > 80:
             raise ValueError(f'pdb line is longer than 80:\n{pdb_line}')
         return pdb_line
+
     @staticmethod
     def _get_chainID(pdb_line):
         segID_ind = [72, 76]    # segID columns in pdb
@@ -235,7 +236,7 @@ class pdb2sql(pdb2sql_base):
 
         # fill in the new names
         for ic, chain in enumerate(chainID):
-            index = self.get('rowID', chain=chain)
+            index = self.get('rowID', chainID=chain)
             for ind in index:
                 newID[ind] = ascii_uppercase[ic]
 
@@ -274,7 +275,7 @@ class pdb2sql(pdb2sql_base):
             **kwargs : argument to select atoms eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
 
         Returns:
-            data : array containing the value of the attributes
+            data : list containing the value of the attributes
 
         Example :
         >>> db.get('x,y,z',chainID='A',no_name=['H']")
