@@ -85,6 +85,8 @@ class pdb2sql(pdb2sql_base):
             else:
                 continue
 
+            # check pdb line format
+            line = pdb2sql._format_pdb_linelength(line)
 
             # browse all attribute of each atom
             at = ()
@@ -160,6 +162,14 @@ class pdb2sql(pdb2sql_base):
 
         return pdbdata
 
+    @staticmethod
+    def _format_pdb_linelength(pdb_line):
+        linelen = len(pdb_line)
+        if linelen < 80:
+            pdb_line = pdb_line + ' ' * (80 - linelen)
+        elif linelen > 80:
+            raise ValueError(f'pdb line is longer than 80:\n{pdb_line}')
+        return pdb_line
     @staticmethod
     def _get_chainID(pdb_line):
         segID_ind = [72, 76]    # segID columns in pdb
