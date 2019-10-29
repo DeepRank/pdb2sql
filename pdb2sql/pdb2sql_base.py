@@ -1,7 +1,6 @@
 import sqlite3
 import subprocess as sp
 import os
-import warnings
 import numpy as np
 from time import time
 
@@ -30,6 +29,10 @@ class pdb2sql_base(object):
         self.sqlfile = sqlfile
         self.is_valid = True
         self.verbose = verbose
+
+        # hard limit for the number of SQL varaibles
+        self.SQLITE_LIMIT_VARIABLE_NUMBER = 999
+        self.max_sql_values = 950
 
         # column names and types
         self.col = {'serial': 'INT',
