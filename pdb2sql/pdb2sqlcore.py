@@ -1,4 +1,5 @@
 import sqlite3
+import warnings
 import subprocess as sp
 import os
 import numpy as np
@@ -211,6 +212,7 @@ class pdb2sql(pdb2sql_base):
                 elem = pdb_line[12:14]
         else:
             elem = pdb_line[13]
+        warnings.warn("Missing element and guess it with atom type")
         return elem
 
     # replace the chain ID by A,B,C,D, ..... in that order
@@ -224,9 +226,9 @@ class pdb2sql(pdb2sql_base):
         chainID = sorted(set(chainID))
 
         if len(chainID) > 26:
-            print(
-                "Warning more than 26 chains have been detected. This is so far not supported")
-            sys.exit()
+            warnings.warn(
+                "More than 26 chains have been detected, not supported so far")
+            sys.exit(1)
 
         # declare the new names
         newID = [''] * natom
@@ -409,7 +411,7 @@ class pdb2sql(pdb2sql_base):
 
         # empty data
         if len(data) == 0:
-            print('Warning sqldb.get returned an empty')
+            warnins.warn('sqldb.get returned an empty')
             return data
 
         # fix the python <--> sql indexes
