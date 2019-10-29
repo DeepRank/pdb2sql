@@ -70,7 +70,6 @@ class pdb2sql(pdb2sql_base):
         pdbdata = pdb2sql.read_pdb(pdbfile)
 
         self.nModel = 0
-        _check_format_ = True
         data_atom = []
 
         for line in pdbdata:
@@ -86,32 +85,33 @@ class pdb2sql(pdb2sql_base):
             else:
                 continue
 
-            # old format chain ID fix
-            if _check_format_:
-                del_copy = self.delimiter.copy()
-                if line[del_copy['chainID'][0]] == ' ':
-                    del_copy['chainID'] = [72, 73]
-                if line[del_copy['chainID'][0]] == ' ':
-                    raise ValueError('chainID not found sorry')
-                _check_format_ = False
 
             # browse all attribute of each atom
             at = ()
-            for ik, (colname, coltype) in enumerate(self.col.items()):
+            for colname, coltype in self.col.items():
 
                 # get the piece of data
-                if colname in del_copy.keys():
-                    data = line[del_copy[colname][0]:del_copy[colname][1]].strip()
+                if colname in self.delimiter.keys():
+                    data = line[self.delimiter[colname][0]:
+                                self.delimiter[colname][1]].strip()
+
+                    # check pdb format and reset values if necessary
+                    # Empty chainID, occ, temp and element are not allowed
+                    if not data:
+                        if colname == "chainID":
+                            data = pdb2sql._get_chainID(line)
+                        if colname == "occ":
+                            data = 1.00
+                        if colname == "temp":
+                            data = 10.00
+                        if colname == "element":
+                            data = pdb2sql._get_element(line)
 
                     # convert it if necessary
                     if coltype == 'INT':
                         data = int(data)
                     elif coltype == 'REAL':
                         data = float(data)
-
-                    # get element if it does not exist
-                    if colname == "element" and not data:
-                        data = pdb2sql._get_element(line)
 
                     # append keep the comma !!
                     # we need proper tuple
@@ -159,6 +159,16 @@ class pdb2sql(pdb2sql_base):
             raise ValueError(f'Non-valid pdb input: {pdbfile}')
 
         return pdbdata
+
+    @staticmethod
+    def _get_chainID(pdb_line):
+        segID_ind = [72, 76]    # segID columns in pdb
+        segID = pdb_line[segID_ind[0]:segID_ind[1]].strip()
+        if segID:
+            warnings.warn("Missing chainID and set it with segID")
+            return segID
+        else:
+            raise ValueError('chainID not found')
 
     @staticmethod
     def _get_element(pdb_line):
