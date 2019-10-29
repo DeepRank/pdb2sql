@@ -254,12 +254,12 @@ class pdb2sql(pdb2sql_base):
             print('\t' + n)
 
     # print the database
-    def prettyprint(self):
+    def pprint(self):
         import pandas.io.sql as psql
         df = psql.read_sql("SELECT * FROM ATOM", self.conn)
         print(df)
 
-    def uglyprint(self):
+    def print(self):
         ctmp = self.conn.cursor()
         ctmp.execute("SELECT * FROM ATOM")
         print(ctmp.fetchall())
