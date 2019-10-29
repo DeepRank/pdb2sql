@@ -155,7 +155,7 @@ class pdb2sql_base(object):
             line += '{:>6.2f}'.format(d[11])    # temp
             line += ' ' * 10
             line += '{:>2}'.format(d[12])       # element
-            # line += '\n'
+            line += ' ' * 2                     # charge, keep it blank
             pdb.append(line)
 
         return pdb
