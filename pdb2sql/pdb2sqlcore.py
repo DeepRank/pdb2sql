@@ -247,9 +247,13 @@ class pdb2sql(pdb2sql_base):
 
     def get_colnames(self):
         cd = self.conn.execute('select * from atom')
-        print('Possible column names are:')
         names = list(map(lambda x: x[0], cd.description))
-        print('\trowID')
+        names = ['rowID'] + names
+        return names
+
+    def print_colnames(self):
+        names = self.get_colnames()
+        print('Possible column names are:')
         for n in names:
             print('\t' + n)
 
