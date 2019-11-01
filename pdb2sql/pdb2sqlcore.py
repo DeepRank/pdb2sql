@@ -536,10 +536,21 @@ class pdb2sql(pdb2sql_base):
         query = 'UPDATE ATOM SET {cn}=? WHERE rowID=?'.format(cn=colname)
         self.c.executemany(query, data)
 
-    def add_column(self, colname, coltype='FLOAT', default=0):
-        '''Add an etra column to the ATOM table.'''
+    def add_column(self, colname, coltype='FLOAT', value=0):
+        """Add an extra column to the ATOM table with same value for each row.
+
+        Args:
+            colname (str): the new column name
+            coltype (str): data type of the new column. Default to float.
+            value (int/float/str): value for the new column.
+                Default to 0.
+
+        Examples:
+            >>> add_column('id', coltype='str', value='positive')
+        """
+
         query = "ALTER TABLE ATOM ADD COLUMN '%s' %s DEFAULT %s" % (
-            colname, coltype, str(default))
+            colname, coltype, str(value))
         self.c.execute(query)
 
     def commit(self):
