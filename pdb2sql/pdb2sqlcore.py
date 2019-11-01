@@ -438,54 +438,58 @@ class pdb2sql(pdb2sql_base):
 
         return data
 
-    def update(self, attribute, values, **kwargs):
+    def update(self, columns, values, **kwargs):
         '''Update the database.
 
         Args:
-            attribute (str) : string of attribute names eg. ['x','y,'z'], 'xyz', 'resSeq'
-
-            values (np.ndarray) : an array of values that corresponds
-                                  to the number of attributes and atoms selected
-
-            **kwargs : selection arguments eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+            columns (str): names of column to update, e.g. "x,y,z".
+            values (np.ndarray): an array of values that corresponds
+                        to the number of columns and atoms selected.
+            **kwargs: selection arguments,
+                eg: name = ['CA', 'O'], chainID = ['A'],
+                or no_name = ['CA', 'C'], no_chainID = ['A'].
+        Examples:
+            >>> values = np.array([[1.,2.,3.], [4.,5.,6.]])
+            >>> self.db.update("x,y,z", values=values, resName='MET', name=['CA', 'CB'])
         '''
+        # check arguments format
+        valid_colnames = self.get_colnames()
+
+        if not isinstance(columns, str):
+            raise TypeError("argument columns must be str")
+
+        if columns != '*':
+            for i in columns.split(','):
+                if i not in valid_colnames:
+                    raise ValueError(
+                        f'Invalid column name {i}. Possible names are\n'
+                        f'{self.get_colnames()}')
 
         # the asked keys
         keys = kwargs.keys()
 
-        # check if the column exists
-        try:
-            self.c.execute(
-                "SELECT EXISTS(SELECT {an} FROM ATOM)".format(
-                    an=attribute))
-        except BaseException:
-            print('Error column %s not found in the database' % attribute)
-            self.get_colnames()
-            return
-
-        # TODO
         # handle the multi model cases
         if 'model' not in keys and self.nModel > 0:
             for iModel in range(self.nModel):
                 kwargs['model'] = iModel
-                self.update(attribute, values, **kwargs)
+                self.update(columns, values, **kwargs)
             return
 
         # parse the attribute
-        if ',' in attribute:
-            attribute = attribute.split(',')
+        if ',' in columns:
+            columns = columns.split(',')
 
-        if not isinstance(attribute, list):
-            attribute = [attribute]
+        if not isinstance(columns, list):
+            columns = [columns]
 
         # check the size
-        natt = len(attribute)
+        natt = len(columns)
         nrow = len(values)
         ncol = len(values[0])
 
         if natt != ncol:
             raise ValueError(
-                'Number of attribute incompatible with the number of columns in the data')
+                'Number of cloumns does not match between argument columns and values')
 
         # get the row ID of the selection
         rowID = self.get('rowID', **kwargs)
@@ -497,7 +501,7 @@ class pdb2sql(pdb2sql_base):
 
         # prepare the query
         query = 'UPDATE ATOM SET '
-        query = query + ', '.join(map(lambda x: x + '=?', attribute))
+        query = query + ', '.join(map(lambda x: x + '=?', columns))
         query = query + ' WHERE rowID=?'
 
         # prepare the data
@@ -522,18 +526,15 @@ class pdb2sql(pdb2sql_base):
             index (None, optional): index of the column to update (default all)
 
         Example:
-        >>> db.update_column('x',np.random.rand(10),index=list(range(10)))
+            >>> db.update_column('x',np.random.rand(10),index=list(range(10)))
         '''
-
         if index is None:
             data = [[v, i + 1] for i, v in enumerate(values)]
         else:
-            # shouldn't that be ind+1 ?
-            data = [[v, ind] for v, ind in zip(values, index)]
+            data = [[v, ind+1] for v, ind in zip(values, index)]
 
         query = 'UPDATE ATOM SET {cn}=? WHERE rowID=?'.format(cn=colname)
         self.c.executemany(query, data)
-        # self.conn.commit()
 
     def add_column(self, colname, coltype='FLOAT', default=0):
         '''Add an etra column to the ATOM table.'''
