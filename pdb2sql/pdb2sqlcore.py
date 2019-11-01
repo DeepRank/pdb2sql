@@ -269,20 +269,23 @@ class pdb2sql(pdb2sql_base):
         print(ctmp.fetchall())
 
     # get the properties
-    def get(self, atnames, **kwargs):
-        '''Exectute a simple SQL query that extracts values of attributes for certain condition.
+    def get(self, columns, **kwargs):
+        '''Exectute simple SQL query to extract values of attributes
+            for certain conditions.
 
         Args :
-            attribute (str) : attribute to retreive eg : ['x','y,'z'], 'xyz', 'resSeq'
-                              if None all the attributes are returned
-
-            **kwargs : argument to select atoms eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+            columns (str): columns to retreive, eg: "x,y,z".
+                if "*" all the columns are returned.
+                Check all available columns by print_colnames().
+            **kwargs: argument to select atoms, dict value must be list.
+                eg: name = ['CA', 'O'], chainID = ['A'],
+                or no_name = ['CA', 'C'], no_chainID = ['A'].
 
         Returns:
-            data : list containing the value of the attributes
+            data: list containing the value of the attributes
 
-        Example :
-        >>> db.get('x,y,z',chainID='A',no_name=['H']")
+        Examples:
+            >>> db.get('x,y,z', chainID=['A'], no_resName=['ALA', 'TRP'])
         '''
 
         # the asked keys
