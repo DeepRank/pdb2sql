@@ -287,30 +287,32 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db.get('x,y,z', chainID=['A'], no_resName=['ALA', 'TRP'])
         '''
+        # check arguments format
+        valid_colnames = self.get_colnames()
+
+        if not isinstance(columns, str):
+            raise TypeError("argument columns must be str")
+
+        if columns != '*':
+            for i in columns.split(','):
+                if i not in valid_colnames:
+                    raise ValueError(
+                        f'Invalid column name {i}. Possible names are\n'
+                        f'{self.get_colnames()}')
 
         # the asked keys
         keys = kwargs.keys()
-
-        # check if the column exists
-        try:
-            self.c.execute(
-                "SELECT EXISTS(SELECT {an} FROM ATOM)".format(
-                    an=atnames))
-        except BaseException:
-            print('Error column %s not found in the database' % atnames)
-            self.get_colnames()
-            return
 
         if 'model' not in kwargs.keys() and self.nModel > 0:
             model_data = []
             for iModel in range(self.nModel):
                 kwargs['model'] = iModel
-                model_data.append(self.get(atnames, **kwargs))
+                model_data.append(self.get(columns, **kwargs))
             return model_data
 
         # if we have 0 key we take the entire db
         if len(kwargs) == 0:
-            query = 'SELECT {an} FROM ATOM'.format(an=atnames)
+            query = 'SELECT {an} FROM ATOM'.format(an=columns)
             data = [list(row) for row in self.c.execute(query)]
 
         #######################################################################
@@ -334,12 +336,12 @@ class pdb2sql(pdb2sql_base):
                         "SELECT EXISTS(SELECT {an} FROM ATOM)".format(
                             an=k))
                 except BaseException:
-                    print('Error column %s not found in the database' % k)
-                    self.get_colnames()
-                    return
+                    raise ValueError(
+                        f'Invalid column name {k}. Possible names are\n'
+                        f'{self.get_colnames()}')
 
             # form the query and the tuple value
-            query = 'SELECT {an} FROM ATOM WHERE '.format(an=atnames)
+            query = 'SELECT {an} FROM ATOM WHERE '.format(an=columns)
             conditions = []
             vals = ()
 
@@ -375,7 +377,7 @@ class pdb2sql(pdb2sql_base):
                         for v in vchunck:
                             new_kwargs = kwargs.copy()
                             new_kwargs[k] = v
-                            data += self.get(atnames, **new_kwargs)
+                            data += self.get(columns, **new_kwargs)
                         return data
 
                     # otherwise we just go on
@@ -419,13 +421,13 @@ class pdb2sql(pdb2sql_base):
 
         # empty data
         if len(data) == 0:
-            warnins.warn('sqldb.get returned an empty')
+            warnings.warn('SQL query get an empty')
             return data
 
         # fix the python <--> sql indexes
         # if atnames == 'rowID':
-        if 'rowID' in atnames:
-            index = atnames.split(',').index('rowID')
+        if 'rowID' in columns:
+            index = columns.split(',').index('rowID')
             for i in range(len(data)):
                 data[i][index] -= 1
 
