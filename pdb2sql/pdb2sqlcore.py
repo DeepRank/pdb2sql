@@ -10,20 +10,15 @@ from .pdb2sql_base import pdb2sql_base
 
 class pdb2sql(pdb2sql_base):
 
-    def __init__(
-            self,
-            pdbfile,
-            sqlfile=None,
-            fix_chainID=False,
-            verbose=False):
+    def __init__(self, pdbfile, **kwargs):
 
-        super().__init__(pdbfile, sqlfile, fix_chainID, verbose)
+        super().__init__(pdbfile, **kwargs)
 
         # create the database
         self._create_sql()
 
         # fix the chain ID
-        if fix_chainID:
+        if self.fix_chainID:
             self._fix_chainID()
 
     def _create_sql(self):

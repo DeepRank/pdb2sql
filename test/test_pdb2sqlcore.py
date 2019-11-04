@@ -8,10 +8,6 @@ from pdb2sql import pdb2sql
 from utils import CaptureOutErr
 
 
-# read and parse
-# get and set
-# write
-
 class TestCreateSQL(unittest.TestCase):
 
     def setUp(self):
@@ -178,9 +174,6 @@ class TestCreateSQL(unittest.TestCase):
         self.assertEqual(result, target)
         db.close()
 
-
-    # def test_multi_models(self)
-    # def test_26_chains(self)
 
 class TestPrintGetUpdate(unittest.TestCase):
     def setUp(self):
