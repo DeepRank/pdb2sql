@@ -27,6 +27,7 @@ class pdb2sql_base(object):
 
         self.pdbfile = pdbfile
         self.sqlfile = sqlfile
+        self.fix_chainID = fix_chainID
         self.is_valid = True
         self.verbose = verbose
 
