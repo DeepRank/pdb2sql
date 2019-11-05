@@ -29,7 +29,6 @@ class interface(pdb2sql):
             extend_to_residue=False,
             only_backbone_atoms=False,
             excludeH=False,
-            return_only_backbone_atoms=False,
             return_contact_pairs=False):
         """get contact atoms.
 
@@ -46,8 +45,6 @@ class interface(pdb2sql):
                 calculate contact or not. Defaults to False.
             excludeH (bool): Exculde hydrogen atoms for contact
                 calculation or not. Defaults to False.
-            return_only_backbone_atoms (bool): return only backbone atoms
-                out of contact atoms or not. Defaults to False.
             return_contact_pairs (bool): if return atomic contact pairs
                 or not. Defaults to False.
 
@@ -128,28 +125,6 @@ class interface(pdb2sql):
             for chain in chainIDs:
                 index_contact[chain] = self._extend_contact_to_residue(
                     index_contact[chain], only_backbone_atoms)
-
-        # filter only the backbone atoms
-        if return_only_backbone_atoms and not only_backbone_atoms:
-
-            # get all the names
-            # there are better ways to do that !
-            atNames = np.array(self.get('name'))
-
-            # change the index_contacts
-            for chain in chainIDs:
-                index_contact[chain] = [
-                    ind for ind in index_contact[chain] if atNames[ind] in self.backbone_type]
-
-            # change the contact pairs
-            tmp_dict = {}
-            for ind1, ind2_list in index_contact_pairs.items():
-
-                if atNames[ind1] in self.backbone_type:
-                    tmp_dict[ind1] = [
-                        ind2 for ind2 in ind2_list if atNames[ind2] in self.backbone_type]
-
-            index_contact_pairs = tmp_dict
 
         # not sure that's the best way of dealing with that
         # TODO split to two functions get_contact_atoms and get_contact_atom_pairs
