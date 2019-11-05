@@ -1,9 +1,8 @@
 
 import numpy as np
 import itertools
+import warnings
 from .pdb2sqlcore import pdb2sql
-
-#from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
 
 
 class interface(pdb2sql):
@@ -104,7 +103,7 @@ class interface(pdb2sql):
 
         # if no atoms were found
         if len(index_contact_pairs) == 0:
-            print('Warning : No contact atoms detected in pdb2sql')
+            warnings.warn('No contact atoms detected in pdb2sql')
 
         # extend the list to entire residue
         if extend_to_residue:
