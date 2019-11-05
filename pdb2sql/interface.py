@@ -87,16 +87,12 @@ class interface(pdb2sql):
                 if len(contacts) > 0 and any(
                         [not only_backbone_atoms, atName1[i] in self.backbone_type]):
 
-                    # the contact atoms
-                    index_contact[chain1] += [index[chain1][i]]
-                    index_contact[chain2] += [index[chain2][k] for k in contacts if (any(
-                        [atName2[k] in self.backbone_type, not only_backbone_atoms]) and not (excludeH and atName2[k][0] == 'H'))]
-
-                    # the pairs
                     pairs = [index[chain2][k] for k in contacts if any(
                             [atName2[k] in self.backbone_type, not only_backbone_atoms]) and not ( excludeH and atName2[k][0] == 'H')]
                     if len(pairs) > 0:
                         index_contact_pairs[index[chain1][i]] = pairs
+                        index_contact[chain1] += [index[chain1][i]]
+                        index_contact[chain2] += pairs
 
         # get uniques
         for chain in chainIDs:
