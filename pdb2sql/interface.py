@@ -112,13 +112,13 @@ class interface(pdb2sql):
                         index_contact[chain1] += [index[chain1][i]]
                         index_contact[chain2] += pairs
 
-        # get uniques
-        for chain in chainIDs:
-            index_contact[chain] = sorted(set(index_contact[chain]))
-
         # if no atoms were found
         if len(index_contact_pairs) == 0:
             warnings.warn('No contact atoms detected in pdb2sql')
+
+        # get uniques
+        for chain in chainIDs:
+            index_contact[chain] = sorted(set(index_contact[chain]))
 
         # extend the list to entire residue
         if extend_to_residue:
