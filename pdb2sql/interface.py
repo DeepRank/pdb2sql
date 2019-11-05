@@ -7,10 +7,11 @@ from .pdb2sqlcore import pdb2sql
 
 class interface(pdb2sql):
 
-    def __init__(self, pdb):
+    # def __init__(self, pdb):
+    def __init__(self, pdb, **kwargs):
         '''Identify interface between protein chains.'''
 
-        pdb2sql.__init__(self, pdb)
+        super().__init__(pdb, **kwargs)
         self.backbone_type = ['CA', 'C', 'N', 'O']
 
     ##########################################################################
