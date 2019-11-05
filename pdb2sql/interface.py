@@ -31,12 +31,33 @@ class interface(pdb2sql):
             excludeH=False,
             return_only_backbone_atoms=False,
             return_contact_pairs=False):
+        """get contact atoms.
 
+        Args:
+            cutoff (float): distance cutoff for calculating contact.
+                Defaults to 8.5.
+            allchains (bool): calculate contacts for all chains or not.
+                 Defaults to False.
+            chain1 (str): first chain ID. Defaults to 'A'.
+            chain2 (str): second chain ID. Defaults to 'B'.
+            extend_to_residue (bool): get all atoms of the residues containing
+                at least one contact atom. Defaults to False.
+            only_backbone_atoms (bool): only use backbone atoms to
+                calculate contact or not. Defaults to False.
+            excludeH (bool): Exculde hydrogen atoms for contact
+                calculation or not. Defaults to False.
+            return_only_backbone_atoms (bool): return only backbone atoms
+                out of contact atoms or not. Defaults to False.
+            return_contact_pairs (bool): if return atomic contact pairs
+                or not. Defaults to False.
+
+        Returns:
+            dict: rowID of contact atoms or rowID of contact atom pairs
+        """
         if allchains:
             chainIDs = self.get_chains()
         else:
             chainIDs = [chain1, chain2]
-        nchains = len(chainIDs)
 
         xyz = dict()
         index = dict()
@@ -53,7 +74,7 @@ class interface(pdb2sql):
             atName[chain] = data[:, -1]
 
         # loop through the first chain
-        # TO DO : loop through the smallest chain instead ...
+        # TODO : loop through the smallest chain instead ...
         #index_contact_1,index_contact_2 = [],[]
         #index_contact_pairs = {}
 
@@ -131,6 +152,7 @@ class interface(pdb2sql):
             index_contact_pairs = tmp_dict
 
         # not sure that's the best way of dealing with that
+        # TODO split to two functions get_contact_atoms and get_contact_atom_pairs
         if return_contact_pairs:
             return index_contact_pairs
         else:
