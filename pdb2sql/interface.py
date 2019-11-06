@@ -30,7 +30,7 @@ class interface(pdb2sql):
             only_backbone_atoms=False,
             excludeH=False,
             return_contact_pairs=False):
-        """get contact atoms.
+        """get rowIDs of contact atoms.
 
         Args:
             cutoff (float): distance cutoff for calculating contact.
@@ -189,6 +189,28 @@ class interface(pdb2sql):
             excludeH=False,
             only_backbone_atoms=False,
             return_contact_pairs=False):
+        """get contact residues represented with (chain,resSeq, resname).
+
+        Args:
+            cutoff (float): distance cutoff for contact calculation
+                Defaults to 8.5.
+            allchains (bool): calculate contacts for all chains or not.
+                 Defaults to False.
+            chain1 (str): first chain ID. Defaults to 'A'.
+            chain2 (str): second chain ID. Defaults to 'B'.
+            excludeH (bool): Exculde hydrogen atoms for contact
+                calculation or not. Defaults to False.
+            only_backbone_atoms (bool): only use backbone atoms to
+                calculate contact or not. Defaults to False.
+            return_contact_pairs (bool): if return residue contact pairs
+                or not. Defaults to False.
+
+        Returns:
+            dict: (chain,resSeq,resName) of contact residues or
+                contact residue pairs.
+        """
+        #TODO split this func to two functions
+        #TODO get_contact_residues and get_contact_residue_pairs
 
         # get the contact atoms
         if return_contact_pairs:
