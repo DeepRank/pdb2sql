@@ -262,6 +262,8 @@ class interface(pdb2sql):
                 allchains=allchains,
                 chain1=chain1,
                 chain2=chain2,
+                excludeH=excludeH,
+                only_backbone_atoms=only_backbone_atoms,
                 return_contact_pairs=False)
 
             # get the residue info
