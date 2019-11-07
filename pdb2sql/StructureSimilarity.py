@@ -888,13 +888,14 @@ class StructureSimilarity(object):
                 y = float(line[38:46])
                 z = float(line[46:54])
 
+                backbone = ['C','CA','N','O']
                 if chainID in resData.keys():
-                    if resSeq in resData[chainID] and name in ['C','CA','N','O']:
+                    if resSeq in resData[chainID] and name in backbone:
                         xyz_in_zone.append([x,y,z])
-                    elif resSeq not in resData[chainID] and name in ['C','CA','N','O']:
+                    elif resSeq not in resData[chainID] and name in backbone:
                         xyz_not_in_zone.append([x,y,z])
                 else:
-                    if name in ['C','CA','N','O']:
+                    if name in backbone:
                         xyz_not_in_zone.append([x,y,z])
 
         if return_not_in_zone:
@@ -940,16 +941,17 @@ class StructureSimilarity(object):
                 y = float(line[38:46])
                 z = float(line[46:54])
 
+                backbone = ['C','CA','N','O']
                 if chainID in resData.keys():
 
-                    if resSeq in resData[chainID] and name in ['C','CA','N','O']:
+                    if resSeq in resData[chainID] and name in backbone:
                         data_in_zone.append([chainID,resSeq,name,x,y,z])
 
-                    elif resSeq not in resData[chainID] and name in ['C','CA','N','O']:
+                    elif resSeq not in resData[chainID] and name in backbone:
                         data_not_in_zone.append([chainID,resSeq,name,x,y,z])
 
                 else:
-                    if name in ['C','CA','N','O']:
+                    if name in backbone:
                         data_not_in_zone.append([chainID,resSeq,name,x,y,z])
 
         if return_not_in_zone:
