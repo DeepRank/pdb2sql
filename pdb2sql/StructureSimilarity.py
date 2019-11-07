@@ -500,18 +500,19 @@ class StructureSimilarity(object):
         Returns:
             float: L-RMSD value of the conformation
         """
+        backbone = ['CA', 'C', 'N', 'O']
+
         # create the sql
         sql_decoy = pdb2sql(self.decoy,sqlfile='decoy.db')
         sql_ref = pdb2sql(self.ref,sqlfile='ref.db')
 
         # extract the pos of chains A
-        xyz_decoy_A = np.array(sql_decoy.get('x,y,z',chainID='A'))
-        xyz_ref_A = np.array(sql_ref.get('x,y,z',chainID='A'))
+        xyz_decoy_A = np.array(sql_decoy.get('x,y,z',chainID='A', name=backbone))
+        xyz_ref_A = np.array(sql_ref.get('x,y,z',chainID='A', name=backbone))
 
         # extract the pos of chains B
-        xyz_decoy_B = np.array(sql_decoy.get('x,y,z',chainID='B'))
-        xyz_ref_B = np.array(sql_ref.get('x,y,z',chainID='B'))
-
+        xyz_decoy_B = np.array(sql_decoy.get('x,y,z',chainID='B', name=backbone))
+        xyz_ref_B = np.array(sql_ref.get('x,y,z',chainID='B', name=backbone))
 
         # check the lengthes
         if len(xyz_decoy_A) != len(xyz_ref_A):
@@ -607,10 +608,10 @@ class StructureSimilarity(object):
         Returns:
             list, list: list of xyz for both database
         """
-
+        backbone = ['CA', 'C', 'N', 'O']
         # get data
-        data1 = db1.get('chainID,resSeq,name',chainID=chain)
-        data2 = db2.get('chainID,resSeq,name',chainID=chain)
+        data1 = db1.get('chainID,resSeq,name',chainID=chain, name=backbone)
+        data2 = db2.get('chainID,resSeq,name',chainID=chain, name=backbone)
 
         # tuplify
         data1 = [tuple(d1) for d1 in data1]
