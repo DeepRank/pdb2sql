@@ -18,9 +18,10 @@ class StructureSimilarity(object):
 
         Note:
             1. The decoy and pdb must have consistent residue numbering.
-            2. The zone files here are different with those from ProFit.
-                lzone: only zone for fitting.
-                izone: zone for both fitting and rmsd calculation.
+            2. The lzone files here are different with those from ProFit.
+                lzone: here need only zone residues for fitting, no need
+                of residue for rms calculation. RMS residues are
+                automatically assumed as the other chain,
             Be careful with ProFit zone files that contain RZONE/RATOMS.
 
         Args:
@@ -30,7 +31,7 @@ class StructureSimilarity(object):
 
         Examples:
             >>> from pdb2sql import StructureSimilarity
-            >>> decoy = '1AK4_1w.pdb'
+            >>> decoy = '1AK4_5w.pdb'
             >>> ref = '1AK4.pdb'
             >>> sim = StructureSimilarity(decoy,ref)
             >>> irmsd_fast = sim.compute_irmsd_fast(method='svd',
@@ -52,7 +53,6 @@ class StructureSimilarity(object):
         self.ref = ref
         self.verbose = verbose
 
-
     ################################################################################################
     #
     #   FAST ROUTINE TO COMPUTE THE L-RMSD
@@ -68,7 +68,8 @@ class StructureSimilarity(object):
 
         L-RMSD is computed by aligning the longest chain of the decoy to
         the one of the reference and computing the RMSD of the shortest
-        chain between decoy and reference. See reference:
+        chain between decoy and reference. Both fitting and rms calculation
+        use only backbone atoms. See reference:
             DockQ: A Quality Measure for Protein-Protein Docking Models
             https://doi.org/10.1371/journal.pone.0161879
 
@@ -95,10 +96,10 @@ class StructureSimilarity(object):
         if check:
 
             # Note:
-            # 1. read_data_zone returns in_zone and not_in_zone
-            # which means the in_zone only defines the zone for fitting
-            # but not for rmsd calculation.
-            # 2. the decoy and ref pdb must have consitent residue
+            # 1. get_data_zone_backbone returns in_zone and not_in_zone
+            #  here the in_zone defines the zone for fitting,
+            #  and not_in_zone defines the zone for rms calculation.
+            # 2. the decoy and ref pdb must have consistent residue
             # numbering, otherwise e.g. shifted numbering can also give
             # results which is totally wrong, because the code here does
             # not do sequence alignment.
@@ -487,7 +488,8 @@ class StructureSimilarity(object):
 
         L-RMSD is computed by aligning the longest chain of the decoy to
         the one of the reference and computing the RMSD of the shortest
-        chain between decoy and reference. See reference:
+        chain between decoy and reference. Both fitting and rms calculation
+        use only backbone atoms. See reference:
             DockQ: A Quality Measure for Protein-Protein Docking Models
             https://doi.org/10.1371/journal.pone.0161879
 
@@ -907,17 +909,18 @@ class StructureSimilarity(object):
 
 
     @staticmethod
-    def read_data_zone(pdb_file,resData,return_not_in_zone=False):
-        """Read the data of the atoms in the zone.
+    def get_data_zone_backbone(pdb_file,resData,return_not_in_zone=False):
+        """Get the data [chain, resSeq, name, x, y, z] of backbone
+            atoms in the zone.
 
         Args:
             pdb_file (str): filename containing the pdb of the molecule
-            resData (dict): information about the residues
+            resData (dict): information about the zone residues
             return_not_in_zone (bool, optional): Do we return the atoms
                 not in the zone
 
         Returns:
-            list(float): data of the atoms in the zone
+            list(float): data of the backbone atoms in the zone
         """
 
         # read the ref file
