@@ -103,8 +103,8 @@ class StructureSimilarity(object):
             # results which is totally wrong, because the code here does
             # not do sequence alignment.
 
-            data_decoy_long, data_decoy_short  = self.read_data_zone(self.decoy,resData,return_not_in_zone=True)
-            data_ref_long,   data_ref_short    = self.read_data_zone(self.ref,resData,return_not_in_zone=True)
+            data_decoy_long, data_decoy_short  = self.get_data_zone_backbone(self.decoy,resData,return_not_in_zone=True)
+            data_ref_long,   data_ref_short    = self.get_data_zone_backbone(self.ref,resData,return_not_in_zone=True)
 
             atom_decoy_long = [ data[:3] for data in data_decoy_long ]
             atom_ref_long   = [ data[:3] for data in data_ref_long ]
@@ -134,9 +134,8 @@ class StructureSimilarity(object):
 
         # extract the xyz
         else:
-
-            xyz_decoy_long,xyz_decoy_short  = self.read_xyz_zone(self.decoy,resData,return_not_in_zone=True)
-            xyz_ref_long,xyz_ref_short  = self.read_xyz_zone(self.ref,resData,return_not_in_zone=True)
+            xyz_decoy_long,xyz_decoy_short  = self.get_xyz_zone_backbone(self.decoy,resData,return_not_in_zone=True)
+            xyz_ref_long,xyz_ref_short  = self.get_xyz_zone_backbone(self.ref,resData,return_not_in_zone=True)
 
         # get the translation so that both A chains are centered
         tr_decoy = self.get_trans_vect(xyz_decoy_long)
@@ -259,8 +258,8 @@ class StructureSimilarity(object):
 
         if check:
 
-            data_decoy  = self.read_data_zone(self.decoy,resData,return_not_in_zone=False)
-            data_ref    = self.read_data_zone(self.ref,resData,return_not_in_zone=False)
+            data_decoy  = self.get_data_zone_backbone(self.decoy,resData,return_not_in_zone=False)
+            data_ref    = self.get_data_zone_backbone(self.ref,resData,return_not_in_zone=False)
 
             atom_decoy = [ data[:3] for data in data_decoy]
             atom_ref   = [ data[:3] for data in data_ref ]
@@ -277,8 +276,8 @@ class StructureSimilarity(object):
 
         # extract the xyz
         else:
-            xyz_contact_decoy = self.read_xyz_zone(self.decoy,resData)
-            xyz_contact_ref   = self.read_xyz_zone(self.ref,resData)
+            xyz_contact_decoy = self.get_xyz_zone_backbone(self.decoy,resData)
+            xyz_contact_ref   = self.get_xyz_zone_backbone(self.ref,resData)
 
         # get the translation so that both A chains are centered
         tr_decoy = self.get_trans_vect(xyz_contact_decoy)
@@ -856,17 +855,17 @@ class StructureSimilarity(object):
 
 
     @staticmethod
-    def read_xyz_zone(pdb_file,resData,return_not_in_zone=False):
-        """Read the xyz of the zone atoms.
+    def get_xyz_zone_backbone(pdb_file,resData,return_not_in_zone=False):
+        """Get the xyz of zone backbone atoms.
 
         Args:
             pdb_file (str): filename containing the pdb of the molecule
-            resData (dict): information about the residues
-            return_not_in_zone (bool, optional): Do we return the atoms
-                not in the zone
+            resData (dict): information about the zone residues
+            return_not_in_zone (bool, optional): Do we return the
+                backbone atoms not in the zone.
 
         Returns:
-            list(float): XYZ of the atoms in the zone
+            list(float): XYZ of of backbone atoms in the zone.
         """
 
         # read the ref file
