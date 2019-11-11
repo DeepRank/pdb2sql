@@ -17,6 +17,7 @@ class TestSim(unittest.TestCase):
         self.irmsd = 1.135
         self.lrmsd = 6.655
         self.fnat = 0.790698
+        self.dockQ = 0.682191
 
     ####################################################################
     # test i-rmsd
@@ -132,6 +133,14 @@ class TestSim(unittest.TestCase):
         with self.assertWarnsRegex(UserWarning, 'Missing element'):
             result = self.sim.compute_fnat_pdb2sql()
         self.assertEqual(result, self.fnat)
+
+    ####################################################################
+    # test dockQ
+    ####################################################################
+    def test_dockQ_default(self):
+        """verify compute_DockQScore()"""
+        result = self.sim.compute_DockQScore(self.fnat, self.lrmsd, self.irmsd)
+        self.assertEqual(result, self.dockQ)
 
 
 if __name__ == '__main__':
