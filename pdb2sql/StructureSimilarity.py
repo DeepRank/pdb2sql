@@ -140,7 +140,7 @@ class StructureSimilarity(object):
         U = self.get_rotation_matrix(xyz_decoy_long,xyz_ref_long,method=method)
 
         # rotate the entire fragment
-        xyz_decoy_short = transform.rotation_matrix(xyz_decoy_short,U,center=False)
+        xyz_decoy_short = transform.rotation_matrix(xyz_decoy_short,U,center=[0,0,0])
 
         # compute the RMSD
         return self.get_rmsd(xyz_decoy_short,xyz_ref_short)
@@ -271,7 +271,7 @@ class StructureSimilarity(object):
         U = self.get_rotation_matrix(xyz_contact_decoy,xyz_contact_ref,method=method)
 
         # rotate the entire fragment
-        xyz_contact_decoy = transform.rotation_matrix(xyz_contact_decoy,U,center=False)
+        xyz_contact_decoy = transform.rotation_matrix(xyz_contact_decoy,U,center=None)
 
         # return the RMSD
         return self.get_rmsd(xyz_contact_decoy,xyz_contact_ref)
@@ -524,7 +524,7 @@ class StructureSimilarity(object):
         U = self.get_rotation_matrix(xyz_decoy_long,xyz_ref_long,method=method)
 
         # rotate the entire fragment
-        xyz_decoy_short = transform.rotation_matrix(xyz_decoy_short,U,center=False)
+        xyz_decoy_short = transform.rotation_matrix(xyz_decoy_short,U,center=[0,0,0])
 
 
         # compute the RMSD
@@ -542,7 +542,7 @@ class StructureSimilarity(object):
             xyz_decoy += tr_decoy
 
             # rotate decoy
-            xyz_decoy = transform.rotation_matrix(xyz_decoy,U,center=False)
+            xyz_decoy = transform.rotation_matrix(xyz_decoy,U,center=[0,0,0])
 
             # update the sql database
             sql_decoy.update_column('x',xyz_decoy[:,0])
@@ -704,7 +704,7 @@ class StructureSimilarity(object):
         U = self.get_rotation_matrix(xyz_contact_decoy,xyz_contact_ref,method=method)
 
         # rotate the entire fragment
-        xyz_contact_decoy = transform.rotation_matrix(xyz_contact_decoy,U,center=False)
+        xyz_contact_decoy = transform.rotation_matrix(xyz_contact_decoy,U,center=None)
 
         # compute the RMSD
         irmsd = self.get_rmsd(xyz_contact_decoy,xyz_contact_ref)
