@@ -63,6 +63,8 @@ class StructureSimilarity(object):
     #
     #################################################################################################
 
+    # TODO add output zone files
+
     # compute the L-RMSD
     def compute_lrmsd_fast(self,lzone=None,method='svd',check=True):
         '''Fast routine to compute the L-RMSD.
@@ -133,7 +135,7 @@ class StructureSimilarity(object):
         xyz_ref_short += tr_ref
         xyz_ref_long +=  tr_ref
 
-        # get the ideql rotation matrix
+        # get the ideal rotation matrix
         # to superimpose the A chains
         U = self.get_rotation_matrix(xyz_decoy_long,xyz_ref_long,method=method)
 
@@ -264,7 +266,7 @@ class StructureSimilarity(object):
         xyz_contact_decoy += tr_decoy
         xyz_contact_ref   += tr_ref
 
-        # get the ideql rotation matrix
+        # get the ideal rotation matrix
         # to superimpose the A chains
         U = self.get_rotation_matrix(xyz_contact_decoy,xyz_contact_ref,method=method)
 
@@ -274,7 +276,6 @@ class StructureSimilarity(object):
         # return the RMSD
         return self.get_rmsd(xyz_contact_decoy,xyz_contact_ref)
 
-    # TODO cutoff?
     def compute_izone(self,cutoff=10.0,save_file=True,filename=None):
         """Compute the zones for i-rmsd calculationss.
 
@@ -353,7 +354,7 @@ class StructureSimilarity(object):
         # compute ref residue pairs
         residue_pairs_ref = self.compute_residue_pairs_ref( cutoff,save_file=False)
 
-        # create a dict of the ecoy data
+        # create a dict of the decoy data
         data_decoy = pdb2sql.read_pdb(self.decoy)
 
         # read the decoy data
@@ -387,7 +388,7 @@ class StructureSimilarity(object):
                     residue_xyz[key].append([x,y,z])
                     residue_name[key].append(name)
 
-        # loop over the residue pairs of the
+        # loop over the residue pairs of the ref
         nCommon,nTotal = 0,0
         for resA,resB_list in residue_pairs_ref.items():
             if resA in residue_xyz.keys():
@@ -437,7 +438,6 @@ class StructureSimilarity(object):
             f.close()
 
         return residue_pairs_ref
-
 
 
     ################################################################################################
@@ -709,8 +709,6 @@ class StructureSimilarity(object):
         # compute the RMSD
         irmsd = self.get_rmsd(xyz_contact_decoy,xyz_contact_ref)
 
-
-
         # export the pdb for verifiactions
         if exportpath is not None:
 
@@ -822,8 +820,6 @@ class StructureSimilarity(object):
     #   HELPER ROUTINES TO HANDLE THE ZONE FILES
     #
     #################################################################################################
-
-
     @staticmethod
     def get_xyz_zone_backbone(pdb_file,resData,return_not_in_zone=False):
         """Get the xyz of zone backbone atoms.
@@ -889,7 +885,6 @@ class StructureSimilarity(object):
         Returns:
             list(float): data of the backbone atoms in the zone
         """
-
         # read the ref file
         data = pdb2sql.read_pdb(pdb_file)
 
