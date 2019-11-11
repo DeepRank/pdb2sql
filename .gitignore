@@ -2,7 +2,5 @@ Byte-compiled / optimized
 *__pycache__*
 *sublime.*
 *.egg-info
-*.izone
-*.lzone
-*.ref_pairs
 .vscode/*
+.DS_Store
