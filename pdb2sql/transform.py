@@ -139,6 +139,17 @@ def rot_mat(db, mat, **kwargs):
     _update(db, xyz, **kwargs)
 
 def rotation_matrix(xyz, rot_mat, center=None):
+    """Rotate xyz from a rotation matrix.
+
+    Args:
+        xyz(np.array): xyz coordinates
+        rot_mat(np.array): 3x3 rotation matrix
+        center (float): rotation center. Defaults to None, i.e. the
+            mean of the xyz.
+
+    Returns:
+        np.array: the rotated xyz coordinates
+    """
     if center is None:
         center = np.mean(xyz, 0)
     return np.dot(rot_mat, (xyz - center).T).T + center
