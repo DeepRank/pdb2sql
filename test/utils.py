@@ -22,7 +22,5 @@ class CaptureOutErr(object):
     def __exit__(self, *args):
         self.stdout.extend(self._out.getvalue().splitlines())
         self.stderr.extend(self._err.getvalue().splitlines())
-        # self.stdout.extend(self._out.getvalue())
-        # self.stderr.extend(self._err.getvalue())
         sys.stdout = sys.__stdout__
         sys.stderr = sys.__stderr__
