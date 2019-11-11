@@ -1032,7 +1032,8 @@ class StructureSimilarity(object):
         def scale_rms(rms,d):
             return(1./(1+(rms/d)**2))
 
-        return 1./3 * (fnat + scale_rms(lrmsd,d1) + scale_rms(irmsd,d2))
+        dockq = 1./3 * (fnat + scale_rms(lrmsd,d1) + scale_rms(irmsd,d2))
+        return round(dockq, 6)
 
 
     # compute the RMSD of two sets of points
