@@ -407,7 +407,7 @@ class StructureSimilarity(object):
                 warnings.warn(msg)
 
         # normalize
-        return nCommon/nTotal
+        return round(nCommon/nTotal, 6)
 
     # compute the residue pair of the reference
     def compute_residue_pairs_ref(self,cutoff=5.0,save_file=True,filename=None):
@@ -811,8 +811,7 @@ class StructureSimilarity(object):
         sql_decoy.close()
         sql_ref.close()
 
-        return fnat
-
+        return round(fnat, 6)
 
 
     ################################################################################################
@@ -1052,7 +1051,7 @@ class StructureSimilarity(object):
             float: RMSD value
         """
         n = len(P)
-        return np.sqrt(1./n*np.sum((P-Q)**2))
+        return round(np.sqrt(1./n*np.sum((P-Q)**2)), 3)
 
 
     # compute the translation vector to center a set of points
