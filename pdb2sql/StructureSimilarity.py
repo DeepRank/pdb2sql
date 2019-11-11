@@ -334,7 +334,7 @@ class StructureSimilarity(object):
     #
     #################################################################################################
 
-    def compute_fnat_fast(self,ref_pairs=None,cutoff=5):
+    def compute_fnat_fast(self,cutoff=5):
         """Compute the FNAT of the conformation.
 
         Fnat is the fraction of reference interface contacts preserved
@@ -342,7 +342,6 @@ class StructureSimilarity(object):
         of heavy atoms from two chains within 5Å of each other.
 
         Args:
-            ref_pairs (str, optional): file name describing the pairs
             cutoff (int, optional): cutoff for the contact atoms
 
         Returns:
@@ -351,16 +350,8 @@ class StructureSimilarity(object):
         Raises:
             ValueError: if the decoy file is not found
         """
-        # read the izone file
-        if ref_pairs is None:
-            residue_pairs_ref = self.compute_residue_pairs_ref(
-                cutoff,save_file=False)
-        elif not os.path.isfile(ref_pairs):
-            residue_pairs_ref = self.compute_residue_pairs_ref(
-                cutoff,save_file=True,filename=ref_pairs)
-        else:
-            with open(ref_pairs,'rb') as f:
-            	residue_pairs_ref = pickle.load(f)
+        # compute ref residue pairs
+        residue_pairs_ref = self.compute_residue_pairs_ref( cutoff,save_file=False)
 
         # create a dict of the ecoy data
         data_decoy = pdb2sql.read_pdb(self.decoy)
