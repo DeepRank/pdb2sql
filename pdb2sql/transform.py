@@ -83,7 +83,7 @@ def rot_xyz_around_axis(xyz, axis, angle, center=None):
                          ct + uz**2 * (1 - ct)]])
 
     # apply the rotation
-    return rotation_matrix(xyz, rot_mat, center)
+    return rotate(xyz, rot_mat, center)
 
 ########################################################################
 # Rotation using Euler anlges
@@ -120,7 +120,7 @@ def rotation_euler(xyz, alpha, beta, gamma, center=None):
     rot_mat = np.dot(rz, np.dot(ry, rx))
 
     # apply the rotation
-    return rotation_matrix(xyz, rot_mat, center)
+    return rotate(xyz, rot_mat, center)
 
 ########################################################################
 # Rotation using provided rotation matrix
@@ -135,23 +135,33 @@ def rot_mat(db, mat, **kwargs):
             See pdb2sql.get()
     """
     xyz = _get_xyz(db, **kwargs)
-    xyz = rotation_matrix(xyz, mat)
+    xyz = rotate(xyz, mat)
     _update(db, xyz, **kwargs)
 
-def rotation_matrix(xyz, rot_mat, center=None):
+
+def rotate(xyz, rot_mat, center=None):
     """Rotate xyz from a rotation matrix.
 
     Args:
-        xyz(np.array): xyz coordinates
-        rot_mat(np.array): 3x3 rotation matrix
-        center (float): rotation center. Defaults to None, i.e. the
-            mean of the xyz.
+        xyz(np.ndarray): x,y,z coordinates
+        rot_mat(np.ndarray): rotation matrix
+        center (list or np.ndarray, optional): rotation center.
+            Defaults to None, i.e. using molecule center as rotation
+            center.
+
+    Raises:
+        TypeError: Rotation center must be list or 1D np.ndarray.
 
     Returns:
-        np.array: the rotated xyz coordinates
+        np.ndarray: x,y,z coordinates after rotation
     """
+    # the default rotation center is the center of molecule itself.
     if center is None:
         center = np.mean(xyz, 0)
+
+    if not isinstance(center, (list, np.ndarray)):
+        raise TypeError("Rotation center must be list or 1D np.ndarray")
+
     return np.dot(rot_mat, (xyz - center).T).T + center
 
 ########################################################################
