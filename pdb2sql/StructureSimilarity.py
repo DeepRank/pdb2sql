@@ -882,7 +882,7 @@ class StructureSimilarity(object):
                 not in the zone
 
         Returns:
-            list(float): data of the backbone atoms in the zone
+            set(float): data of the backbone atoms in the zone
         """
         # read the ref file
         data = pdb2sql.read_pdb(pdb_file)
@@ -910,21 +910,20 @@ class StructureSimilarity(object):
                 if chainID in resData.keys():
 
                     if resSeq in resData[chainID] and name in backbone:
-                        data_in_zone.append([chainID,resSeq,name,x,y,z])
+                        data_in_zone.append((chainID,resSeq,name))
 
                     elif resSeq not in resData[chainID] and name in backbone:
-                        data_not_in_zone.append([chainID,resSeq,name,x,y,z])
+                        data_not_in_zone.append((chainID,resSeq,name))
 
                 else:
                     if name in backbone:
-                        data_not_in_zone.append([chainID,resSeq,name,x,y,z])
+                        data_not_in_zone.append((chainID,resSeq,name))
 
         if return_not_in_zone:
-            return data_in_zone,data_not_in_zone
+            return set(data_in_zone),set(data_not_in_zone)
 
         else:
-            return data_in_zone
-
+            return set(data_in_zone)
 
     @staticmethod
     def read_zone(zone_file):
