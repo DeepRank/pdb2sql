@@ -872,8 +872,7 @@ class StructureSimilarity(object):
 
     @staticmethod
     def get_data_zone_backbone(pdb_file,resData,return_not_in_zone=False):
-        """Get the data [chain, resSeq, name, x, y, z] of backbone
-            atoms in the zone.
+        """Get the data (chainID, resSeq, name) of backbone atoms in the zone.
 
         Args:
             pdb_file (str): filename containing the pdb of the molecule
