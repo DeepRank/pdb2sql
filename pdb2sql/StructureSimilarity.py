@@ -22,7 +22,8 @@ class StructureSimilarity(object):
                 lzone: here need only zone residues for fitting, no need
                 of residue for rms calculation. RMS residues are
                 automatically assumed as the other chain,
-            Be careful with ProFit zone files that contain RZONE/RATOMS.
+                Be careful with ProFit zone files that contain RZONE/RATOMS.
+            3. Missing residues/atoms will be ignored.
 
         Args:
             decoy : pdb file or sql database of the decoy conformation
@@ -233,8 +234,8 @@ class StructureSimilarity(object):
         # read the izone file
         if izone is None:
             resData = self.compute_izone(cutoff,save_file=False)
-        elif not os.path.isfile(izone):
-            resData = self.compute_izone(cutoff,save_file=True,filename=izone)
+        # elif not os.path.isfile(izone):
+        #     resData = self.compute_izone(cutoff,save_file=True,filename=izone)
         else:
             resData = self.read_zone(izone)
 
