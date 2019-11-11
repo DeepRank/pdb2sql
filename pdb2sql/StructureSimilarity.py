@@ -107,31 +107,13 @@ class StructureSimilarity(object):
             data_decoy_long, data_decoy_short  = self.get_data_zone_backbone(self.decoy,resData,return_not_in_zone=True)
             data_ref_long,   data_ref_short    = self.get_data_zone_backbone(self.ref,resData,return_not_in_zone=True)
 
-            atom_decoy_long = [ data[:3] for data in data_decoy_long ]
-            atom_ref_long   = [ data[:3] for data in data_ref_long ]
+            atom_long = data_ref_long.intersection(data_decoy_long)
+            xyz_decoy_long = self._get_xyz(self.decoy, atom_long)
+            xyz_ref_long = self._get_xyz(self.ref, atom_long)
 
-            xyz_decoy_long, xyz_ref_long = [],[]
-            for ind_decoy, at in enumerate(atom_decoy_long):
-                try:
-                    ind_ref = atom_ref_long.index(at)
-                    xyz_decoy_long.append(data_decoy_long[ind_decoy][3:])
-                    xyz_ref_long.append(data_ref_long[ind_ref][3:])
-                except ValueError:
-                    warnings.warn(
-                        f'Decoy atom {at} not found in reference pdb')
-
-            atom_decoy_short = [data[:3] for data in data_decoy_short]
-            atom_ref_short   = [data[:3] for data in data_ref_short]
-
-            xyz_decoy_short, xyz_ref_short = [],[]
-            for ind_decoy, at in enumerate(atom_decoy_short):
-                try:
-                    ind_ref = atom_ref_short.index(at)
-                    xyz_decoy_short.append(data_decoy_short[ind_decoy][3:])
-                    xyz_ref_short.append(data_ref_short[ind_ref][3:])
-                except ValueError:
-                    warnings.warn(
-                        f'Decoy atom {at} not found in reference pdb')
+            atom_short = data_ref_short.intersection(data_decoy_short)
+            xyz_decoy_short = self._get_xyz(self.decoy, atom_short)
+            xyz_ref_short = self._get_xyz(self.ref, atom_short)
 
         # extract the xyz
         else:
@@ -264,16 +246,9 @@ class StructureSimilarity(object):
 
             atom_decoy = [ data[:3] for data in data_decoy]
             atom_ref   = [ data[:3] for data in data_ref ]
-
-            xyz_contact_decoy, xyz_contact_ref = [],[]
-            for ind_decoy, at in enumerate(atom_decoy):
-                try:
-                    ind_ref = atom_ref.index(at)
-                    xyz_contact_decoy.append(data_decoy[ind_decoy][3:])
-                    xyz_contact_ref.append(data_ref[ind_ref][3:])
-                except ValueError:
-                    warnings.warn(
-                        f'Decoy atom {at} not found in reference pdb')
+            atom_common = data_ref.intersection(data_decoy)
+            xyz_contact_decoy = self._get_xyz(self.decoy, atom_common)
+            xyz_contact_ref = self._get_xyz(self.ref, atom_common)
 
         # extract the xyz
         else:
@@ -1013,6 +988,37 @@ class StructureSimilarity(object):
 
         return resData
 
+    @staticmethod
+    def _get_xyz(pdb_file, index):
+        """Get xyz using (chainID, resSeq, name) index.
+
+        Args:
+            pdb_file(file): pdb file or data
+            index(set): set of index represeneted with (chainID, resSeq, name)
+
+        Returns:
+            list: list of xyz
+        """
+        data = pdb2sql.read_pdb(pdb_file)
+        xyz = []
+
+        for line in data:
+            if line.startswith('ATOM'):
+                chainID = line[21]
+                if chainID == ' ':
+                    chainID = line[72]
+
+                resSeq = int(line[22:26])
+                name = line[12:16].strip()
+
+                x = float(line[30:38])
+                y = float(line[38:46])
+                z = float(line[46:54])
+
+                if (chainID, resSeq, name) in index:
+                    xyz.append([x,y,z])
+
+        return xyz
 
     ################################################################################################
     #
