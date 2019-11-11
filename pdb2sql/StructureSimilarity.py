@@ -424,7 +424,8 @@ class StructureSimilarity(object):
         """
 
         sql_ref = interface(self.ref)
-        residue_pairs_ref   = sql_ref.get_contact_residues(cutoff=cutoff,return_contact_pairs=True,excludeH=True)
+        residue_pairs_ref = sql_ref.get_contact_residues(
+            cutoff=cutoff,return_contact_pairs=True,excludeH=True)
         sql_ref.close()
 
         if save_file:
@@ -555,7 +556,7 @@ class StructureSimilarity(object):
 
             # export
             sql_decoy.exportpdb(exportpath+'/lrmsd_decoy.pdb')
-            sql_ref.exportpdb(exportpath+'/lrmsd_aligned.pdb')
+            sql_ref.exportpdb(exportpath+'/lrmsd_ref.pdb')
 
         # close the db
         sql_decoy.close()
