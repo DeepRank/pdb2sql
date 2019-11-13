@@ -1008,9 +1008,41 @@ class StructureSimilarity(object):
 
     ################################################################################################
     #
-    #   ROUTINES TO ACTUALY ALIGN THE MOLECULES
+    #   CAPRI categories and DockQ score
     #
     #################################################################################################
+    @staticmethod
+    def compute_CapriClass(fnat, lrmsd, irmsd, system='protein-protein'):
+        """Compute CAPRI ranking classes.
+
+        Note: Criteira of CAPRI classes https://doi.org/10.1002/prot.10393
+
+        Args:
+            fnat(float): fnat
+            lrmsd(float): ligand rmsd
+            irmsd(float ): interface rmsd
+            system (str): the type of complex system.
+                Defaults to 'protein-protein'.
+
+        Returns:
+            str: CAPRI rank class, i.e. high, medium, acceptable or incorrect.
+        """
+
+        if system == 'protein-protein':
+            if (fnat >= 0.5 and lrmsd <= 1.0) or irmsd <= 1.0:
+                label = 'high'
+            elif (fnat >= 0.3 and 1.0 < lrmsd <= 5.0) or 1.0 < irmsd <= 2.0:
+                label = 'medium'
+            elif (fnat >= 0.1 and 5.0 < lrmsd <= 10.0) or 2.0 < irmsd <= 4.0:
+                label = 'acceptable'
+            else:
+                label = 'incorrect'
+        else:
+            warnings.warn(
+                f'Invalid complex type {system} for CAPRI class calculation')
+
+        return label
+
 
     # compute the DockQ score from the different elements
     @staticmethod
@@ -1036,6 +1068,42 @@ class StructureSimilarity(object):
         dockq = 1./3 * (fnat + scale_rms(lrmsd,d1) + scale_rms(irmsd,d2))
         return round(dockq, 6)
 
+    ################################################################################################
+    #
+    #   clahses
+    #
+    #################################################################################################
+
+    @staticmethod
+    def compute_clashes(pdb):
+        """Compute number of atomic clashes.
+
+        Note: Clashes were defined as contacts between nonhydrogen atoms
+            separated by <3.0Å. Structural models where number of clashes
+            was 2 SD away from the average are excluded for assessment in
+            CAPRI. see ref:  https://doi.org/10.1002/prot.10393
+
+        Args:
+            pdb(file): pdb file or data
+
+        Returns:
+            int: number of atomic clashes.
+        """
+        db = interface(pdb)
+        atom_contact_pairs = db.get_contact_atoms(
+            cutoff=3.0, excludeH=True,
+            return_contact_pairs = True)
+        db.close()
+        nclash = 0
+        for v in atom_contact_pairs.values():
+            nclash += len(v)
+        return nclash
+
+    ################################################################################################
+    #
+    #   ROUTINES TO ACTUALY ALIGN THE MOLECULES
+    #
+    #################################################################################################
 
     # compute the RMSD of two sets of points
     @staticmethod
