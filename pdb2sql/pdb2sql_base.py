@@ -1,7 +1,6 @@
 import sqlite3
 import subprocess as sp
 import os
-import warnings
 import numpy as np
 from time import time
 
@@ -28,8 +27,13 @@ class pdb2sql_base(object):
 
         self.pdbfile = pdbfile
         self.sqlfile = sqlfile
+        self.fix_chainID = fix_chainID
         self.is_valid = True
         self.verbose = verbose
+
+        # hard limit for the number of SQL varaibles
+        self.SQLITE_LIMIT_VARIABLE_NUMBER = 999
+        self.max_sql_values = 950
 
         # column names and types
         self.col = {'serial': 'INT',
@@ -155,7 +159,7 @@ class pdb2sql_base(object):
             line += '{:>6.2f}'.format(d[11])    # temp
             line += ' ' * 10
             line += '{:>2}'.format(d[12])       # element
-            # line += '\n'
+            line += ' ' * 2                     # charge, keep it blank
             pdb.append(line)
 
         return pdb

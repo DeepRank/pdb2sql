@@ -1,4 +1,5 @@
 import sqlite3
+import warnings
 import subprocess as sp
 import os
 import numpy as np
@@ -9,25 +10,16 @@ from .pdb2sql_base import pdb2sql_base
 
 class pdb2sql(pdb2sql_base):
 
-    def __init__(
-            self,
-            pdbfile,
-            sqlfile=None,
-            fix_chainID=False,
-            verbose=False):
+    def __init__(self, pdbfile, **kwargs):
 
-        super().__init__(pdbfile, sqlfile, fix_chainID, verbose)
+        super().__init__(pdbfile, **kwargs)
 
         # create the database
         self._create_sql()
 
         # fix the chain ID
-        if fix_chainID:
+        if self.fix_chainID:
             self._fix_chainID()
-
-        # hard limit for the number of SQL varaibles
-        self.SQLITE_LIMIT_VARIABLE_NUMBER = 999
-        self.max_sql_values = 950
 
     def _create_sql(self):
         '''Create a sql database containg a model PDB.'''
@@ -74,7 +66,6 @@ class pdb2sql(pdb2sql_base):
         pdbdata = pdb2sql.read_pdb(pdbfile)
 
         self.nModel = 0
-        _check_format_ = True
         data_atom = []
 
         for line in pdbdata:
@@ -90,32 +81,35 @@ class pdb2sql(pdb2sql_base):
             else:
                 continue
 
-            # old format chain ID fix
-            if _check_format_:
-                del_copy = self.delimiter.copy()
-                if line[del_copy['chainID'][0]] == ' ':
-                    del_copy['chainID'] = [72, 73]
-                if line[del_copy['chainID'][0]] == ' ':
-                    raise ValueError('chainID not found sorry')
-                _check_format_ = False
+            # check pdb line format
+            line = pdb2sql._format_pdb_linelength(line)
 
             # browse all attribute of each atom
             at = ()
-            for ik, (colname, coltype) in enumerate(self.col.items()):
+            for colname, coltype in self.col.items():
 
                 # get the piece of data
-                if colname in del_copy.keys():
-                    data = line[del_copy[colname][0]:del_copy[colname][1]].strip()
+                if colname in self.delimiter.keys():
+                    data = line[self.delimiter[colname][0]:
+                                self.delimiter[colname][1]].strip()
+
+                    # check pdb format and reset values if necessary
+                    # Empty chainID, occ, temp and element are not allowed
+                    if not data:
+                        if colname == "chainID":
+                            data = pdb2sql._get_chainID(line)
+                        if colname == "occ":
+                            data = 1.00
+                        if colname == "temp":
+                            data = 10.00
+                        if colname == "element":
+                            data = pdb2sql._get_element(line)
 
                     # convert it if necessary
                     if coltype == 'INT':
                         data = int(data)
                     elif coltype == 'REAL':
                         data = float(data)
-
-                    # get element if it does not exist
-                    if colname == "element" and not data:
-                        data = pdb2sql._get_element(line)
 
                     # append keep the comma !!
                     # we need proper tuple
@@ -165,6 +159,25 @@ class pdb2sql(pdb2sql_base):
         return pdbdata
 
     @staticmethod
+    def _format_pdb_linelength(pdb_line):
+        linelen = len(pdb_line)
+        if linelen < 80:
+            pdb_line = pdb_line + ' ' * (80 - linelen)
+        elif linelen > 80:
+            raise ValueError(f'pdb line is longer than 80:\n{pdb_line}')
+        return pdb_line
+
+    @staticmethod
+    def _get_chainID(pdb_line):
+        segID_ind = [72, 76]    # segID columns in pdb
+        segID = pdb_line[segID_ind[0]:segID_ind[1]].strip()
+        if segID:
+            warnings.warn("Missing chainID and set it with segID")
+            return segID
+        else:
+            raise ValueError('chainID not found')
+
+    @staticmethod
     def _get_element(pdb_line):
         """Get element type from the atom type of a pdb line
 
@@ -195,6 +208,7 @@ class pdb2sql(pdb2sql_base):
                 elem = pdb_line[12:14]
         else:
             elem = pdb_line[13]
+        warnings.warn("Missing element and guess it with atom type")
         return elem
 
     # replace the chain ID by A,B,C,D, ..... in that order
@@ -208,16 +222,16 @@ class pdb2sql(pdb2sql_base):
         chainID = sorted(set(chainID))
 
         if len(chainID) > 26:
-            print(
-                "Warning more than 26 chains have been detected. This is so far not supported")
-            sys.exit()
+            warnings.warn(
+                "More than 26 chains have been detected, not supported so far")
+            sys.exit(1)
 
         # declare the new names
         newID = [''] * natom
 
         # fill in the new names
         for ic, chain in enumerate(chainID):
-            index = self.get('rowID', chain=chain)
+            index = self.get('rowID', chainID=chain)
             for ind in index:
                 newID[ind] = ascii_uppercase[ic]
 
@@ -228,63 +242,72 @@ class pdb2sql(pdb2sql_base):
 
     def get_colnames(self):
         cd = self.conn.execute('select * from atom')
-        print('Possible column names are:')
         names = list(map(lambda x: x[0], cd.description))
-        print('\trowID')
+        names = ['rowID'] + names
+        return names
+
+    def print_colnames(self):
+        names = self.get_colnames()
+        print('Possible column names are:')
         for n in names:
             print('\t' + n)
 
     # print the database
-    def prettyprint(self):
+    def pprint(self):
         import pandas.io.sql as psql
         df = psql.read_sql("SELECT * FROM ATOM", self.conn)
         print(df)
 
-    def uglyprint(self):
+    def print(self):
         ctmp = self.conn.cursor()
         ctmp.execute("SELECT * FROM ATOM")
         print(ctmp.fetchall())
 
     # get the properties
-    def get(self, atnames, **kwargs):
-        '''Exectute a simple SQL query that extracts values of attributes for certain condition.
+    def get(self, columns, **kwargs):
+        '''Exectute simple SQL query to extract values of attributes
+            for certain conditions.
 
         Args :
-            attribute (str) : attribute to retreive eg : ['x','y,'z'], 'xyz', 'resSeq'
-                              if None all the attributes are returned
-
-            **kwargs : argument to select atoms eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+            columns (str): columns to retreive, eg: "x,y,z".
+                if "*" all the columns are returned.
+                Check all available columns by print_colnames().
+            **kwargs: argument to select atoms, dict value must be list.
+                eg: name = ['CA', 'O'], chainID = ['A'],
+                or no_name = ['CA', 'C'], no_chainID = ['A'].
 
         Returns:
-            data : array containing the value of the attributes
+            data: list containing the value of the attributes
 
-        Example :
-        >>> db.get('x,y,z',chainID='A',no_name=['H']")
+        Examples:
+            >>> db.get('x,y,z', chainID=['A'], no_resName=['ALA', 'TRP'])
         '''
+        # check arguments format
+        valid_colnames = self.get_colnames()
+
+        if not isinstance(columns, str):
+            raise TypeError("argument columns must be str")
+
+        if columns != '*':
+            for i in columns.split(','):
+                if i not in valid_colnames:
+                    raise ValueError(
+                        f'Invalid column name {i}. Possible names are\n'
+                        f'{self.get_colnames()}')
 
         # the asked keys
         keys = kwargs.keys()
-
-        # check if the column exists
-        try:
-            self.c.execute(
-                "SELECT EXISTS(SELECT {an} FROM ATOM)".format(
-                    an=atnames))
-        except BaseException:
-            print('Error column %s not found in the database' % atnames)
-            self.get_colnames()
-            return
 
         if 'model' not in kwargs.keys() and self.nModel > 0:
             model_data = []
             for iModel in range(self.nModel):
                 kwargs['model'] = iModel
-                model_data.append(self.get(atnames, **kwargs))
+                model_data.append(self.get(columns, **kwargs))
             return model_data
 
         # if we have 0 key we take the entire db
         if len(kwargs) == 0:
-            query = 'SELECT {an} FROM ATOM'.format(an=atnames)
+            query = 'SELECT {an} FROM ATOM'.format(an=columns)
             data = [list(row) for row in self.c.execute(query)]
 
         #######################################################################
@@ -308,12 +331,12 @@ class pdb2sql(pdb2sql_base):
                         "SELECT EXISTS(SELECT {an} FROM ATOM)".format(
                             an=k))
                 except BaseException:
-                    print('Error column %s not found in the database' % k)
-                    self.get_colnames()
-                    return
+                    raise ValueError(
+                        f'Invalid column name {k}. Possible names are\n'
+                        f'{self.get_colnames()}')
 
             # form the query and the tuple value
-            query = 'SELECT {an} FROM ATOM WHERE '.format(an=atnames)
+            query = 'SELECT {an} FROM ATOM WHERE '.format(an=columns)
             conditions = []
             vals = ()
 
@@ -349,7 +372,7 @@ class pdb2sql(pdb2sql_base):
                         for v in vchunck:
                             new_kwargs = kwargs.copy()
                             new_kwargs[k] = v
-                            data += self.get(atnames, **new_kwargs)
+                            data += self.get(columns, **new_kwargs)
                         return data
 
                     # otherwise we just go on
@@ -393,13 +416,13 @@ class pdb2sql(pdb2sql_base):
 
         # empty data
         if len(data) == 0:
-            print('Warning sqldb.get returned an empty')
+            warnings.warn('SQL query get an empty')
             return data
 
         # fix the python <--> sql indexes
         # if atnames == 'rowID':
-        if 'rowID' in atnames:
-            index = atnames.split(',').index('rowID')
+        if 'rowID' in columns:
+            index = columns.split(',').index('rowID')
             for i in range(len(data)):
                 data[i][index] -= 1
 
@@ -410,54 +433,58 @@ class pdb2sql(pdb2sql_base):
 
         return data
 
-    def update(self, attribute, values, **kwargs):
+    def update(self, columns, values, **kwargs):
         '''Update the database.
 
         Args:
-            attribute (str) : string of attribute names eg. ['x','y,'z'], 'xyz', 'resSeq'
-
-            values (np.ndarray) : an array of values that corresponds
-                                  to the number of attributes and atoms selected
-
-            **kwargs : selection arguments eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+            columns (str): names of column to update, e.g. "x,y,z".
+            values (np.ndarray): an array of values that corresponds
+                        to the number of columns and atoms selected.
+            **kwargs: selection arguments,
+                eg: name = ['CA', 'O'], chainID = ['A'],
+                or no_name = ['CA', 'C'], no_chainID = ['A'].
+        Examples:
+            >>> values = np.array([[1.,2.,3.], [4.,5.,6.]])
+            >>> self.db.update("x,y,z", values=values, resName='MET', name=['CA', 'CB'])
         '''
+        # check arguments format
+        valid_colnames = self.get_colnames()
+
+        if not isinstance(columns, str):
+            raise TypeError("argument columns must be str")
+
+        if columns != '*':
+            for i in columns.split(','):
+                if i not in valid_colnames:
+                    raise ValueError(
+                        f'Invalid column name {i}. Possible names are\n'
+                        f'{self.get_colnames()}')
 
         # the asked keys
         keys = kwargs.keys()
 
-        # check if the column exists
-        try:
-            self.c.execute(
-                "SELECT EXISTS(SELECT {an} FROM ATOM)".format(
-                    an=attribute))
-        except BaseException:
-            print('Error column %s not found in the database' % attribute)
-            self.get_colnames()
-            return
-
-        # TODO
         # handle the multi model cases
         if 'model' not in keys and self.nModel > 0:
             for iModel in range(self.nModel):
                 kwargs['model'] = iModel
-                self.update(attribute, values, **kwargs)
+                self.update(columns, values, **kwargs)
             return
 
         # parse the attribute
-        if ',' in attribute:
-            attribute = attribute.split(',')
+        if ',' in columns:
+            columns = columns.split(',')
 
-        if not isinstance(attribute, list):
-            attribute = [attribute]
+        if not isinstance(columns, list):
+            columns = [columns]
 
         # check the size
-        natt = len(attribute)
+        natt = len(columns)
         nrow = len(values)
         ncol = len(values[0])
 
         if natt != ncol:
             raise ValueError(
-                'Number of attribute incompatible with the number of columns in the data')
+                'Number of cloumns does not match between argument columns and values')
 
         # get the row ID of the selection
         rowID = self.get('rowID', **kwargs)
@@ -469,7 +496,7 @@ class pdb2sql(pdb2sql_base):
 
         # prepare the query
         query = 'UPDATE ATOM SET '
-        query = query + ', '.join(map(lambda x: x + '=?', attribute))
+        query = query + ', '.join(map(lambda x: x + '=?', columns))
         query = query + ' WHERE rowID=?'
 
         # prepare the data
@@ -494,115 +521,33 @@ class pdb2sql(pdb2sql_base):
             index (None, optional): index of the column to update (default all)
 
         Example:
-        >>> db.update_column('x',np.random.rand(10),index=list(range(10)))
+            >>> db.update_column('x',np.random.rand(10),index=list(range(10)))
         '''
-
         if index is None:
             data = [[v, i + 1] for i, v in enumerate(values)]
         else:
-            # shouldn't that be ind+1 ?
-            data = [[v, ind] for v, ind in zip(values, index)]
+            data = [[v, ind+1] for v, ind in zip(values, index)]
 
         query = 'UPDATE ATOM SET {cn}=? WHERE rowID=?'.format(cn=colname)
         self.c.executemany(query, data)
-        # self.conn.commit()
 
-    def add_column(self, colname, coltype='FLOAT', default=0):
-        '''Add an etra column to the ATOM table.'''
+    def add_column(self, colname, coltype='FLOAT', value=0):
+        """Add an extra column to the ATOM table with same value for each row.
+
+        Args:
+            colname (str): the new column name
+            coltype (str): data type of the new column. Default to float.
+            value (int/float/str): value for the new column.
+                Default to 0.
+
+        Examples:
+            >>> add_column('id', coltype='str', value='positive')
+        """
+
         query = "ALTER TABLE ATOM ADD COLUMN '%s' %s DEFAULT %s" % (
-            colname, coltype, str(default))
+            colname, coltype, str(value))
         self.c.execute(query)
 
     def commit(self):
         '''Cpmmit to the database.'''
         self.conn.commit()
-
-    # def _create_sql_nomodel(self):
-    #     '''Create the sql database.'''
-
-    #     pdbfile = self.pdbfile
-    #     sqlfile = self.sqlfile
-
-    #     if self.verbose:
-    #         print('-- Create SQLite3 database')
-
-    #      #name of the table
-    #     table = 'ATOM'
-
-    #     # size of the things
-    #     ncol = len(self.col)
-    #     ndel = len(self.delimiter)
-
-    #     # open the data base
-    #     # if we do not specify a db name
-    #     # the db is only in RAM
-    #     if self.sqlfile is None:
-    #         self.conn = sqlite3.connect(':memory:')
-
-    #     # or we create a new db file
-    #     else:
-    #         if os.path.isfile(sqlfile):
-    #             sp.call('rm %s' %sqlfile,shell=True)
-    #         self.conn = sqlite3.connect(sqlfile)
-    #     self.c = self.conn.cursor()
-
-    #     # intialize the header/placeholder
-    #     header,qm = '',''
-    #     for ic,(colname,coltype) in enumerate(self.col.items()):
-    #         header += '{cn} {ct}'.format(cn=colname,ct=coltype)
-    #         qm += '?'
-    #         if ic < ncol-1:
-    #             header += ', '
-    #             qm += ','
-
-    #     # create the table
-    #     query = 'CREATE TABLE ATOM ({hd})'.format(hd=header)
-    #     self.c.execute(query)
-
-    #     # read the pdb file a pure python way
-    #     # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ...
-    #     # we could do better than that. But the most time consuming step seems to be the CREATE TABLE query
-    #     with open(pdbfile,'r') as fi:
-    #         data = [line.split('\n')[0] for line in fi if line.startswith('ATOM')]
-
-    #     # if there is no ATOM in the file
-    #     if len(data)==1 and data[0]=='':
-    #         print("-- Error : No ATOM in the pdb file.")
-    #         self.is_valid = False
-    #         return
-
-    #     # old format chain ID fix
-    #     del_copy = self.delimiter.copy()
-    #     if data[0][del_copy['chainID'][0]] == ' ':
-    #         del_copy['chainID'] = [72,73]
-
-    #     # get all the data
-    #     data_atom = []
-    #     for iatom,atom in enumerate(data):
-
-    #         # sometimes we still have an empty line somewhere
-    #         if len(atom) == 0:
-    #             continue
-
-    #         # browse all attribute of each atom
-    #         at = ()
-    #         for ik,(colname,coltype) in enumerate(self.col.items()):
-
-    #             # get the piece of data
-    #             data = atom[del_copy[colname][0]:del_copy[colname][1]].strip()
-
-    #             # convert it if necessary
-    #             if coltype == 'INT':
-    #                 data = int(data)
-    #             elif coltype == 'REAL':
-    #                 data = float(data)
-
-    #             # append keep the comma !!
-    #             # we need proper tuple
-    #             at +=(data,)
-
-    #         # append
-    #         data_atom.append(at)
-
-    #     # push in the database
-    #     self.c.executemany('INSERT INTO ATOM VALUES ({qm})'.format(qm=qm),data_atom)

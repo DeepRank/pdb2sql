@@ -45,7 +45,8 @@ setup(
         'matplotlib',
         'numpy',
         'schema',
-        'tqdm'],
+        'tqdm',
+        'pandas'],
     extras_require={
         'dev': [
             'prospector[with_pyroma]',
