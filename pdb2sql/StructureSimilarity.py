@@ -310,7 +310,6 @@ class StructureSimilarity(object):
         Returns:
             dict: i-zone definition
         """
-        backbone = ['CA', 'C', 'N', 'O']
         sql_ref = interface(self.ref)
         contact_ref = sql_ref.get_contact_atoms(cutoff=cutoff,extend_to_residue=True)
 
@@ -322,7 +321,7 @@ class StructureSimilarity(object):
         data_test = [tuple(data) for data in sql_ref.get(
                 'chainID,resSeq',
                 rowID=index_contact_ref,
-                name=backbone)]
+                name=sql_ref.backbone_atoms)]
 
         data_test = sorted(set(data_test))
 
@@ -662,7 +661,6 @@ class StructureSimilarity(object):
         Returns:
             float: i-RMSD value of the conformation
         """
-        backbone = ['CA', 'C', 'N', 'O']
 
         # create thes sql
         sql_decoy = interface(self.decoy)
@@ -677,7 +675,7 @@ class StructureSimilarity(object):
             for v in contact_ref.values():
                 index_contact_ref += v
             index_contact_ref = sql_ref.get(
-                'rowID', rowID=index_contact_ref, name=backbone)
+                'rowID', rowID=index_contact_ref, name=sql_ref.backbone_atoms)
         else:
             index_contact_ref = self.get_izone_rowID(
                 sql_ref, izone, return_only_backbone_atoms=True)
