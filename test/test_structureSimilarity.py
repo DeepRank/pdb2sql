@@ -1,4 +1,4 @@
-import time
+import os
 from pdb2sql.StructureSimilarity import StructureSimilarity
 import unittest
 
@@ -6,56 +6,172 @@ import unittest
 class TestSim(unittest.TestCase):
     """Test Similarity calculation."""
 
-    def test_sim(self):
-
-        sim = StructureSimilarity(self.decoy, self.ref)
-
-        # ----------------------------------------------------------------------
-
-        t0 = time.time()
-        irmsd_fast = sim.compute_irmsd_fast(method='svd', izone='1AK4.izone')
-        t1 = time.time() - t0
-        print('\nIRMSD TIME FAST %f in %f sec' % (irmsd_fast, t1))
-
-        t0 = time.time()
-        irmsd = sim.compute_irmsd_pdb2sql(method='svd', izone='1AK4.izone')
-        t1 = time.time() - t0
-        print('IRMSD TIME SQL %f in %f sec' % (irmsd, t1))
-
-        # ----------------------------------------------------------------------
-
-        t0 = time.time()
-        lrmsd_fast = sim.compute_lrmsd_fast(
-            method='svd', lzone='1AK4.lzone', check=True)
-        t1 = time.time() - t0
-        print('\nLRMSD TIME FAST %f in %f sec' % (lrmsd_fast, t1))
-
-        t0 = time.time()
-        lrmsd = sim.compute_lrmsd_pdb2sql(exportpath=None, method='svd')
-        t1 = time.time() - t0
-        print('LRMSD TIME SQL %f in %f sec' % (lrmsd, t1))
-
-        # ----------------------------------------------------------------------
-
-        t0 = time.time()
-        Fnat = sim.compute_fnat_pdb2sql()
-        t1 = time.time() - t0
-        print('\nFNAT TIME SQL %f in %f sec' % (Fnat, t1))
-
-        t0 = time.time()
-        Fnat_fast = sim.compute_fnat_fast(ref_pairs='1AK4.ref_pairs')
-        t1 = time.time() - t0
-        print('LRMSD TIME FAST %f in %f sec' % (Fnat_fast, t1))
-
-        # ----------------------------------------------------------------------
-
-        dockQ = sim.compute_DockQScore(Fnat_fast, lrmsd_fast, irmsd_fast)
-        print('\nDockQ  %f' % dockQ)
-
     def setUp(self):
-        self.decoy = 'pdb/1AK4_324w.pdb'
-        self.ref = 'pdb/1AK4.pdb'
+        self.decoy = 'pdb/1AK4/1AK4_5w.pdb'
+        self.ref = 'pdb/1AK4/target.pdb'
+        self.izone = 'pdb/1AK4/target.izone'
+        self.lzone = 'pdb/1AK4/target.lzone'
+        self.sim = StructureSimilarity(self.decoy, self.ref)
+        # target values are calcualted using scripts from
+        # https://github.com/haddocking/BM5-clean
+        self.irmsd = 1.135
+        self.lrmsd = 6.655
+        self.fnat = 0.790698
+        self.dockQ = 0.682191
+        self.capriClass = 'medium'
+        self.nclashes_ref = 4
 
+    ####################################################################
+    # test i-rmsd
+    ####################################################################
+    def test_irmsdfast_default(self):
+        """verify compute_irmsd_fast()"""
+        result = self.sim.compute_irmsd_fast()
+        self.assertEqual(result, self.irmsd)
+
+    def test_irmsdfast_izone(self):
+        """verify compute_irmsd_fast(izone='fast.izone)"""
+        result = self.sim.compute_irmsd_fast(izone=self.izone)
+        self.assertEqual(result, self.irmsd)
+
+    def test_irmsdfast_method(self):
+        """verify compute_irmsd_fast(method='quaternion')"""
+        result = self.sim.compute_irmsd_fast(method='quaternion')
+        self.assertEqual(result, self.irmsd)
+
+    def test_irmsdfast_check(self):
+        """verify compute_irmsd_fast(check=False)"""
+        result = self.sim.compute_irmsd_fast(check=False)
+        self.assertEqual(result, self.irmsd)
+
+    def test_irmsdsql_default(self):
+        """verify compute_irmsd_pdb2sql()"""
+        with self.assertWarns(UserWarning) as ex:
+            result = self.sim.compute_irmsd_pdb2sql()
+        self.assertEqual(result, self.irmsd)
+
+    def test_irmsdsql_izone(self):
+        """verify compute_irmsd_pdb2sql(izone='sql.izone)"""
+        with self.assertWarns(UserWarning) as ex:
+            result = self.sim.compute_irmsd_pdb2sql(izone=self.izone)
+        self.assertEqual(result, self.irmsd)
+
+    def test_irmssql_method(self):
+        """verify compute_irmsd_pdb2sql(method='quaternion')"""
+        with self.assertWarnsRegex(UserWarning, 'Missing element'):
+            result = self.sim.compute_irmsd_pdb2sql(method='quaternion')
+        self.assertEqual(result, self.irmsd)
+
+    def test_irmsdsql_exportpdb(self):
+        """verify compute_irmsd_pdb2sql(exportpath='.')"""
+        with self.assertWarns(UserWarning) as ex:
+            result = self.sim.compute_irmsd_pdb2sql(exportpath='.')
+        self.assertEqual(result, self.irmsd)
+        self.assertTrue(os.path.isfile('./irmsd_ref.pdb'))
+        self.assertTrue(os.path.isfile('./irmsd_decoy.pdb'))
+        self.assertTrue(os.path.getsize('./irmsd_ref.pdb') > 0)
+        self.assertTrue(os.path.getsize('./irmsd_decoy.pdb') > 0)
+        os.remove('./irmsd_ref.pdb')
+        os.remove('./irmsd_decoy.pdb')
+
+    ####################################################################
+    # test l-rmsd
+    ####################################################################
+    def test_lrmsdfast_default(self):
+        """verify compute_lrmsd_fast()"""
+        result = self.sim.compute_lrmsd_fast()
+        self.assertEqual(result, self.lrmsd)
+
+    def test_lrmsdfast_lzone(self):
+        """verify compute_lrmsd_fast(lzone='fast.lzone)"""
+        result = self.sim.compute_lrmsd_fast(lzone=self.lzone)
+        self.assertEqual(result, self.lrmsd)
+
+    def test_lrmsdfast_method(self):
+        """verify compute_lrmsd_fast(method='quaternion')"""
+        result = self.sim.compute_lrmsd_fast(method='quaternion')
+        self.assertEqual(result, self.lrmsd)
+
+    def test_lrmsdfast_check(self):
+        """verify compute_lrmsd_fast(check=False)"""
+        with self.assertRaisesRegex(ValueError,
+            'operands could not be broadcast') as ex:
+            result = self.sim.compute_lrmsd_fast(check=False)
+
+    def test_lrmsdsql_default(self):
+        """verify compute_lrmsd_pdb2sql()"""
+        with self.assertWarns(UserWarning) as ex:
+            result = self.sim.compute_lrmsd_pdb2sql()
+        self.assertEqual(result, self.lrmsd)
+
+    def test_lrmsdsql_method(self):
+        """verify compute_lrmsd_pdb2sql(method='quaternion')"""
+        with self.assertWarns(UserWarning) as ex:
+            result = self.sim.compute_lrmsd_pdb2sql(method='quaternion')
+        self.assertEqual(result, self.lrmsd)
+
+    def test_lrmsdsql_exportpdb(self):
+        """verify compute_lrmsd_pdb2sql(exportpath='.')"""
+        with self.assertWarnsRegex(UserWarning, 'Missing element'):
+            result = self.sim.compute_lrmsd_pdb2sql(exportpath='.')
+        self.assertEqual(result, self.lrmsd)
+        self.assertTrue(os.path.isfile('./lrmsd_ref.pdb'))
+        self.assertTrue(os.path.isfile('./lrmsd_decoy.pdb'))
+        self.assertTrue(os.path.getsize('./lrmsd_ref.pdb') > 0)
+        self.assertTrue(os.path.getsize('./lrmsd_decoy.pdb') > 0)
+        os.remove('./lrmsd_ref.pdb')
+        os.remove('./lrmsd_decoy.pdb')
+
+    ####################################################################
+    # test FNAT
+    ####################################################################
+    def test_fnatfast_default(self):
+        """verify compute_fnat_fast()"""
+        result = self.sim.compute_fnat_fast()
+        self.assertEqual(result, self.fnat)
+
+    def test_fnatsql_default(self):
+        """verify compute_fnat_pdb2sql()"""
+        with self.assertWarnsRegex(UserWarning, 'Missing element'):
+            result = self.sim.compute_fnat_pdb2sql()
+        self.assertEqual(result, self.fnat)
+
+    ####################################################################
+    # test dockQ
+    ####################################################################
+    def test_dockQ_default(self):
+        """verify compute_DockQScore()"""
+        result = self.sim.compute_DockQScore(self.fnat, self.lrmsd, self.irmsd)
+        self.assertEqual(result, self.dockQ)
+
+    ####################################################################
+    # test CAPRI
+    ####################################################################
+    def test_capri_default(self):
+        """verify compute_CapriClass()"""
+        result = self.sim.compute_CapriClass(self.fnat, self.lrmsd, self.irmsd)
+        self.assertEqual(result, self.capriClass)
+
+    def test_capri_dummy(self):
+        """verify compute_CapriClass()"""
+        fnat =  [0.9, 0.8, 0.7, 0.5, 0.3, 0.1]
+        lrmsd = [0.8, 2.4, 6.2, 7.5, 12.0, 10.0]
+        irmsd = [0.6, 0.8, 1.6, 2.3, 3.1, 3.3]
+        targets = ['high', 'high', 'medium',
+                'acceptable', 'acceptable', 'acceptable']
+        results = []
+        for i,j,k in zip(fnat, lrmsd, irmsd):
+            results.append(self.sim.compute_CapriClass(i, j, k))
+        self.assertEqual(results, targets)
+
+    ####################################################################
+    # test clashes
+    ####################################################################
+    def test_clashes_default(self):
+        """verify compute_clashes()"""
+        result = self.sim.compute_clashes(self.ref)
+        self.assertEqual(result, self.nclashes_ref)
 
 if __name__ == '__main__':
-    unittest.main()
+    runner = unittest.TextTestRunner(verbosity=2)
+    unittest.main(testRunner=runner)

@@ -139,7 +139,7 @@ def rot_mat(db, mat, **kwargs):
     _update(db, xyz, **kwargs)
 
 def rotate(xyz, rot_mat, center=None):
-    """[summary]
+    """Rotate xyz from a rotation matrix.
 
     Args:
         xyz(np.ndarray): x,y,z coordinates
