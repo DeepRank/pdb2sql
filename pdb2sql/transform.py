@@ -138,7 +138,6 @@ def rot_mat(db, mat, **kwargs):
     xyz = rotate(xyz, mat)
     _update(db, xyz, **kwargs)
 
-
 def rotate(xyz, rot_mat, center=None):
     """Rotate xyz from a rotation matrix.
 
