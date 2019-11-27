@@ -31,6 +31,8 @@ class pdb2sql_base(object):
         self.is_valid = True
         self.verbose = verbose
 
+        self.backbone_atoms = ['CA', 'C', 'N', 'O']
+
         # hard limit for the number of SQL varaibles
         self.SQLITE_LIMIT_VARIABLE_NUMBER = 999
         self.max_sql_values = 950

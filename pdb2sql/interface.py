@@ -1,18 +1,17 @@
 
 import numpy as np
 import itertools
+import warnings
 from .pdb2sqlcore import pdb2sql
-
-#from pdb2sqlAlchemy import pdb2sql_alchemy as pdb2sql
 
 
 class interface(pdb2sql):
 
-    def __init__(self, pdb):
+    # def __init__(self, pdb):
+    def __init__(self, pdb, **kwargs):
         '''Identify interface between protein chains.'''
 
-        pdb2sql.__init__(self, pdb)
-        self.backbone_type = ['CA', 'C', 'N', 'O']
+        super().__init__(pdb, **kwargs)
 
     ##########################################################################
     #
@@ -29,14 +28,32 @@ class interface(pdb2sql):
             extend_to_residue=False,
             only_backbone_atoms=False,
             excludeH=False,
-            return_only_backbone_atoms=False,
             return_contact_pairs=False):
+        """get rowIDs of contact atoms.
 
+        Args:
+            cutoff (float): distance cutoff for calculating contact.
+                Defaults to 8.5.
+            allchains (bool): calculate contacts for all chains or not.
+                 Defaults to False.
+            chain1 (str): first chain ID. Defaults to 'A'.
+            chain2 (str): second chain ID. Defaults to 'B'.
+            extend_to_residue (bool): get all atoms of the residues containing
+                at least one contact atom. Defaults to False.
+            only_backbone_atoms (bool): only use backbone atoms to
+                calculate contact or not. Defaults to False.
+            excludeH (bool): Exculde hydrogen atoms for contact
+                calculation or not. Defaults to False.
+            return_contact_pairs (bool): if return atomic contact pairs
+                or not. Defaults to False.
+
+        Returns:
+            dict: rowID of contact atoms or rowID of contact atom pairs
+        """
         if allchains:
             chainIDs = self.get_chains()
         else:
             chainIDs = [chain1, chain2]
-        nchains = len(chainIDs)
 
         xyz = dict()
         index = dict()
@@ -53,7 +70,7 @@ class interface(pdb2sql):
             atName[chain] = data[:, -1]
 
         # loop through the first chain
-        # TO DO : loop through the smallest chain instead ...
+        # TODO : loop through the smallest chain instead ...
         #index_contact_1,index_contact_2 = [],[]
         #index_contact_pairs = {}
 
@@ -85,26 +102,22 @@ class interface(pdb2sql):
                     continue
 
                 if len(contacts) > 0 and any(
-                        [not only_backbone_atoms, atName1[i] in self.backbone_type]):
+                        [not only_backbone_atoms, atName1[i] in self.backbone_atoms]):
 
-                    # the contact atoms
-                    index_contact[chain1] += [index[chain1][i]]
-                    index_contact[chain2] += [index[chain2][k] for k in contacts if (any(
-                        [atName2[k] in self.backbone_type, not only_backbone_atoms]) and not (excludeH and atName2[k][0] == 'H'))]
-
-                    # the pairs
                     pairs = [index[chain2][k] for k in contacts if any(
-                            [atName2[k] in self.backbone_type, not only_backbone_atoms]) and not ( excludeH and atName2[k][0] == 'H')]
+                            [atName2[k] in self.backbone_atoms, not only_backbone_atoms]) and not ( excludeH and atName2[k][0] == 'H')]
                     if len(pairs) > 0:
                         index_contact_pairs[index[chain1][i]] = pairs
+                        index_contact[chain1] += [index[chain1][i]]
+                        index_contact[chain2] += pairs
+
+        # if no atoms were found
+        if len(index_contact_pairs) == 0:
+            warnings.warn('No contact atoms detected in pdb2sql')
 
         # get uniques
         for chain in chainIDs:
             index_contact[chain] = sorted(set(index_contact[chain]))
-
-        # if no atoms were found
-        if len(index_contact_pairs) == 0:
-            print('Warning : No contact atoms detected in pdb2sql')
 
         # extend the list to entire residue
         if extend_to_residue:
@@ -112,29 +125,8 @@ class interface(pdb2sql):
                 index_contact[chain] = self._extend_contact_to_residue(
                     index_contact[chain], only_backbone_atoms)
 
-        # filter only the backbone atoms
-        if return_only_backbone_atoms and not only_backbone_atoms:
-
-            # get all the names
-            # there are better ways to do that !
-            atNames = np.array(self.get('name'))
-
-            # change the index_contacts
-            for chain in chainIDs:
-                index_contact[chain] = [
-                    ind for ind in index_contact[chain] if atNames[ind] in self.backbone_type]
-
-            # change the contact pairs
-            tmp_dict = {}
-            for ind1, ind2_list in index_contact_pairs.items():
-
-                if atNames[ind1] in self.backbone_type:
-                    tmp_dict[ind1] = [
-                        ind2 for ind2 in ind2_list if atNames[ind2] in self.backbone_type]
-
-            index_contact_pairs = tmp_dict
-
         # not sure that's the best way of dealing with that
+        # TODO split to two functions get_contact_atoms and get_contact_atom_pairs
         if return_contact_pairs:
             return index_contact_pairs
         else:
@@ -174,7 +166,7 @@ class interface(pdb2sql):
                     resName=resName,
                     resSeq=resSeq)
                 index_contact_A += [ind for ind,
-                                    n in zip(index, name) if n in self.backbone_type]
+                                    n in zip(index, name) if n in self.backbone_atoms]
             else:
                 index_contact_A += self.get('rowID',
                                             chainID=chainID,
@@ -196,6 +188,28 @@ class interface(pdb2sql):
             excludeH=False,
             only_backbone_atoms=False,
             return_contact_pairs=False):
+        """get contact residues represented with (chain,resSeq, resname).
+
+        Args:
+            cutoff (float): distance cutoff for contact calculation
+                Defaults to 8.5.
+            allchains (bool): calculate contacts for all chains or not.
+                 Defaults to False.
+            chain1 (str): first chain ID. Defaults to 'A'.
+            chain2 (str): second chain ID. Defaults to 'B'.
+            excludeH (bool): Exculde hydrogen atoms for contact
+                calculation or not. Defaults to False.
+            only_backbone_atoms (bool): only use backbone atoms to
+                calculate contact or not. Defaults to False.
+            return_contact_pairs (bool): if return residue contact pairs
+                or not. Defaults to False.
+
+        Returns:
+            dict: (chain,resSeq,resName) of contact residues or
+                contact residue pairs.
+        """
+        #TODO split this func to two functions
+        #TODO get_contact_residues and get_contact_residue_pairs
 
         # get the contact atoms
         if return_contact_pairs:
@@ -247,6 +261,8 @@ class interface(pdb2sql):
                 allchains=allchains,
                 chain1=chain1,
                 chain2=chain2,
+                excludeH=excludeH,
+                only_backbone_atoms=only_backbone_atoms,
                 return_contact_pairs=False)
 
             # get the residue info

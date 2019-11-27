@@ -290,7 +290,7 @@ class pdb2sql(pdb2sql_base):
 
         if columns != '*':
             for i in columns.split(','):
-                if i not in valid_colnames:
+                if i.strip() not in valid_colnames:
                     raise ValueError(
                         f'Invalid column name {i}. Possible names are\n'
                         f'{self.get_colnames()}')
