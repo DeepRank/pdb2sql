@@ -47,7 +47,22 @@
 <dl class="function">
 <dt id="pdb2sql.transform.rotation_euler">
 <code class="sig-prename descclassname">pdb2sql.transform.</code><code class="sig-name descname">rotation_euler</code><span class="sig-paren">(</span><em class="sig-param">xyz</em>, <em class="sig-param">alpha</em>, <em class="sig-param">beta</em>, <em class="sig-param">gamma</em>, <em class="sig-param">center=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdb2sql/transform.html#rotation_euler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.transform.rotation_euler" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Rotate given xyz coordinates from Euler rotation axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xyz</strong> (<em>array</em>) – original xyz coordinates</p></li>
+<li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle of rotation around the x axis</p></li>
+<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle of rotation around the y axis</p></li>
+<li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle of rotation around the z axis</p></li>
+<li><p><strong>kwargs</strong> – keyword argument to select the atoms.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>array</em> – x,y,z coordinates after rotation</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 

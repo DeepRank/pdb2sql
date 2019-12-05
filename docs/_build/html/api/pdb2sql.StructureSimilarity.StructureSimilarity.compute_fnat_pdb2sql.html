@@ -47,7 +47,23 @@
 <dl class="method">
 <dt id="pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_pdb2sql">
 <code class="sig-prename descclassname">StructureSimilarity.</code><code class="sig-name descname">compute_fnat_pdb2sql</code><span class="sig-paren">(</span><em class="sig-param">cutoff=5.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdb2sql/StructureSimilarity.html#StructureSimilarity.compute_fnat_pdb2sql"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_pdb2sql" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Slow method to compute the FNAT of the conformation.</p>
+<p>Fnat is the fraction of reference interface contacts preserved
+in the interface of decoy. The interface is defined as any pair
+of heavy atoms from two chains within 5Å of each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – cutoff for the contact atoms</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>float</em> – FNAT value</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_fast.html#pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_fast" title="pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_fast"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_fnat_fast()</span></code></a></p>
+</div>
+</dd></dl>
 
 </div>
 

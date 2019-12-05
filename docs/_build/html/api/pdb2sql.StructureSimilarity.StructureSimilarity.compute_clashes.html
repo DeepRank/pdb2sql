@@ -48,12 +48,13 @@
 <dt id="pdb2sql.StructureSimilarity.StructureSimilarity.compute_clashes">
 <em class="property">static </em><code class="sig-prename descclassname">StructureSimilarity.</code><code class="sig-name descname">compute_clashes</code><span class="sig-paren">(</span><em class="sig-param">pdb</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdb2sql/StructureSimilarity.html#StructureSimilarity.compute_clashes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.StructureSimilarity.StructureSimilarity.compute_clashes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute number of atomic clashes.</p>
-<dl class="simple">
-<dt>Note: Clashes were defined as contacts between nonhydrogen atoms</dt><dd><p>separated by &lt;3.0Å. Structural models where number of clashes
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Clashes were defined as contacts between nonhydrogen atoms
+separated by &lt;3.0Å. Structural models where number of clashes
 was 2 SD away from the average are excluded for assessment in
 CAPRI. see ref:  <a class="reference external" href="https://doi.org/10.1002/prot.10393">https://doi.org/10.1002/prot.10393</a></p>
-</dd>
-</dl>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>pdb</strong> (<em>file</em>) – pdb file or data</p>

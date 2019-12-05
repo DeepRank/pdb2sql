@@ -48,6 +48,14 @@
 <span class="k">class</span> <span class="nc">pdb2sql</span><span class="p">(</span><span class="n">pdb2sql_base</span><span class="p">):</span>
 
 <div class="viewcode-block" id="pdb2sql.__init__"><a class="viewcode-back" href="../../pdb2sql.pdb2sqlcore.html#pdb2sql.pdb2sqlcore.pdb2sql.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdbfile</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a SQL database with PDB data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pdbfile(str, list, ndarray): pdb file or data</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; db = pdb2sql.pdb2sql(&#39;3CRO.pdb&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pdbfile</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -165,6 +173,21 @@
 
 <div class="viewcode-block" id="pdb2sql.read_pdb"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sqlcore.pdb2sql.read_pdb.html#pdb2sql.pdb2sqlcore.pdb2sql.read_pdb">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">read_pdb</span><span class="p">(</span><span class="n">pdbfile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read pdb file or data to a list.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pdbfile(str, list or ndarray): pdb file or data</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            FileNotFoundError: pdb file not found</span>
+<span class="sd">            ValueError: invalid input</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: pdb content in list format</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; pdb2sql.read_pdb(&#39;3CRO.pdb&#39;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># read the pdb file a pure python way</span>
         <span class="c1"># RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ...</span>
         <span class="c1"># we could do better than that. But the most time consuming step seems</span>
@@ -181,7 +204,7 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdbfile</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">bytes</span><span class="p">):</span>
                 <span class="n">pdbdata</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">pdbfile</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Non-valid pdb input </span><span class="si">{pdbfile}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Invalid pdb input </span><span class="si">{pdbfile}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdbfile</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
             <span class="n">pdbfile</span> <span class="o">=</span> <span class="n">pdbfile</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdbfile</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
@@ -189,9 +212,9 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pdbfile</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">bytes</span><span class="p">):</span>
                 <span class="n">pdbdata</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">pdbfile</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Non-valid pdb input </span><span class="si">{pdbfile}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Invalid pdb input </span><span class="si">{pdbfile}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Non-valid pdb input: </span><span class="si">{pdbfile}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Invalid pdb input: </span><span class="si">{pdbfile}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">pdbdata</span></div>
 
@@ -232,7 +255,7 @@
 <span class="sd">            pdb_line(str): one PDB ATOM line</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            [str]: element name</span>
+<span class="sd">            str : element name</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">first_char</span> <span class="o">=</span> <span class="n">pdb_line</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="n">last_char</span> <span class="o">=</span> <span class="n">pdb_line</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -278,12 +301,26 @@
     <span class="c1"># get the names of the columns</span>
 
 <div class="viewcode-block" id="pdb2sql.get_colnames"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sqlcore.pdb2sql.get_colnames.html#pdb2sql.pdb2sqlcore.pdb2sql.get_colnames">[docs]</a>    <span class="k">def</span> <span class="nf">get_colnames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get SQL column names</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: all available column names</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; db.get_colnames()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">cd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s1">&#39;select * from atom&#39;</span><span class="p">)</span>
         <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cd</span><span class="o">.</span><span class="n">description</span><span class="p">))</span>
         <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rowID&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">names</span>
         <span class="k">return</span> <span class="n">names</span></div>
 
 <div class="viewcode-block" id="pdb2sql.print_colnames"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sqlcore.pdb2sql.print_colnames.html#pdb2sql.pdb2sqlcore.pdb2sql.print_colnames">[docs]</a>    <span class="k">def</span> <span class="nf">print_colnames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print out SQL column names.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; db.print_colnames()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_colnames</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Possible column names are:&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
@@ -291,11 +328,21 @@
 
     <span class="c1"># print the database</span>
 <div class="viewcode-block" id="pdb2sql.pprint"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sqlcore.pdb2sql.pprint.html#pdb2sql.pdb2sqlcore.pdb2sql.pprint">[docs]</a>    <span class="k">def</span> <span class="nf">pprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fancy print of SQL ATOM table.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; db.pprint()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">pandas.io.sql</span> <span class="k">as</span> <span class="nn">psql</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">psql</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM ATOM&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="pdb2sql.print"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sqlcore.pdb2sql.print.html#pdb2sql.pdb2sqlcore.pdb2sql.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print out SQL ATOM table.</span>
+
+<span class="sd">        Examples:</span>
+<span class="sd">            &gt;&gt;&gt; db.print()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">ctmp</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT * FROM ATOM&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">ctmp</span><span class="o">.</span><span class="n">fetchall</span><span class="p">())</span></div>
@@ -303,15 +350,20 @@
     <span class="c1"># get the properties</span>
 <div class="viewcode-block" id="pdb2sql.get"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sqlcore.pdb2sql.get.html#pdb2sql.pdb2sqlcore.pdb2sql.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Exectute simple SQL query to extract values of attributes</span>
-<span class="sd">            for certain conditions.</span>
+<span class="sd">        for certain conditions.</span>
 
-<span class="sd">        Args :</span>
+<span class="sd">        Args:</span>
 <span class="sd">            columns (str): columns to retreive, eg: &quot;x,y,z&quot;.</span>
 <span class="sd">                if &quot;*&quot; all the columns are returned.</span>
-<span class="sd">                Check all available columns by print_colnames().</span>
-<span class="sd">            kwargs: argument to select atoms, dict value must be list.</span>
-<span class="sd">                eg: name = [&#39;CA&#39;, &#39;O&#39;], chainID = [&#39;A&#39;],</span>
-<span class="sd">                or no_name = [&#39;CA&#39;, &#39;C&#39;], no_chainID = [&#39;A&#39;].</span>
+<span class="sd">                Check all available columns by :py:meth:`print_colnames`.</span>
+
+<span class="sd">            kwargs: argument to select atoms, dict value must be list,</span>
+<span class="sd">                e.g.:</span>
+
+<span class="sd">                    - name = [&#39;CA&#39;, &#39;O&#39;]</span>
+<span class="sd">                    - no_name = [&#39;CA&#39;, &#39;C&#39;]</span>
+<span class="sd">                    - chainID = [&#39;A&#39;]</span>
+<span class="sd">                    - no_chainID = [&#39;A&#39;]</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            data: list containing the value of the attributes</span>
@@ -471,18 +523,18 @@
         <span class="k">return</span> <span class="n">data</span></div>
 
 <div class="viewcode-block" id="pdb2sql.update"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sqlcore.pdb2sql.update.html#pdb2sql.pdb2sqlcore.pdb2sql.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Update the database.</span>
+        <span class="sd">&#39;&#39;&#39;Update the database with given values.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            columns (str): names of column to update, e.g. &quot;x,y,z&quot;.</span>
 <span class="sd">            values (np.ndarray): an array of values that corresponds</span>
 <span class="sd">                        to the number of columns and atoms selected.</span>
-<span class="sd">            **kwargs: selection arguments,</span>
+<span class="sd">            kwargs: selection arguments,</span>
 <span class="sd">                eg: name = [&#39;CA&#39;, &#39;O&#39;], chainID = [&#39;A&#39;],</span>
 <span class="sd">                or no_name = [&#39;CA&#39;, &#39;C&#39;], no_chainID = [&#39;A&#39;].</span>
 <span class="sd">        Examples:</span>
 <span class="sd">            &gt;&gt;&gt; values = np.array([[1.,2.,3.], [4.,5.,6.]])</span>
-<span class="sd">            &gt;&gt;&gt; self.db.update(&quot;x,y,z&quot;, values=values, resName=&#39;MET&#39;, name=[&#39;CA&#39;, &#39;CB&#39;])</span>
+<span class="sd">            &gt;&gt;&gt; db.update(&quot;x,y,z&quot;, values=values, resName=&#39;MET&#39;, name=[&#39;CA&#39;, &#39;CB&#39;])</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># check arguments format</span>
         <span class="n">valid_colnames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_colnames</span><span class="p">()</span>
@@ -569,7 +621,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="pdb2sql.add_column"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sqlcore.pdb2sql.add_column.html#pdb2sql.pdb2sqlcore.pdb2sql.add_column">[docs]</a>    <span class="k">def</span> <span class="nf">add_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;FLOAT&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add an extra column to the ATOM table with same value for each row.</span>
+        <span class="sd">&quot;&quot;&quot;Add an new column to the ATOM table with same value for each row.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            colname (str): the new column name</span>
@@ -578,7 +630,7 @@
 <span class="sd">                Default to 0.</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; add_column(&#39;id&#39;, coltype=&#39;str&#39;, value=&#39;positive&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; db.add_column(&#39;id&#39;, coltype=&#39;str&#39;, value=&#39;positive&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;ALTER TABLE ATOM ADD COLUMN &#39;</span><span class="si">%s</span><span class="s2">&#39; </span><span class="si">%s</span><span class="s2"> DEFAULT </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>

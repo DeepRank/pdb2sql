@@ -13,8 +13,8 @@ Rotation
 
     get_rot_axis_angle
 
-    rot_xyz_around_axis
     rot_axis
+    rot_xyz_around_axis
 
     rot_euler
     rotation_euler

@@ -47,22 +47,29 @@
 <dl class="method">
 <dt id="pdb2sql.pdb2sqlcore.pdb2sql.get">
 <code class="sig-prename descclassname">pdb2sql.</code><code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param">columns</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdb2sql/pdb2sqlcore.html#pdb2sql.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.pdb2sqlcore.pdb2sql.get" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Exectute simple SQL query to extract values of attributes</dt><dd><p>for certain conditions.</p>
-</dd>
-<dt>Args :</dt><dd><dl class="simple">
-<dt>columns (str): columns to retreive, eg: “x,y,z”.</dt><dd><p>if “*” all the columns are returned.
-Check all available columns by print_colnames().</p>
-</dd>
-<dt>kwargs: argument to select atoms, dict value must be list.</dt><dd><p>eg: name = [‘CA’, ‘O’], chainID = [‘A’],
-or no_name = [‘CA’, ‘C’], no_chainID = [‘A’].</p>
-</dd>
-</dl>
-</dd>
-</dl>
+<dd><p>Exectute simple SQL query to extract values of attributes
+for certain conditions.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>data</em> – list containing the value of the attributes</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>columns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – columns to retreive, eg: “x,y,z”.
+if “*” all the columns are returned.
+Check all available columns by <a class="reference internal" href="pdb2sql.pdb2sqlcore.pdb2sql.print_colnames.html#pdb2sql.pdb2sqlcore.pdb2sql.print_colnames" title="pdb2sql.pdb2sqlcore.pdb2sql.print_colnames"><code class="xref py py-meth docutils literal notranslate"><span class="pre">print_colnames()</span></code></a>.</p></li>
+<li><p><strong>kwargs</strong> – <p>argument to select atoms, dict value must be list,
+e.g.:</p>
+<blockquote>
+<div><ul>
+<li><p>name = [‘CA’, ‘O’]</p></li>
+<li><p>no_name = [‘CA’, ‘C’]</p></li>
+<li><p>chainID = [‘A’]</p></li>
+<li><p>no_chainID = [‘A’]</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>data</em> – list containing the value of the attributes</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pdb2sql.transform.rotation_euler" href="pdb2sql.transform.rotation_euler.html" />
-    <link rel="prev" title="pdb2sql.transform.rot_axis" href="pdb2sql.transform.rot_axis.html" /> 
+    <link rel="prev" title="pdb2sql.transform.rot_xyz_around_axis" href="pdb2sql.transform.rot_xyz_around_axis.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -30,7 +30,7 @@
           <a href="pdb2sql.transform.rotation_euler.html" title="pdb2sql.transform.rotation_euler"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pdb2sql.transform.rot_axis.html" title="pdb2sql.transform.rot_axis"
+          <a href="pdb2sql.transform.rot_xyz_around_axis.html" title="pdb2sql.transform.rot_xyz_around_axis"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../pdb2sql.transform.html" accesskey="U">Transform</a> &#187;</li> 
@@ -47,15 +47,14 @@
 <dl class="function">
 <dt id="pdb2sql.transform.rot_euler">
 <code class="sig-prename descclassname">pdb2sql.transform.</code><code class="sig-name descname">rot_euler</code><span class="sig-paren">(</span><em class="sig-param">db</em>, <em class="sig-param">alpha</em>, <em class="sig-param">beta</em>, <em class="sig-param">gamma</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdb2sql/transform.html#rot_euler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.transform.rot_euler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Rotate molecule from Euler rotation axis.</p>
+<dd><p>Rotate molecules in SQL database from Euler rotation axis.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle of rotation around the x axis</p></li>
 <li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle of rotation around the y axis</p></li>
 <li><p><strong>gamma</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle of rotation around the z axis</p></li>
-<li><p><strong>**kwargs</strong> – keyword argument to select the atoms.
-See pdb2sql.get()</p></li>
+<li><p><strong>kwargs</strong> – keyword argument to select the atoms.</p></li>
 </ul>
 </dd>
 </dl>
@@ -70,8 +69,8 @@ See pdb2sql.get()</p></li>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="pdb2sql.transform.rot_axis.html"
-                        title="previous chapter">pdb2sql.transform.rot_axis</a></p>
+  <p class="topless"><a href="pdb2sql.transform.rot_xyz_around_axis.html"
+                        title="previous chapter">pdb2sql.transform.rot_xyz_around_axis</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="pdb2sql.transform.rotation_euler.html"
                         title="next chapter">pdb2sql.transform.rotation_euler</a></p>
@@ -109,7 +108,7 @@ See pdb2sql.get()</p></li>
           <a href="pdb2sql.transform.rotation_euler.html" title="pdb2sql.transform.rotation_euler"
              >next</a> |</li>
         <li class="right" >
-          <a href="pdb2sql.transform.rot_axis.html" title="pdb2sql.transform.rot_axis"
+          <a href="pdb2sql.transform.rot_xyz_around_axis.html" title="pdb2sql.transform.rot_xyz_around_axis"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../pdb2sql.transform.html" >Transform</a> &#187;</li> 
