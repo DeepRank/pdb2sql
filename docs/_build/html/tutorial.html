@@ -1,0 +1,1086 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>10 minutes to pdb2sql &#8212; pdb2sql 0.2.2 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="PDB2SQL" href="pdb2sql.pdb2sqlcore.html" />
+    <link rel="prev" title="pdb2sql: Processing PDB data with SQL" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.pdb2sqlcore.html" title="PDB2SQL"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="pdb2sql: Processing PDB data with SQL"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pdb2sql 0.2.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="minutes-to-pdb2sql">
+<h1>10 minutes to pdb2sql<a class="headerlink" href="#minutes-to-pdb2sql" title="Permalink to this headline">¶</a></h1>
+<p>This is a short introduction to pdb2sql.</p>
+<p>First we import as follows:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [1]: </span><span class="kn">from</span> <span class="nn">pdb2sql</span> <span class="kn">import</span> <span class="n">pdb2sql</span>
+
+<span class="gp">In [2]: </span><span class="kn">from</span> <span class="nn">pdb2sql</span> <span class="kn">import</span> <span class="n">interface</span>
+
+<span class="gp">In [3]: </span><span class="kn">from</span> <span class="nn">pdb2sql</span> <span class="kn">import</span> <span class="n">transform</span>
+
+<span class="gp">In [4]: </span><span class="kn">from</span> <span class="nn">pdb2sql.StructureSimilarity</span> <span class="kn">import</span> <span class="n">StructureSimilarity</span>
+</pre></div>
+</div>
+<div class="section" id="get-and-set-data">
+<h2>Get and set data<a class="headerlink" href="#get-and-set-data" title="Permalink to this headline">¶</a></h2>
+<p>Create a SQL database instance:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [5]: </span><span class="n">db</span> <span class="o">=</span> <span class="n">pdb2sql</span><span class="p">(</span><span class="s2">&quot;./pdb/dummy.pdb&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">db</span></code> is a SQL instance that contains one table named <em>ATOM</em>.</p>
+<p>In this table, each row represents one atom, and columns are atom properties:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [6]: </span><span class="n">db</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>
+<span class="go">    serial name altLoc resName chainID  resSeq iCode       x       y       z  occ   temp element  model</span>
+<span class="go">0        1    N            MET       A       1       -20.948 -13.418  28.320  1.0  46.93       N      0</span>
+<span class="go">1        2   CA            MET       A       1       -21.093 -12.112  28.939  1.0  52.50       C      0</span>
+<span class="go">2        3    C            MET       A       1       -22.482 -11.566  28.846  1.0  52.55       C      0</span>
+<span class="go">3        4    O            MET       A       1       -22.816 -10.393  28.618  1.0  52.75       O      0</span>
+<span class="go">4        5   CB            MET       A       1       -19.916 -11.178  28.789  1.0  59.92       C      0</span>
+<span class="go">5        6   CG            MET       A       1       -18.839 -11.701  29.713  1.0  80.88       C      0</span>
+<span class="go">6        7   SD            MET       A       1       -17.178 -11.517  29.038  1.0  95.94       S      0</span>
+<span class="go">7        8   CE            MET       A       1       -16.527 -13.173  29.365  1.0  90.58       C      0</span>
+<span class="go">8        9    N            GLN       A       2       -23.243 -12.593  29.074  1.0  51.78       N      0</span>
+<span class="go">9       10   CA            GLN       A       2       -24.639 -12.681  29.076  1.0  52.49       C      0</span>
+<span class="go">10      11    C            GLN       A       2       -25.268 -12.252  30.349  1.0  42.74       C      0</span>
+<span class="go">11      12    O            GLN       A       2       -24.688 -12.207  31.435  1.0  47.12       O      0</span>
+<span class="go">12      13   CB            GLN       A       2       -24.971 -14.147  28.858  1.0  45.95       C      0</span>
+<span class="go">13      14   CG            GLN       A       2       -24.141 -14.712  27.710  1.0  53.26       C      0</span>
+<span class="go">14      15   CD            GLN       A       2       -24.923 -15.776  27.001  1.0  68.74       C      0</span>
+<span class="go">15      16  OE1            GLN       A       2       -25.159 -16.851  27.563  1.0  82.61       O      0</span>
+<span class="go">16      17  NE2            GLN       A       2       -25.382 -15.458  25.797  1.0  76.83       N      0</span>
+<span class="go">17      18    N            THR       A       3       -26.513 -11.973  30.116  1.0  21.94       N      0</span>
+<span class="go">18      19   CA            THR       A       3       -27.440 -11.567  31.088  1.0  15.55       C      0</span>
+<span class="go">19      20    C            THR       A       3       -28.200 -12.824  31.459  1.0   5.55       C      0</span>
+<span class="go">20      21    O            THR       A       3       -27.960 -13.910  30.947  1.0  13.48       O      0</span>
+<span class="go">21      22   CB            THR       A       3       -28.318 -10.497  30.412  1.0  14.60       C      0</span>
+<span class="go">22      23  OG1            THR       A       3       -27.550  -9.329  30.158  1.0   7.60       O      0</span>
+<span class="go">23      24  CG2            THR       A       3       -29.542 -10.173  31.249  1.0  14.52       C      0</span>
+<span class="go">24      25    N            LEU       A       4       -29.107 -12.704  32.360  1.0   2.00       N      0</span>
+<span class="go">25      26   CA            LEU       A       4       -29.866 -13.850  32.734  1.0   2.00       C      0</span>
+<span class="go">26      27    C            LEU       A       4       -31.054 -13.904  31.795  1.0  23.22       C      0</span>
+<span class="go">27      28    O            LEU       A       4       -31.605 -14.952  31.468  1.0  22.54       O      0</span>
+<span class="go">28      29   CB            LEU       A       4       -30.361 -13.645  34.167  1.0   2.00       C      0</span>
+<span class="go">29      30   CG            LEU       A       4       -31.598 -14.458  34.413  1.0   2.00       C      0</span>
+<span class="go">30      31  CD1            LEU       A       4       -31.138 -15.884  34.580  1.0  10.70       C      0</span>
+<span class="go">31      32  CD2            LEU       A       4       -32.285 -13.993  35.678  1.0   2.00       C      0</span>
+<span class="go">32      33    N            ILE       B       5       -24.269 -24.311  62.813  1.0   9.48       N      0</span>
+<span class="go">33      34   CA            ILE       B       5       -23.843 -24.770  64.102  1.0  26.84       C      0</span>
+<span class="go">34      35    C            ILE       B       5       -22.871 -25.894  64.054  1.0  25.15       C      0</span>
+<span class="go">35      36    O            ILE       B       5       -21.848 -25.947  64.740  1.0  26.70       O      0</span>
+<span class="go">36      37   CB            ILE       B       5       -25.073 -25.455  64.560  1.0   2.00       C      0</span>
+<span class="go">37      38  CG1            ILE       B       5       -26.132 -24.381  64.698  1.0   8.15       C      0</span>
+<span class="go">38      39  CG2            ILE       B       5       -24.748 -26.175  65.844  1.0  15.39       C      0</span>
+<span class="go">39      40  CD1            ILE       B       5       -27.169 -24.675  65.763  1.0   4.14       C      0</span>
+<span class="go">40      41    N            ALA       B       6       -23.314 -26.842  63.273  1.0   5.60       N      0</span>
+<span class="go">41      42   CA            ALA       B       6       -22.569 -28.021  63.037  1.0   6.15       C      0</span>
+<span class="go">42      43    C            ALA       B       6       -21.334 -27.605  62.300  1.0   2.00       C      0</span>
+<span class="go">43      44    O            ALA       B       6       -20.346 -28.310  62.260  1.0  19.27       O      0</span>
+<span class="go">44      45   CB            ALA       B       6       -23.390 -28.992  62.204  1.0  28.29       C      0</span>
+<span class="go">45      46    N            LYS       B       7       -20.313 -24.801  63.054  1.0  42.89       N      0</span>
+<span class="go">46      47   CA            LYS       B       7       -19.947 -23.992  64.206  1.0  35.06       C      0</span>
+<span class="go">47      48    C            LYS       B       7       -19.630 -22.543  63.931  1.0  28.97       C      0</span>
+<span class="go">48      49    O            LYS       B       7       -18.474 -22.128  63.903  1.0  23.79       O      0</span>
+<span class="go">49      50   CB            LYS       B       7       -19.233 -24.631  65.379  1.0  29.85       C      0</span>
+<span class="go">50      51   CG            LYS       B       7       -18.891 -26.083  65.150  1.0  33.26       C      0</span>
+<span class="go">51      52   CD            LYS       B       7       -17.459 -26.383  65.536  1.0  40.19       C      0</span>
+<span class="go">52      53   CE            LYS       B       7       -17.355 -27.043  66.897  1.0  63.40       C      0</span>
+<span class="go">53      54   NZ            LYS       B       7       -17.415 -28.509  66.822  1.0  66.95       N      0</span>
+</pre></div>
+</div>
+<div class="section" id="get-data">
+<h3>Get data<a class="headerlink" href="#get-data" title="Permalink to this headline">¶</a></h3>
+<p>Get chainID, residue number, residue name and atom name of all atoms:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [7]: </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID, resSeq, resName, name&#39;</span><span class="p">)</span>
+
+<span class="gp">In [8]: </span><span class="n">p</span>
+<span class="gh">Out[8]: </span><span class="go"></span>
+<span class="go">[[&#39;A&#39;, 1, &#39;MET&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;A&#39;, 1, &#39;MET&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;A&#39;, 1, &#39;MET&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;A&#39;, 1, &#39;MET&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;A&#39;, 1, &#39;MET&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;A&#39;, 1, &#39;MET&#39;, &#39;CG&#39;],</span>
+<span class="go"> [&#39;A&#39;, 1, &#39;MET&#39;, &#39;SD&#39;],</span>
+<span class="go"> [&#39;A&#39;, 1, &#39;MET&#39;, &#39;CE&#39;],</span>
+<span class="go"> [&#39;A&#39;, 2, &#39;GLN&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;A&#39;, 2, &#39;GLN&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;A&#39;, 2, &#39;GLN&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;A&#39;, 2, &#39;GLN&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;A&#39;, 2, &#39;GLN&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;A&#39;, 2, &#39;GLN&#39;, &#39;CG&#39;],</span>
+<span class="go"> [&#39;A&#39;, 2, &#39;GLN&#39;, &#39;CD&#39;],</span>
+<span class="go"> [&#39;A&#39;, 2, &#39;GLN&#39;, &#39;OE1&#39;],</span>
+<span class="go"> [&#39;A&#39;, 2, &#39;GLN&#39;, &#39;NE2&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;OG1&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;CG2&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CG&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CD1&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CD2&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CG1&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CG2&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CD1&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CG&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CD&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CE&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;NZ&#39;]]</span>
+</pre></div>
+</div>
+<p>Get x,y,z cooridnates of all atoms:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [9]: </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x,y,z&#39;</span><span class="p">)</span>
+
+<span class="gp">In [10]: </span><span class="n">p</span>
+<span class="gh">Out[10]: </span><span class="go"></span>
+<span class="go">[[-20.948, -13.418, 28.32],</span>
+<span class="go"> [-21.093, -12.112, 28.939],</span>
+<span class="go"> [-22.482, -11.566, 28.846],</span>
+<span class="go"> [-22.816, -10.393, 28.618],</span>
+<span class="go"> [-19.916, -11.178, 28.789],</span>
+<span class="go"> [-18.839, -11.701, 29.713],</span>
+<span class="go"> [-17.178, -11.517, 29.038],</span>
+<span class="go"> [-16.527, -13.173, 29.365],</span>
+<span class="go"> [-23.243, -12.593, 29.074],</span>
+<span class="go"> [-24.639, -12.681, 29.076],</span>
+<span class="go"> [-25.268, -12.252, 30.349],</span>
+<span class="go"> [-24.688, -12.207, 31.435],</span>
+<span class="go"> [-24.971, -14.147, 28.858],</span>
+<span class="go"> [-24.141, -14.712, 27.71],</span>
+<span class="go"> [-24.923, -15.776, 27.001],</span>
+<span class="go"> [-25.159, -16.851, 27.563],</span>
+<span class="go"> [-25.382, -15.458, 25.797],</span>
+<span class="go"> [-26.513, -11.973, 30.116],</span>
+<span class="go"> [-27.44, -11.567, 31.088],</span>
+<span class="go"> [-28.2, -12.824, 31.459],</span>
+<span class="go"> [-27.96, -13.91, 30.947],</span>
+<span class="go"> [-28.318, -10.497, 30.412],</span>
+<span class="go"> [-27.55, -9.329, 30.158],</span>
+<span class="go"> [-29.542, -10.173, 31.249],</span>
+<span class="go"> [-29.107, -12.704, 32.36],</span>
+<span class="go"> [-29.866, -13.85, 32.734],</span>
+<span class="go"> [-31.054, -13.904, 31.795],</span>
+<span class="go"> [-31.605, -14.952, 31.468],</span>
+<span class="go"> [-30.361, -13.645, 34.167],</span>
+<span class="go"> [-31.598, -14.458, 34.413],</span>
+<span class="go"> [-31.138, -15.884, 34.58],</span>
+<span class="go"> [-32.285, -13.993, 35.678],</span>
+<span class="go"> [-24.269, -24.311, 62.813],</span>
+<span class="go"> [-23.843, -24.77, 64.102],</span>
+<span class="go"> [-22.871, -25.894, 64.054],</span>
+<span class="go"> [-21.848, -25.947, 64.74],</span>
+<span class="go"> [-25.073, -25.455, 64.56],</span>
+<span class="go"> [-26.132, -24.381, 64.698],</span>
+<span class="go"> [-24.748, -26.175, 65.844],</span>
+<span class="go"> [-27.169, -24.675, 65.763],</span>
+<span class="go"> [-23.314, -26.842, 63.273],</span>
+<span class="go"> [-22.569, -28.021, 63.037],</span>
+<span class="go"> [-21.334, -27.605, 62.3],</span>
+<span class="go"> [-20.346, -28.31, 62.26],</span>
+<span class="go"> [-23.39, -28.992, 62.204],</span>
+<span class="go"> [-20.313, -24.801, 63.054],</span>
+<span class="go"> [-19.947, -23.992, 64.206],</span>
+<span class="go"> [-19.63, -22.543, 63.931],</span>
+<span class="go"> [-18.474, -22.128, 63.903],</span>
+<span class="go"> [-19.233, -24.631, 65.379],</span>
+<span class="go"> [-18.891, -26.083, 65.15],</span>
+<span class="go"> [-17.459, -26.383, 65.536],</span>
+<span class="go"> [-17.355, -27.043, 66.897],</span>
+<span class="go"> [-17.415, -28.509, 66.822]]</span>
+</pre></div>
+</div>
+<p>Get x,y,z cooridnates of chain A atoms:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [11]: </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID, x,y,z&#39;</span><span class="p">,</span> <span class="n">chainID</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">])</span>
+
+<span class="gp">In [12]: </span><span class="n">p</span>
+<span class="gh">Out[12]: </span><span class="go"></span>
+<span class="go">[[&#39;A&#39;, -20.948, -13.418, 28.32],</span>
+<span class="go"> [&#39;A&#39;, -21.093, -12.112, 28.939],</span>
+<span class="go"> [&#39;A&#39;, -22.482, -11.566, 28.846],</span>
+<span class="go"> [&#39;A&#39;, -22.816, -10.393, 28.618],</span>
+<span class="go"> [&#39;A&#39;, -19.916, -11.178, 28.789],</span>
+<span class="go"> [&#39;A&#39;, -18.839, -11.701, 29.713],</span>
+<span class="go"> [&#39;A&#39;, -17.178, -11.517, 29.038],</span>
+<span class="go"> [&#39;A&#39;, -16.527, -13.173, 29.365],</span>
+<span class="go"> [&#39;A&#39;, -23.243, -12.593, 29.074],</span>
+<span class="go"> [&#39;A&#39;, -24.639, -12.681, 29.076],</span>
+<span class="go"> [&#39;A&#39;, -25.268, -12.252, 30.349],</span>
+<span class="go"> [&#39;A&#39;, -24.688, -12.207, 31.435],</span>
+<span class="go"> [&#39;A&#39;, -24.971, -14.147, 28.858],</span>
+<span class="go"> [&#39;A&#39;, -24.141, -14.712, 27.71],</span>
+<span class="go"> [&#39;A&#39;, -24.923, -15.776, 27.001],</span>
+<span class="go"> [&#39;A&#39;, -25.159, -16.851, 27.563],</span>
+<span class="go"> [&#39;A&#39;, -25.382, -15.458, 25.797],</span>
+<span class="go"> [&#39;A&#39;, -26.513, -11.973, 30.116],</span>
+<span class="go"> [&#39;A&#39;, -27.44, -11.567, 31.088],</span>
+<span class="go"> [&#39;A&#39;, -28.2, -12.824, 31.459],</span>
+<span class="go"> [&#39;A&#39;, -27.96, -13.91, 30.947],</span>
+<span class="go"> [&#39;A&#39;, -28.318, -10.497, 30.412],</span>
+<span class="go"> [&#39;A&#39;, -27.55, -9.329, 30.158],</span>
+<span class="go"> [&#39;A&#39;, -29.542, -10.173, 31.249],</span>
+<span class="go"> [&#39;A&#39;, -29.107, -12.704, 32.36],</span>
+<span class="go"> [&#39;A&#39;, -29.866, -13.85, 32.734],</span>
+<span class="go"> [&#39;A&#39;, -31.054, -13.904, 31.795],</span>
+<span class="go"> [&#39;A&#39;, -31.605, -14.952, 31.468],</span>
+<span class="go"> [&#39;A&#39;, -30.361, -13.645, 34.167],</span>
+<span class="go"> [&#39;A&#39;, -31.598, -14.458, 34.413],</span>
+<span class="go"> [&#39;A&#39;, -31.138, -15.884, 34.58],</span>
+<span class="go"> [&#39;A&#39;, -32.285, -13.993, 35.678]]</span>
+</pre></div>
+</div>
+<p>Get x,y,z cooridnates of atoms on residue 1 and 4 of Chain A</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [13]: </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID,resSeq,x,y,z&#39;</span><span class="p">,</span> <span class="n">chainID</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">],</span> <span class="n">resSeq</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1&#39;</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">])</span>
+
+<span class="gp">In [14]: </span><span class="n">p</span>
+<span class="gh">Out[14]: </span><span class="go"></span>
+<span class="go">[[&#39;A&#39;, 1, -20.948, -13.418, 28.32],</span>
+<span class="go"> [&#39;A&#39;, 1, -21.093, -12.112, 28.939],</span>
+<span class="go"> [&#39;A&#39;, 1, -22.482, -11.566, 28.846],</span>
+<span class="go"> [&#39;A&#39;, 1, -22.816, -10.393, 28.618],</span>
+<span class="go"> [&#39;A&#39;, 1, -19.916, -11.178, 28.789],</span>
+<span class="go"> [&#39;A&#39;, 1, -18.839, -11.701, 29.713],</span>
+<span class="go"> [&#39;A&#39;, 1, -17.178, -11.517, 29.038],</span>
+<span class="go"> [&#39;A&#39;, 1, -16.527, -13.173, 29.365],</span>
+<span class="go"> [&#39;A&#39;, 4, -29.107, -12.704, 32.36],</span>
+<span class="go"> [&#39;A&#39;, 4, -29.866, -13.85, 32.734],</span>
+<span class="go"> [&#39;A&#39;, 4, -31.054, -13.904, 31.795],</span>
+<span class="go"> [&#39;A&#39;, 4, -31.605, -14.952, 31.468],</span>
+<span class="go"> [&#39;A&#39;, 4, -30.361, -13.645, 34.167],</span>
+<span class="go"> [&#39;A&#39;, 4, -31.598, -14.458, 34.413],</span>
+<span class="go"> [&#39;A&#39;, 4, -31.138, -15.884, 34.58],</span>
+<span class="go"> [&#39;A&#39;, 4, -32.285, -13.993, 35.678]]</span>
+</pre></div>
+</div>
+<p>Get data of all atoms except residue MET and GLN atoms</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [15]: </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID, resSeq, resName, name&#39;</span><span class="p">,</span> <span class="n">no_resName</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MET&#39;</span><span class="p">,</span> <span class="s1">&#39;GLN&#39;</span><span class="p">])</span>
+
+<span class="gp">In [16]: </span><span class="n">p</span>
+<span class="gh">Out[16]: </span><span class="go"></span>
+<span class="go">[[&#39;A&#39;, 3, &#39;THR&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;OG1&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;CG2&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CG&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CD1&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CD2&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CG1&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CG2&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CD1&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CA&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CG&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CD&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CE&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;NZ&#39;]]</span>
+</pre></div>
+</div>
+<p>Get data of all atoms except residue MET and GLN atoms or CA (carbon alpha) atoms</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [17]: </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID, resSeq, resName, name&#39;</span><span class="p">,</span> <span class="n">no_resName</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MET&#39;</span><span class="p">,</span> <span class="s1">&#39;GLN&#39;</span><span class="p">],</span> <span class="n">no_name</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CA&#39;</span><span class="p">])</span>
+
+<span class="gp">In [18]: </span><span class="n">p</span>
+<span class="gh">Out[18]: </span><span class="go"></span>
+<span class="go">[[&#39;A&#39;, 3, &#39;THR&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;OG1&#39;],</span>
+<span class="go"> [&#39;A&#39;, 3, &#39;THR&#39;, &#39;CG2&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CG&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CD1&#39;],</span>
+<span class="go"> [&#39;A&#39;, 4, &#39;LEU&#39;, &#39;CD2&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CG1&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CG2&#39;],</span>
+<span class="go"> [&#39;B&#39;, 5, &#39;ILE&#39;, &#39;CD1&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;B&#39;, 6, &#39;ALA&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;N&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;C&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;O&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CB&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CG&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CD&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;CE&#39;],</span>
+<span class="go"> [&#39;B&#39;, 7, &#39;LYS&#39;, &#39;NZ&#39;]]</span>
+</pre></div>
+</div>
+<p>Get all data, a simple way is <code class="docutils literal notranslate"><span class="pre">db.get('*')</span></code>.</p>
+<p>A shortcut to get x,y,z cooridnates:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [19]: </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span>
+
+<span class="gp">In [20]: </span><span class="n">p</span>
+<span class="gh">Out[20]: </span><span class="go"></span>
+<span class="go">[[-20.948, -13.418, 28.32],</span>
+<span class="go"> [-21.093, -12.112, 28.939],</span>
+<span class="go"> [-22.482, -11.566, 28.846],</span>
+<span class="go"> [-22.816, -10.393, 28.618],</span>
+<span class="go"> [-19.916, -11.178, 28.789],</span>
+<span class="go"> [-18.839, -11.701, 29.713],</span>
+<span class="go"> [-17.178, -11.517, 29.038],</span>
+<span class="go"> [-16.527, -13.173, 29.365],</span>
+<span class="go"> [-23.243, -12.593, 29.074],</span>
+<span class="go"> [-24.639, -12.681, 29.076],</span>
+<span class="go"> [-25.268, -12.252, 30.349],</span>
+<span class="go"> [-24.688, -12.207, 31.435],</span>
+<span class="go"> [-24.971, -14.147, 28.858],</span>
+<span class="go"> [-24.141, -14.712, 27.71],</span>
+<span class="go"> [-24.923, -15.776, 27.001],</span>
+<span class="go"> [-25.159, -16.851, 27.563],</span>
+<span class="go"> [-25.382, -15.458, 25.797],</span>
+<span class="go"> [-26.513, -11.973, 30.116],</span>
+<span class="go"> [-27.44, -11.567, 31.088],</span>
+<span class="go"> [-28.2, -12.824, 31.459],</span>
+<span class="go"> [-27.96, -13.91, 30.947],</span>
+<span class="go"> [-28.318, -10.497, 30.412],</span>
+<span class="go"> [-27.55, -9.329, 30.158],</span>
+<span class="go"> [-29.542, -10.173, 31.249],</span>
+<span class="go"> [-29.107, -12.704, 32.36],</span>
+<span class="go"> [-29.866, -13.85, 32.734],</span>
+<span class="go"> [-31.054, -13.904, 31.795],</span>
+<span class="go"> [-31.605, -14.952, 31.468],</span>
+<span class="go"> [-30.361, -13.645, 34.167],</span>
+<span class="go"> [-31.598, -14.458, 34.413],</span>
+<span class="go"> [-31.138, -15.884, 34.58],</span>
+<span class="go"> [-32.285, -13.993, 35.678],</span>
+<span class="go"> [-24.269, -24.311, 62.813],</span>
+<span class="go"> [-23.843, -24.77, 64.102],</span>
+<span class="go"> [-22.871, -25.894, 64.054],</span>
+<span class="go"> [-21.848, -25.947, 64.74],</span>
+<span class="go"> [-25.073, -25.455, 64.56],</span>
+<span class="go"> [-26.132, -24.381, 64.698],</span>
+<span class="go"> [-24.748, -26.175, 65.844],</span>
+<span class="go"> [-27.169, -24.675, 65.763],</span>
+<span class="go"> [-23.314, -26.842, 63.273],</span>
+<span class="go"> [-22.569, -28.021, 63.037],</span>
+<span class="go"> [-21.334, -27.605, 62.3],</span>
+<span class="go"> [-20.346, -28.31, 62.26],</span>
+<span class="go"> [-23.39, -28.992, 62.204],</span>
+<span class="go"> [-20.313, -24.801, 63.054],</span>
+<span class="go"> [-19.947, -23.992, 64.206],</span>
+<span class="go"> [-19.63, -22.543, 63.931],</span>
+<span class="go"> [-18.474, -22.128, 63.903],</span>
+<span class="go"> [-19.233, -24.631, 65.379],</span>
+<span class="go"> [-18.891, -26.083, 65.15],</span>
+<span class="go"> [-17.459, -26.383, 65.536],</span>
+<span class="go"> [-17.355, -27.043, 66.897],</span>
+<span class="go"> [-17.415, -28.509, 66.822]]</span>
+</pre></div>
+</div>
+<p>Get chain IDs:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [21]: </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_chains</span><span class="p">()</span>
+
+<span class="gp">In [22]: </span><span class="n">p</span>
+<span class="gh">Out[22]: </span><span class="go">[&#39;A&#39;, &#39;B&#39;]</span>
+</pre></div>
+</div>
+<p>Get residue list:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [23]: </span><span class="n">p</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_residues</span><span class="p">()</span>
+
+<span class="gp">In [24]: </span><span class="n">p</span>
+<span class="gh">Out[24]: </span><span class="go"></span>
+<span class="go">[(&#39;A&#39;, &#39;MET&#39;, 1),</span>
+<span class="go"> (&#39;A&#39;, &#39;GLN&#39;, 2),</span>
+<span class="go"> (&#39;A&#39;, &#39;THR&#39;, 3),</span>
+<span class="go"> (&#39;A&#39;, &#39;LEU&#39;, 4),</span>
+<span class="go"> (&#39;B&#39;, &#39;ILE&#39;, 5),</span>
+<span class="go"> (&#39;B&#39;, &#39;ALA&#39;, 6),</span>
+<span class="go"> (&#39;B&#39;, &#39;LYS&#39;, 7)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="set-data">
+<h3>Set data<a class="headerlink" href="#set-data" title="Permalink to this headline">¶</a></h3>
+<p>Rename chain B to C:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [25]: </span><span class="n">num_B_atoms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID&#39;</span><span class="p">,</span> <span class="n">chainID</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">]))</span>
+
+<span class="gp">In [26]: </span><span class="n">chainC</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;C&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_B_atoms</span>
+
+<span class="gp">In [27]: </span><span class="n">db</span><span class="o">.</span><span class="n">get_chains</span><span class="p">()</span>
+<span class="gh">Out[27]: </span><span class="go">[&#39;A&#39;, &#39;B&#39;]</span>
+
+<span class="gp">In [28]: </span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;chainID&#39;</span><span class="p">,</span> <span class="n">chainC</span><span class="p">,</span> <span class="n">chainID</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;B&#39;</span><span class="p">])</span>
+
+<span class="gp">In [29]: </span><span class="n">db</span><span class="o">.</span><span class="n">get_chains</span><span class="p">()</span>
+<span class="gh">Out[29]: </span><span class="go">[&#39;A&#39;, &#39;C&#39;]</span>
+</pre></div>
+</div>
+<p>Update x,y,z coordinates for strcuture translatation of [10,10,10]</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [30]: </span><span class="n">xyz_old</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span>
+
+<span class="gp">In [31]: </span><span class="n">xyz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xyz_old</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span>
+
+<span class="gp">In [32]: </span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;x,y,z&#39;</span><span class="p">,</span> <span class="n">xyz</span><span class="p">)</span>
+
+<span class="gp">In [33]: </span><span class="n">xyz_new</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span>
+
+<span class="gp">In [34]: </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;old:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">xyz_old</span><span class="p">)</span>
+<span class="go">old:</span>
+<span class="go"> [[-20.948, -13.418, 28.32], [-21.093, -12.112, 28.939], [-22.482, -11.566, 28.846], [-22.816, -10.393, 28.618], [-19.916, -11.178, 28.789], [-18.839, -11.701, 29.713], [-17.178, -11.517, 29.038], [-16.527, -13.173, 29.365], [-23.243, -12.593, 29.074], [-24.639, -12.681, 29.076], [-25.268, -12.252, 30.349], [-24.688, -12.207, 31.435], [-24.971, -14.147, 28.858], [-24.141, -14.712, 27.71], [-24.923, -15.776, 27.001], [-25.159, -16.851, 27.563], [-25.382, -15.458, 25.797], [-26.513, -11.973, 30.116], [-27.44, -11.567, 31.088], [-28.2, -12.824, 31.459], [-27.96, -13.91, 30.947], [-28.318, -10.497, 30.412], [-27.55, -9.329, 30.158], [-29.542, -10.173, 31.249], [-29.107, -12.704, 32.36], [-29.866, -13.85, 32.734], [-31.054, -13.904, 31.795], [-31.605, -14.952, 31.468], [-30.361, -13.645, 34.167], [-31.598, -14.458, 34.413], [-31.138, -15.884, 34.58], [-32.285, -13.993, 35.678], [-24.269, -24.311, 62.813], [-23.843, -24.77, 64.102], [-22.871, -25.894, 64.054], [-21.848, -25.947, 64.74], [-25.073, -25.455, 64.56], [-26.132, -24.381, 64.698], [-24.748, -26.175, 65.844], [-27.169, -24.675, 65.763], [-23.314, -26.842, 63.273], [-22.569, -28.021, 63.037], [-21.334, -27.605, 62.3], [-20.346, -28.31, 62.26], [-23.39, -28.992, 62.204], [-20.313, -24.801, 63.054], [-19.947, -23.992, 64.206], [-19.63, -22.543, 63.931], [-18.474, -22.128, 63.903], [-19.233, -24.631, 65.379], [-18.891, -26.083, 65.15], [-17.459, -26.383, 65.536], [-17.355, -27.043, 66.897], [-17.415, -28.509, 66.822]]</span>
+
+<span class="gp">In [35]: </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;new:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">xyz_new</span><span class="p">)</span>
+<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         new:</span>
+<span class="go"> [[-10.948, -3.4179999999999993, 38.32], [-11.093, -2.112, 38.939], [-12.482, -1.5660000000000007, 38.846000000000004], [-12.815999999999999, -0.3930000000000007, 38.617999999999995], [-9.916, -1.1780000000000008, 38.789], [-8.838999999999999, -1.7010000000000005, 39.713], [-7.178000000000001, -1.5169999999999995, 39.038], [-6.527000000000001, -3.173, 39.364999999999995], [-13.242999999999999, -2.593, 39.074], [-14.639, -2.680999999999999, 39.076], [-15.268, -2.2520000000000007, 40.349000000000004], [-14.687999999999999, -2.2070000000000007, 41.435], [-14.971, -4.147, 38.858000000000004], [-14.140999999999998, -4.712, 37.71], [-14.922999999999998, -5.776, 37.001000000000005], [-15.158999999999999, -6.850999999999999, 37.563], [-15.382000000000001, -5.458, 35.797], [-16.513, -1.9730000000000008, 40.116], [-17.44, -1.5670000000000002, 41.088], [-18.2, -2.824, 41.459], [-17.96, -3.91, 40.947], [-18.318, -0.4969999999999999, 40.412], [-17.55, 0.6709999999999994, 40.158], [-19.542, -0.17300000000000004, 41.248999999999995], [-19.107, -2.7040000000000006, 42.36], [-19.866, -3.8499999999999996, 42.734], [-21.054, -3.904, 41.795], [-21.605, -4.952, 41.468], [-20.361, -3.6449999999999996, 44.167], [-21.598, -4.458, 44.413], [-21.138, -5.884, 44.58], [-22.284999999999997, -3.9930000000000003, 45.678], [-14.268999999999998, -14.311, 72.813], [-13.843, -14.77, 74.102], [-12.870999999999999, -15.893999999999998, 74.054], [-11.847999999999999, -15.947, 74.74], [-15.073, -15.454999999999998, 74.56], [-16.132, -14.381, 74.698], [-14.748000000000001, -16.175, 75.844], [-17.169, -14.675, 75.763], [-13.314, -16.842, 73.273], [-12.568999999999999, -18.021, 73.037], [-11.334, -17.605, 72.3], [-10.346, -18.31, 72.25999999999999], [-13.39, -18.992, 72.20400000000001], [-10.312999999999999, -14.800999999999998, 73.054], [-9.947, -13.992, 74.206], [-9.629999999999999, -12.543, 73.931], [-8.474, -12.128, 73.90299999999999], [-9.233, -14.631, 75.379], [-8.890999999999998, -16.083, 75.15], [-7.459, -16.383, 75.536], [-7.355, -17.043, 76.897], [-7.414999999999999, -18.509, 76.822]]</span>
+</pre></div>
+</div>
+<p>Update a column using index, e.g. change the x coordinates of the first
+10 atoms to 2:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [36]: </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="gp">In [37]: </span><span class="n">db</span><span class="o">.</span><span class="n">update_column</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)))</span>
+
+<span class="gp">In [38]: </span><span class="n">db</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>
+<span class="go">    serial name altLoc resName chainID  resSeq iCode       x       y       z  occ   temp element  model</span>
+<span class="go">0        1    N            MET       A       1         2.000  -3.418  38.320  1.0  46.93       N      0</span>
+<span class="go">1        2   CA            MET       A       1         2.000  -2.112  38.939  1.0  52.50       C      0</span>
+<span class="go">2        3    C            MET       A       1         2.000  -1.566  38.846  1.0  52.55       C      0</span>
+<span class="go">3        4    O            MET       A       1         2.000  -0.393  38.618  1.0  52.75       O      0</span>
+<span class="go">4        5   CB            MET       A       1         2.000  -1.178  38.789  1.0  59.92       C      0</span>
+<span class="go">5        6   CG            MET       A       1         2.000  -1.701  39.713  1.0  80.88       C      0</span>
+<span class="go">6        7   SD            MET       A       1         2.000  -1.517  39.038  1.0  95.94       S      0</span>
+<span class="go">7        8   CE            MET       A       1         2.000  -3.173  39.365  1.0  90.58       C      0</span>
+<span class="go">8        9    N            GLN       A       2         2.000  -2.593  39.074  1.0  51.78       N      0</span>
+<span class="go">9       10   CA            GLN       A       2         2.000  -2.681  39.076  1.0  52.49       C      0</span>
+<span class="go">10      11    C            GLN       A       2       -15.268  -2.252  40.349  1.0  42.74       C      0</span>
+<span class="go">11      12    O            GLN       A       2       -14.688  -2.207  41.435  1.0  47.12       O      0</span>
+<span class="go">12      13   CB            GLN       A       2       -14.971  -4.147  38.858  1.0  45.95       C      0</span>
+<span class="go">13      14   CG            GLN       A       2       -14.141  -4.712  37.710  1.0  53.26       C      0</span>
+<span class="go">14      15   CD            GLN       A       2       -14.923  -5.776  37.001  1.0  68.74       C      0</span>
+<span class="go">15      16  OE1            GLN       A       2       -15.159  -6.851  37.563  1.0  82.61       O      0</span>
+<span class="go">16      17  NE2            GLN       A       2       -15.382  -5.458  35.797  1.0  76.83       N      0</span>
+<span class="go">17      18    N            THR       A       3       -16.513  -1.973  40.116  1.0  21.94       N      0</span>
+<span class="go">18      19   CA            THR       A       3       -17.440  -1.567  41.088  1.0  15.55       C      0</span>
+<span class="go">19      20    C            THR       A       3       -18.200  -2.824  41.459  1.0   5.55       C      0</span>
+<span class="go">20      21    O            THR       A       3       -17.960  -3.910  40.947  1.0  13.48       O      0</span>
+<span class="go">21      22   CB            THR       A       3       -18.318  -0.497  40.412  1.0  14.60       C      0</span>
+<span class="go">22      23  OG1            THR       A       3       -17.550   0.671  40.158  1.0   7.60       O      0</span>
+<span class="go">23      24  CG2            THR       A       3       -19.542  -0.173  41.249  1.0  14.52       C      0</span>
+<span class="go">24      25    N            LEU       A       4       -19.107  -2.704  42.360  1.0   2.00       N      0</span>
+<span class="go">25      26   CA            LEU       A       4       -19.866  -3.850  42.734  1.0   2.00       C      0</span>
+<span class="go">26      27    C            LEU       A       4       -21.054  -3.904  41.795  1.0  23.22       C      0</span>
+<span class="go">27      28    O            LEU       A       4       -21.605  -4.952  41.468  1.0  22.54       O      0</span>
+<span class="go">28      29   CB            LEU       A       4       -20.361  -3.645  44.167  1.0   2.00       C      0</span>
+<span class="go">29      30   CG            LEU       A       4       -21.598  -4.458  44.413  1.0   2.00       C      0</span>
+<span class="go">30      31  CD1            LEU       A       4       -21.138  -5.884  44.580  1.0  10.70       C      0</span>
+<span class="go">31      32  CD2            LEU       A       4       -22.285  -3.993  45.678  1.0   2.00       C      0</span>
+<span class="go">32      33    N            ILE       C       5       -14.269 -14.311  72.813  1.0   9.48       N      0</span>
+<span class="go">33      34   CA            ILE       C       5       -13.843 -14.770  74.102  1.0  26.84       C      0</span>
+<span class="go">34      35    C            ILE       C       5       -12.871 -15.894  74.054  1.0  25.15       C      0</span>
+<span class="go">35      36    O            ILE       C       5       -11.848 -15.947  74.740  1.0  26.70       O      0</span>
+<span class="go">36      37   CB            ILE       C       5       -15.073 -15.455  74.560  1.0   2.00       C      0</span>
+<span class="go">37      38  CG1            ILE       C       5       -16.132 -14.381  74.698  1.0   8.15       C      0</span>
+<span class="go">38      39  CG2            ILE       C       5       -14.748 -16.175  75.844  1.0  15.39       C      0</span>
+<span class="go">39      40  CD1            ILE       C       5       -17.169 -14.675  75.763  1.0   4.14       C      0</span>
+<span class="go">40      41    N            ALA       C       6       -13.314 -16.842  73.273  1.0   5.60       N      0</span>
+<span class="go">41      42   CA            ALA       C       6       -12.569 -18.021  73.037  1.0   6.15       C      0</span>
+<span class="go">42      43    C            ALA       C       6       -11.334 -17.605  72.300  1.0   2.00       C      0</span>
+<span class="go">43      44    O            ALA       C       6       -10.346 -18.310  72.260  1.0  19.27       O      0</span>
+<span class="go">44      45   CB            ALA       C       6       -13.390 -18.992  72.204  1.0  28.29       C      0</span>
+<span class="go">45      46    N            LYS       C       7       -10.313 -14.801  73.054  1.0  42.89       N      0</span>
+<span class="go">46      47   CA            LYS       C       7        -9.947 -13.992  74.206  1.0  35.06       C      0</span>
+<span class="go">47      48    C            LYS       C       7        -9.630 -12.543  73.931  1.0  28.97       C      0</span>
+<span class="go">48      49    O            LYS       C       7        -8.474 -12.128  73.903  1.0  23.79       O      0</span>
+<span class="go">49      50   CB            LYS       C       7        -9.233 -14.631  75.379  1.0  29.85       C      0</span>
+<span class="go">50      51   CG            LYS       C       7        -8.891 -16.083  75.150  1.0  33.26       C      0</span>
+<span class="go">51      52   CD            LYS       C       7        -7.459 -16.383  75.536  1.0  40.19       C      0</span>
+<span class="go">52      53   CE            LYS       C       7        -7.355 -17.043  76.897  1.0  63.40       C      0</span>
+<span class="go">53      54   NZ            LYS       C       7        -7.415 -18.509  76.822  1.0  66.95       N      0</span>
+</pre></div>
+</div>
+<p>Add a new column <em>type</em> with value <em>high</em>:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [39]: </span><span class="n">db</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;high&#39;</span><span class="p">,</span> <span class="n">coltype</span> <span class="o">=</span> <span class="s1">&#39;str&#39;</span><span class="p">)</span>
+
+<span class="gp">In [40]: </span><span class="n">db</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span>
+<span class="go">    serial name altLoc resName chainID  resSeq iCode       x       y       z  occ   temp element  model  type</span>
+<span class="go">0        1    N            MET       A       1         2.000  -3.418  38.320  1.0  46.93       N      0  high</span>
+<span class="go">1        2   CA            MET       A       1         2.000  -2.112  38.939  1.0  52.50       C      0  high</span>
+<span class="go">2        3    C            MET       A       1         2.000  -1.566  38.846  1.0  52.55       C      0  high</span>
+<span class="go">3        4    O            MET       A       1         2.000  -0.393  38.618  1.0  52.75       O      0  high</span>
+<span class="go">4        5   CB            MET       A       1         2.000  -1.178  38.789  1.0  59.92       C      0  high</span>
+<span class="go">5        6   CG            MET       A       1         2.000  -1.701  39.713  1.0  80.88       C      0  high</span>
+<span class="go">6        7   SD            MET       A       1         2.000  -1.517  39.038  1.0  95.94       S      0  high</span>
+<span class="go">7        8   CE            MET       A       1         2.000  -3.173  39.365  1.0  90.58       C      0  high</span>
+<span class="go">8        9    N            GLN       A       2         2.000  -2.593  39.074  1.0  51.78       N      0  high</span>
+<span class="go">9       10   CA            GLN       A       2         2.000  -2.681  39.076  1.0  52.49       C      0  high</span>
+<span class="go">10      11    C            GLN       A       2       -15.268  -2.252  40.349  1.0  42.74       C      0  high</span>
+<span class="go">11      12    O            GLN       A       2       -14.688  -2.207  41.435  1.0  47.12       O      0  high</span>
+<span class="go">12      13   CB            GLN       A       2       -14.971  -4.147  38.858  1.0  45.95       C      0  high</span>
+<span class="go">13      14   CG            GLN       A       2       -14.141  -4.712  37.710  1.0  53.26       C      0  high</span>
+<span class="go">14      15   CD            GLN       A       2       -14.923  -5.776  37.001  1.0  68.74       C      0  high</span>
+<span class="go">15      16  OE1            GLN       A       2       -15.159  -6.851  37.563  1.0  82.61       O      0  high</span>
+<span class="go">16      17  NE2            GLN       A       2       -15.382  -5.458  35.797  1.0  76.83       N      0  high</span>
+<span class="go">17      18    N            THR       A       3       -16.513  -1.973  40.116  1.0  21.94       N      0  high</span>
+<span class="go">18      19   CA            THR       A       3       -17.440  -1.567  41.088  1.0  15.55       C      0  high</span>
+<span class="go">19      20    C            THR       A       3       -18.200  -2.824  41.459  1.0   5.55       C      0  high</span>
+<span class="go">20      21    O            THR       A       3       -17.960  -3.910  40.947  1.0  13.48       O      0  high</span>
+<span class="go">21      22   CB            THR       A       3       -18.318  -0.497  40.412  1.0  14.60       C      0  high</span>
+<span class="go">22      23  OG1            THR       A       3       -17.550   0.671  40.158  1.0   7.60       O      0  high</span>
+<span class="go">23      24  CG2            THR       A       3       -19.542  -0.173  41.249  1.0  14.52       C      0  high</span>
+<span class="go">24      25    N            LEU       A       4       -19.107  -2.704  42.360  1.0   2.00       N      0  high</span>
+<span class="go">25      26   CA            LEU       A       4       -19.866  -3.850  42.734  1.0   2.00       C      0  high</span>
+<span class="go">26      27    C            LEU       A       4       -21.054  -3.904  41.795  1.0  23.22       C      0  high</span>
+<span class="go">27      28    O            LEU       A       4       -21.605  -4.952  41.468  1.0  22.54       O      0  high</span>
+<span class="go">28      29   CB            LEU       A       4       -20.361  -3.645  44.167  1.0   2.00       C      0  high</span>
+<span class="go">29      30   CG            LEU       A       4       -21.598  -4.458  44.413  1.0   2.00       C      0  high</span>
+<span class="go">30      31  CD1            LEU       A       4       -21.138  -5.884  44.580  1.0  10.70       C      0  high</span>
+<span class="go">31      32  CD2            LEU       A       4       -22.285  -3.993  45.678  1.0   2.00       C      0  high</span>
+<span class="go">32      33    N            ILE       C       5       -14.269 -14.311  72.813  1.0   9.48       N      0  high</span>
+<span class="go">33      34   CA            ILE       C       5       -13.843 -14.770  74.102  1.0  26.84       C      0  high</span>
+<span class="go">34      35    C            ILE       C       5       -12.871 -15.894  74.054  1.0  25.15       C      0  high</span>
+<span class="go">35      36    O            ILE       C       5       -11.848 -15.947  74.740  1.0  26.70       O      0  high</span>
+<span class="go">36      37   CB            ILE       C       5       -15.073 -15.455  74.560  1.0   2.00       C      0  high</span>
+<span class="go">37      38  CG1            ILE       C       5       -16.132 -14.381  74.698  1.0   8.15       C      0  high</span>
+<span class="go">38      39  CG2            ILE       C       5       -14.748 -16.175  75.844  1.0  15.39       C      0  high</span>
+<span class="go">39      40  CD1            ILE       C       5       -17.169 -14.675  75.763  1.0   4.14       C      0  high</span>
+<span class="go">40      41    N            ALA       C       6       -13.314 -16.842  73.273  1.0   5.60       N      0  high</span>
+<span class="go">41      42   CA            ALA       C       6       -12.569 -18.021  73.037  1.0   6.15       C      0  high</span>
+<span class="go">42      43    C            ALA       C       6       -11.334 -17.605  72.300  1.0   2.00       C      0  high</span>
+<span class="go">43      44    O            ALA       C       6       -10.346 -18.310  72.260  1.0  19.27       O      0  high</span>
+<span class="go">44      45   CB            ALA       C       6       -13.390 -18.992  72.204  1.0  28.29       C      0  high</span>
+<span class="go">45      46    N            LYS       C       7       -10.313 -14.801  73.054  1.0  42.89       N      0  high</span>
+<span class="go">46      47   CA            LYS       C       7        -9.947 -13.992  74.206  1.0  35.06       C      0  high</span>
+<span class="go">47      48    C            LYS       C       7        -9.630 -12.543  73.931  1.0  28.97       C      0  high</span>
+<span class="go">48      49    O            LYS       C       7        -8.474 -12.128  73.903  1.0  23.79       O      0  high</span>
+<span class="go">49      50   CB            LYS       C       7        -9.233 -14.631  75.379  1.0  29.85       C      0  high</span>
+<span class="go">50      51   CG            LYS       C       7        -8.891 -16.083  75.150  1.0  33.26       C      0  high</span>
+<span class="go">51      52   CD            LYS       C       7        -7.459 -16.383  75.536  1.0  40.19       C      0  high</span>
+<span class="go">52      53   CE            LYS       C       7        -7.355 -17.043  76.897  1.0  63.40       C      0  high</span>
+<span class="go">53      54   NZ            LYS       C       7        -7.415 -18.509  76.822  1.0  66.95       N      0  high</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pdb-i-o">
+<h2>PDB I/O<a class="headerlink" href="#pdb-i-o" title="Permalink to this headline">¶</a></h2>
+<p>Read PDB file or data to a list:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [41]: </span><span class="n">pdb</span> <span class="o">=</span> <span class="n">pdb2sql</span><span class="o">.</span><span class="n">read_pdb</span><span class="p">(</span><span class="s1">&#39;./pdb/dummy.pdb&#39;</span><span class="p">)</span>
+
+<span class="gp">In [42]: </span><span class="n">pdb</span>
+<span class="gh">Out[42]: </span><span class="go"></span>
+<span class="go">[&#39;ATOM      1  N   MET A   1     -20.948 -13.418  28.320  1.00 46.93           N  \n&#39;,</span>
+<span class="go"> &#39;ATOM      2  CA  MET A   1     -21.093 -12.112  28.939  1.00 52.50           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM      3  C   MET A   1     -22.482 -11.566  28.846  1.00 52.55           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM      4  O   MET A   1     -22.816 -10.393  28.618  1.00 52.75           O  \n&#39;,</span>
+<span class="go"> &#39;ATOM      5  CB  MET A   1     -19.916 -11.178  28.789  1.00 59.92           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM      6  CG  MET A   1     -18.839 -11.701  29.713  1.00 80.88           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM      7  SD  MET A   1     -17.178 -11.517  29.038  1.00 95.94           S  \n&#39;,</span>
+<span class="go"> &#39;ATOM      8  CE  MET A   1     -16.527 -13.173  29.365  1.00 90.58           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM      9  N   GLN A   2     -23.243 -12.593  29.074  1.00 51.78           N  \n&#39;,</span>
+<span class="go"> &#39;ATOM     10  CA  GLN A   2     -24.639 -12.681  29.076  1.00 52.49           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     11  C   GLN A   2     -25.268 -12.252  30.349  1.00 42.74           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     12  O   GLN A   2     -24.688 -12.207  31.435  1.00 47.12           O  \n&#39;,</span>
+<span class="go"> &#39;ATOM     13  CB  GLN A   2     -24.971 -14.147  28.858  1.00 45.95           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     14  CG  GLN A   2     -24.141 -14.712  27.710  1.00 53.26           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     15  CD  GLN A   2     -24.923 -15.776  27.001  1.00 68.74           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     16  OE1 GLN A   2     -25.159 -16.851  27.563  1.00 82.61           O  \n&#39;,</span>
+<span class="go"> &#39;ATOM     17  NE2 GLN A   2     -25.382 -15.458  25.797  1.00 76.83           N  \n&#39;,</span>
+<span class="go"> &#39;ATOM     18  N   THR A   3     -26.513 -11.973  30.116  1.00 21.94           N  \n&#39;,</span>
+<span class="go"> &#39;ATOM     19  CA  THR A   3     -27.440 -11.567  31.088  1.00 15.55           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     20  C   THR A   3     -28.200 -12.824  31.459  1.00  5.55           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     21  O   THR A   3     -27.960 -13.910  30.947  1.00 13.48           O  \n&#39;,</span>
+<span class="go"> &#39;ATOM     22  CB  THR A   3     -28.318 -10.497  30.412  1.00 14.60           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     23  OG1 THR A   3     -27.550  -9.329  30.158  1.00  7.60           O  \n&#39;,</span>
+<span class="go"> &#39;ATOM     24  CG2 THR A   3     -29.542 -10.173  31.249  1.00 14.52           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     25  N   LEU A   4     -29.107 -12.704  32.360  1.00  2.00           N  \n&#39;,</span>
+<span class="go"> &#39;ATOM     26  CA  LEU A   4     -29.866 -13.850  32.734  1.00  2.00           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     27  C   LEU A   4     -31.054 -13.904  31.795  1.00 23.22           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     28  O   LEU A   4     -31.605 -14.952  31.468  1.00 22.54           O  \n&#39;,</span>
+<span class="go"> &#39;ATOM     29  CB  LEU A   4     -30.361 -13.645  34.167  1.00  2.00           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     30  CG  LEU A   4     -31.598 -14.458  34.413  1.00  2.00           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     31  CD1 LEU A   4     -31.138 -15.884  34.580  1.00 10.70           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     32  CD2 LEU A   4     -32.285 -13.993  35.678  1.00  2.00           C  \n&#39;,</span>
+<span class="go"> &#39;TER      32      LEU A\n&#39;,</span>
+<span class="go"> &#39;ATOM     33  N   ILE B   5     -24.269 -24.311  62.813  1.00  9.48           N  \n&#39;,</span>
+<span class="go"> &#39;ATOM     34  CA  ILE B   5     -23.843 -24.770  64.102  1.00 26.84           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     35  C   ILE B   5     -22.871 -25.894  64.054  1.00 25.15           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     36  O   ILE B   5     -21.848 -25.947  64.740  1.00 26.70           O  \n&#39;,</span>
+<span class="go"> &#39;ATOM     37  CB  ILE B   5     -25.073 -25.455  64.560  1.00  2.00           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     38  CG1 ILE B   5     -26.132 -24.381  64.698  1.00  8.15           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     39  CG2 ILE B   5     -24.748 -26.175  65.844  1.00 15.39           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     40  CD1 ILE B   5     -27.169 -24.675  65.763  1.00  4.14           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     41  N   ALA B   6     -23.314 -26.842  63.273  1.00  5.60           N  \n&#39;,</span>
+<span class="go"> &#39;ATOM     42  CA  ALA B   6     -22.569 -28.021  63.037  1.00  6.15           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     43  C   ALA B   6     -21.334 -27.605  62.300  1.00  2.00           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     44  O   ALA B   6     -20.346 -28.310  62.260  1.00 19.27           O  \n&#39;,</span>
+<span class="go"> &#39;ATOM     45  CB  ALA B   6     -23.390 -28.992  62.204  1.00 28.29           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     46  N   LYS B   7     -20.313 -24.801  63.054  1.00 42.89           N  \n&#39;,</span>
+<span class="go"> &#39;ATOM     47  CA  LYS B   7     -19.947 -23.992  64.206  1.00 35.06           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     48  C   LYS B   7     -19.630 -22.543  63.931  1.00 28.97           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     49  O   LYS B   7     -18.474 -22.128  63.903  1.00 23.79           O  \n&#39;,</span>
+<span class="go"> &#39;ATOM     50  CB  LYS B   7     -19.233 -24.631  65.379  1.00 29.85           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     51  CG  LYS B   7     -18.891 -26.083  65.150  1.00 33.26           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     52  CD  LYS B   7     -17.459 -26.383  65.536  1.00 40.19           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     53  CE  LYS B   7     -17.355 -27.043  66.897  1.00 63.40           C  \n&#39;,</span>
+<span class="go"> &#39;ATOM     54  NZ  LYS B   7     -17.415 -28.509  66.822  1.00 66.95           N  \n&#39;,</span>
+<span class="go"> &#39;END\n&#39;]</span>
+</pre></div>
+</div>
+<p>Convert SQL data to PDB-formated data:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [43]: </span><span class="n">pdb</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">sql2pdb</span><span class="p">()</span>
+
+<span class="gp">In [44]: </span><span class="n">pdb</span>
+<span class="gh">Out[44]: </span><span class="go"></span>
+<span class="go">[&#39;ATOM      1  N   MET A   1       2.000  -3.418  38.320  1.00 46.93           N  &#39;,</span>
+<span class="go"> &#39;ATOM      2  CA  MET A   1       2.000  -2.112  38.939  1.00 52.50           C  &#39;,</span>
+<span class="go"> &#39;ATOM      3  C   MET A   1       2.000  -1.566  38.846  1.00 52.55           C  &#39;,</span>
+<span class="go"> &#39;ATOM      4  O   MET A   1       2.000  -0.393  38.618  1.00 52.75           O  &#39;,</span>
+<span class="go"> &#39;ATOM      5  CB  MET A   1       2.000  -1.178  38.789  1.00 59.92           C  &#39;,</span>
+<span class="go"> &#39;ATOM      6  CG  MET A   1       2.000  -1.701  39.713  1.00 80.88           C  &#39;,</span>
+<span class="go"> &#39;ATOM      7  SD  MET A   1       2.000  -1.517  39.038  1.00 95.94           S  &#39;,</span>
+<span class="go"> &#39;ATOM      8  CE  MET A   1       2.000  -3.173  39.365  1.00 90.58           C  &#39;,</span>
+<span class="go"> &#39;ATOM      9  N   GLN A   2       2.000  -2.593  39.074  1.00 51.78           N  &#39;,</span>
+<span class="go"> &#39;ATOM     10  CA  GLN A   2       2.000  -2.681  39.076  1.00 52.49           C  &#39;,</span>
+<span class="go"> &#39;ATOM     11  C   GLN A   2     -15.268  -2.252  40.349  1.00 42.74           C  &#39;,</span>
+<span class="go"> &#39;ATOM     12  O   GLN A   2     -14.688  -2.207  41.435  1.00 47.12           O  &#39;,</span>
+<span class="go"> &#39;ATOM     13  CB  GLN A   2     -14.971  -4.147  38.858  1.00 45.95           C  &#39;,</span>
+<span class="go"> &#39;ATOM     14  CG  GLN A   2     -14.141  -4.712  37.710  1.00 53.26           C  &#39;,</span>
+<span class="go"> &#39;ATOM     15  CD  GLN A   2     -14.923  -5.776  37.001  1.00 68.74           C  &#39;,</span>
+<span class="go"> &#39;ATOM     16  OE1 GLN A   2     -15.159  -6.851  37.563  1.00 82.61           O  &#39;,</span>
+<span class="go"> &#39;ATOM     17  NE2 GLN A   2     -15.382  -5.458  35.797  1.00 76.83           N  &#39;,</span>
+<span class="go"> &#39;ATOM     18  N   THR A   3     -16.513  -1.973  40.116  1.00 21.94           N  &#39;,</span>
+<span class="go"> &#39;ATOM     19  CA  THR A   3     -17.440  -1.567  41.088  1.00 15.55           C  &#39;,</span>
+<span class="go"> &#39;ATOM     20  C   THR A   3     -18.200  -2.824  41.459  1.00  5.55           C  &#39;,</span>
+<span class="go"> &#39;ATOM     21  O   THR A   3     -17.960  -3.910  40.947  1.00 13.48           O  &#39;,</span>
+<span class="go"> &#39;ATOM     22  CB  THR A   3     -18.318  -0.497  40.412  1.00 14.60           C  &#39;,</span>
+<span class="go"> &#39;ATOM     23  OG1 THR A   3     -17.550   0.671  40.158  1.00  7.60           O  &#39;,</span>
+<span class="go"> &#39;ATOM     24  CG2 THR A   3     -19.542  -0.173  41.249  1.00 14.52           C  &#39;,</span>
+<span class="go"> &#39;ATOM     25  N   LEU A   4     -19.107  -2.704  42.360  1.00  2.00           N  &#39;,</span>
+<span class="go"> &#39;ATOM     26  CA  LEU A   4     -19.866  -3.850  42.734  1.00  2.00           C  &#39;,</span>
+<span class="go"> &#39;ATOM     27  C   LEU A   4     -21.054  -3.904  41.795  1.00 23.22           C  &#39;,</span>
+<span class="go"> &#39;ATOM     28  O   LEU A   4     -21.605  -4.952  41.468  1.00 22.54           O  &#39;,</span>
+<span class="go"> &#39;ATOM     29  CB  LEU A   4     -20.361  -3.645  44.167  1.00  2.00           C  &#39;,</span>
+<span class="go"> &#39;ATOM     30  CG  LEU A   4     -21.598  -4.458  44.413  1.00  2.00           C  &#39;,</span>
+<span class="go"> &#39;ATOM     31  CD1 LEU A   4     -21.138  -5.884  44.580  1.00 10.70           C  &#39;,</span>
+<span class="go"> &#39;ATOM     32  CD2 LEU A   4     -22.285  -3.993  45.678  1.00  2.00           C  &#39;,</span>
+<span class="go"> &#39;ATOM     33  N   ILE C   5     -14.269 -14.311  72.813  1.00  9.48           N  &#39;,</span>
+<span class="go"> &#39;ATOM     34  CA  ILE C   5     -13.843 -14.770  74.102  1.00 26.84           C  &#39;,</span>
+<span class="go"> &#39;ATOM     35  C   ILE C   5     -12.871 -15.894  74.054  1.00 25.15           C  &#39;,</span>
+<span class="go"> &#39;ATOM     36  O   ILE C   5     -11.848 -15.947  74.740  1.00 26.70           O  &#39;,</span>
+<span class="go"> &#39;ATOM     37  CB  ILE C   5     -15.073 -15.455  74.560  1.00  2.00           C  &#39;,</span>
+<span class="go"> &#39;ATOM     38  CG1 ILE C   5     -16.132 -14.381  74.698  1.00  8.15           C  &#39;,</span>
+<span class="go"> &#39;ATOM     39  CG2 ILE C   5     -14.748 -16.175  75.844  1.00 15.39           C  &#39;,</span>
+<span class="go"> &#39;ATOM     40  CD1 ILE C   5     -17.169 -14.675  75.763  1.00  4.14           C  &#39;,</span>
+<span class="go"> &#39;ATOM     41  N   ALA C   6     -13.314 -16.842  73.273  1.00  5.60           N  &#39;,</span>
+<span class="go"> &#39;ATOM     42  CA  ALA C   6     -12.569 -18.021  73.037  1.00  6.15           C  &#39;,</span>
+<span class="go"> &#39;ATOM     43  C   ALA C   6     -11.334 -17.605  72.300  1.00  2.00           C  &#39;,</span>
+<span class="go"> &#39;ATOM     44  O   ALA C   6     -10.346 -18.310  72.260  1.00 19.27           O  &#39;,</span>
+<span class="go"> &#39;ATOM     45  CB  ALA C   6     -13.390 -18.992  72.204  1.00 28.29           C  &#39;,</span>
+<span class="go"> &#39;ATOM     46  N   LYS C   7     -10.313 -14.801  73.054  1.00 42.89           N  &#39;,</span>
+<span class="go"> &#39;ATOM     47  CA  LYS C   7      -9.947 -13.992  74.206  1.00 35.06           C  &#39;,</span>
+<span class="go"> &#39;ATOM     48  C   LYS C   7      -9.630 -12.543  73.931  1.00 28.97           C  &#39;,</span>
+<span class="go"> &#39;ATOM     49  O   LYS C   7      -8.474 -12.128  73.903  1.00 23.79           O  &#39;,</span>
+<span class="go"> &#39;ATOM     50  CB  LYS C   7      -9.233 -14.631  75.379  1.00 29.85           C  &#39;,</span>
+<span class="go"> &#39;ATOM     51  CG  LYS C   7      -8.891 -16.083  75.150  1.00 33.26           C  &#39;,</span>
+<span class="go"> &#39;ATOM     52  CD  LYS C   7      -7.459 -16.383  75.536  1.00 40.19           C  &#39;,</span>
+<span class="go"> &#39;ATOM     53  CE  LYS C   7      -7.355 -17.043  76.897  1.00 63.40           C  &#39;,</span>
+<span class="go"> &#39;ATOM     54  NZ  LYS C   7      -7.415 -18.509  76.822  1.00 66.95           N  &#39;]</span>
+</pre></div>
+</div>
+<p>Write PDB file from SQL database:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [45]: </span><span class="n">db</span><span class="o">.</span><span class="n">exportpdb</span><span class="p">(</span><span class="s1">&#39;./pdb/test.pdb&#39;</span><span class="p">)</span>
+
+<span class="gp">In [46]: </span><span class="n">ls</span> <span class="o">./</span><span class="n">pdb</span>
+<span class="go">3CRO.pdb             dummy.pdb            ref.pdb</span>
+<span class="go">decoy.pdb            dummy_transform.pdb  test.pdb</span>
+
+<span class="go"># close SQL database</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="interface-calculation">
+<h2>Interface calculation<a class="headerlink" href="#interface-calculation" title="Permalink to this headline">¶</a></h2>
+<p>Create an interface SQL database instance:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [47]: </span><span class="n">db</span> <span class="o">=</span> <span class="n">interface</span><span class="p">(</span><span class="s1">&#39;./pdb/3CRO.pdb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="interface-atoms">
+<h3>Interface atoms<a class="headerlink" href="#interface-atoms" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [48]: </span><span class="n">itf_atom</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_contact_atoms</span><span class="p">(</span><span class="n">cutoff</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="gp">In [49]: </span><span class="n">itf_atom_pair</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_contact_atoms</span><span class="p">(</span><span class="n">cutoff</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">return_contact_pairs</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="gp">In [50]: </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;interface atom:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">itf_atom</span><span class="p">)</span>
+<span class="go">interface atom:</span>
+<span class="go"> {&#39;A&#39;: [13, 33, 34, 35, 55, 56, 58, 75, 97, 98, 116, 118, 137, 138, 158, 179, 180, 200, 215, 216, 219, 239, 256, 257, 258, 259, 276, 277, 279, 294, 295, 298, 316, 318, 338, 358, 360, 380, 401], &#39;B&#39;: [438, 459, 479, 480, 500, 519, 520, 540, 561, 562, 564, 583, 584, 585, 604, 606, 625, 646, 648, 649, 666, 668, 688, 706, 708, 728, 729, 748, 750, 770, 771, 788, 789, 791, 808, 810]}</span>
+
+<span class="gp">In [51]: </span><span class="k">print</span><span class="p">(</span><span class="s2">&quot;interface atom pairs:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">itf_atom_pair</span><span class="p">)</span>
+<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                             interface atom pairs:</span>
+<span class="go"> {13: [810], 33: [810], 34: [791, 810], 35: [808, 810], 55: [770, 791], 56: [789], 58: [788], 75: [771], 97: [750], 98: [748], 116: [728, 729], 118: [728], 137: [708], 138: [706], 158: [688], 179: [668], 180: [666], 200: [646], 215: [649], 216: [648, 649], 219: [625], 239: [604], 256: [606], 257: [583, 584], 258: [583], 259: [583], 276: [585], 277: [562], 279: [561], 294: [564], 295: [564], 298: [519, 540], 316: [520], 318: [519, 520], 338: [500], 358: [480], 360: [479, 480], 380: [459], 401: [438]}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="interface-residues">
+<h3>Interface residues<a class="headerlink" href="#interface-residues" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [52]: </span><span class="n">itf_residue</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_contact_residues</span><span class="p">(</span><span class="n">cutoff</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="gp">In [53]: </span><span class="n">itf_residue_pair</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_contact_residues</span><span class="p">(</span><span class="n">cutoff</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">return_contact_pairs</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="gp">In [54]: </span><span class="n">itf_residue</span>
+<span class="gh">Out[54]: </span><span class="go"></span>
+<span class="go">{&#39;A&#39;: [(&#39;A&#39;, 1, &#39;DA&#39;),</span>
+<span class="go">  (&#39;A&#39;, 2, &#39;DA&#39;),</span>
+<span class="go">  (&#39;A&#39;, 3, &#39;DG&#39;),</span>
+<span class="go">  (&#39;A&#39;, 4, &#39;DT&#39;),</span>
+<span class="go">  (&#39;A&#39;, 5, &#39;DA&#39;),</span>
+<span class="go">  (&#39;A&#39;, 6, &#39;DC&#39;),</span>
+<span class="go">  (&#39;A&#39;, 7, &#39;DA&#39;),</span>
+<span class="go">  (&#39;A&#39;, 8, &#39;DA&#39;),</span>
+<span class="go">  (&#39;A&#39;, 9, &#39;DA&#39;),</span>
+<span class="go">  (&#39;A&#39;, 10, &#39;DC&#39;),</span>
+<span class="go">  (&#39;A&#39;, 11, &#39;DT&#39;),</span>
+<span class="go">  (&#39;A&#39;, 12, &#39;DT&#39;),</span>
+<span class="go">  (&#39;A&#39;, 13, &#39;DT&#39;),</span>
+<span class="go">  (&#39;A&#39;, 14, &#39;DC&#39;),</span>
+<span class="go">  (&#39;A&#39;, 15, &#39;DT&#39;),</span>
+<span class="go">  (&#39;A&#39;, 16, &#39;DT&#39;),</span>
+<span class="go">  (&#39;A&#39;, 17, &#39;DG&#39;),</span>
+<span class="go">  (&#39;A&#39;, 18, &#39;DT&#39;),</span>
+<span class="go">  (&#39;A&#39;, 19, &#39;DA&#39;),</span>
+<span class="go">  (&#39;A&#39;, 20, &#39;DT&#39;)],</span>
+<span class="go"> &#39;B&#39;: [(&#39;B&#39;, 2, &#39;DA&#39;),</span>
+<span class="go">  (&#39;B&#39;, 3, &#39;DT&#39;),</span>
+<span class="go">  (&#39;B&#39;, 4, &#39;DA&#39;),</span>
+<span class="go">  (&#39;B&#39;, 5, &#39;DC&#39;),</span>
+<span class="go">  (&#39;B&#39;, 6, &#39;DA&#39;),</span>
+<span class="go">  (&#39;B&#39;, 7, &#39;DA&#39;),</span>
+<span class="go">  (&#39;B&#39;, 8, &#39;DG&#39;),</span>
+<span class="go">  (&#39;B&#39;, 9, &#39;DA&#39;),</span>
+<span class="go">  (&#39;B&#39;, 10, &#39;DA&#39;),</span>
+<span class="go">  (&#39;B&#39;, 11, &#39;DA&#39;),</span>
+<span class="go">  (&#39;B&#39;, 12, &#39;DG&#39;),</span>
+<span class="go">  (&#39;B&#39;, 13, &#39;DT&#39;),</span>
+<span class="go">  (&#39;B&#39;, 14, &#39;DT&#39;),</span>
+<span class="go">  (&#39;B&#39;, 15, &#39;DT&#39;),</span>
+<span class="go">  (&#39;B&#39;, 16, &#39;DG&#39;),</span>
+<span class="go">  (&#39;B&#39;, 17, &#39;DT&#39;),</span>
+<span class="go">  (&#39;B&#39;, 18, &#39;DA&#39;),</span>
+<span class="go">  (&#39;B&#39;, 19, &#39;DC&#39;),</span>
+<span class="go">  (&#39;B&#39;, 20, &#39;DT&#39;)]}</span>
+
+<span class="gp">In [55]: </span><span class="n">itf_residue_pair</span>
+<span class="go">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Out[55]: </span>
+<span class="go">{(&#39;A&#39;, 1, &#39;DA&#39;): [(&#39;B&#39;, 20, &#39;DT&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 2, &#39;DA&#39;): [(&#39;B&#39;, 19, &#39;DC&#39;), (&#39;B&#39;, 20, &#39;DT&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 3, &#39;DG&#39;): [(&#39;B&#39;, 18, &#39;DA&#39;), (&#39;B&#39;, 19, &#39;DC&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 4, &#39;DT&#39;): [(&#39;B&#39;, 18, &#39;DA&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 5, &#39;DA&#39;): [(&#39;B&#39;, 17, &#39;DT&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 6, &#39;DC&#39;): [(&#39;B&#39;, 16, &#39;DG&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 7, &#39;DA&#39;): [(&#39;B&#39;, 15, &#39;DT&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 8, &#39;DA&#39;): [(&#39;B&#39;, 14, &#39;DT&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 9, &#39;DA&#39;): [(&#39;B&#39;, 13, &#39;DT&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 10, &#39;DC&#39;): [(&#39;B&#39;, 12, &#39;DG&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 11, &#39;DT&#39;): [(&#39;B&#39;, 11, &#39;DA&#39;), (&#39;B&#39;, 12, &#39;DG&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 12, &#39;DT&#39;): [(&#39;B&#39;, 10, &#39;DA&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 13, &#39;DT&#39;): [(&#39;B&#39;, 9, &#39;DA&#39;), (&#39;B&#39;, 10, &#39;DA&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 14, &#39;DC&#39;): [(&#39;B&#39;, 8, &#39;DG&#39;), (&#39;B&#39;, 9, &#39;DA&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 15, &#39;DT&#39;): [(&#39;B&#39;, 6, &#39;DA&#39;), (&#39;B&#39;, 7, &#39;DA&#39;), (&#39;B&#39;, 8, &#39;DG&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 16, &#39;DT&#39;): [(&#39;B&#39;, 6, &#39;DA&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 17, &#39;DG&#39;): [(&#39;B&#39;, 5, &#39;DC&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 18, &#39;DT&#39;): [(&#39;B&#39;, 4, &#39;DA&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 19, &#39;DA&#39;): [(&#39;B&#39;, 3, &#39;DT&#39;)],</span>
+<span class="go"> (&#39;A&#39;, 20, &#39;DT&#39;): [(&#39;B&#39;, 2, &#39;DA&#39;)]}</span>
+
+<span class="go"># close SQL database</span>
+<span class="gp">In [56]: </span><span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="structure-similarity-calculation">
+<h2>Structure similarity calculation<a class="headerlink" href="#structure-similarity-calculation" title="Permalink to this headline">¶</a></h2>
+<p>Create a <code class="docutils literal notranslate"><span class="pre">StructureSimilarity</span></code> instance:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [57]: </span><span class="n">sim</span> <span class="o">=</span> <span class="n">StructureSimilarity</span><span class="p">(</span><span class="s1">&#39;./pdb/decoy.pdb&#39;</span><span class="p">,</span> <span class="s1">&#39;./pdb/ref.pdb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="interface-rmsd">
+<h3>interface RMSD<a class="headerlink" href="#interface-rmsd" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [58]: </span><span class="n">irmsd_fast</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">compute_irmsd_fast</span><span class="p">()</span>
+
+<span class="gp">In [59]: </span><span class="n">irmsd_pdb2sql</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">compute_irmsd_pdb2sql</span><span class="p">()</span>
+
+<span class="gp">In [60]: </span><span class="n">irmsd_fast</span>
+<span class="gh">Out[60]: </span><span class="go">1.135</span>
+
+<span class="gp">In [61]: </span><span class="n">irmsd_pdb2sql</span>
+<span class="go">               Out[61]: 1.135</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ligand-rmsd">
+<h3>ligand RMSD<a class="headerlink" href="#ligand-rmsd" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [62]: </span><span class="n">lrmsd_fast</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">compute_lrmsd_fast</span><span class="p">()</span>
+
+<span class="gp">In [63]: </span><span class="n">lrmsd_pdb2sql</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">compute_lrmsd_pdb2sql</span><span class="p">()</span>
+
+<span class="gp">In [64]: </span><span class="n">lrmsd_fast</span>
+<span class="gh">Out[64]: </span><span class="go">6.655</span>
+
+<span class="gp">In [65]: </span><span class="n">lrmsd_pdb2sql</span>
+<span class="go">               Out[65]: 6.655</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="fnat">
+<h3>FNAT<a class="headerlink" href="#fnat" title="Permalink to this headline">¶</a></h3>
+<p>Calculate the fraction of native contacts:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [66]: </span><span class="n">fnat_fast</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">compute_fnat_fast</span><span class="p">()</span>
+
+<span class="gp">In [67]: </span><span class="n">fnat_pdb2sql</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">compute_fnat_pdb2sql</span><span class="p">()</span>
+
+<span class="gp">In [68]: </span><span class="n">fnat_fast</span>
+<span class="gh">Out[68]: </span><span class="go">0.790698</span>
+
+<span class="gp">In [69]: </span><span class="n">fnat_pdb2sql</span>
+<span class="go">                  Out[69]: 0.790698</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dockq-score">
+<h3>DockQ score<a class="headerlink" href="#dockq-score" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [70]: </span><span class="n">dockQ</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">compute_DockQScore</span><span class="p">(</span><span class="n">fnat_fast</span><span class="p">,</span> <span class="n">lrmsd_fast</span><span class="p">,</span> <span class="n">irmsd_fast</span><span class="p">)</span>
+
+<span class="gp">In [71]: </span><span class="n">dockQ</span>
+<span class="gh">Out[71]: </span><span class="go">0.682191</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="structure-transformation">
+<h2>Structure transformation<a class="headerlink" href="#structure-transformation" title="Permalink to this headline">¶</a></h2>
+<p>Create SQL instance:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [72]: </span><span class="n">db</span> <span class="o">=</span> <span class="n">pdb2sql</span><span class="p">(</span><span class="s1">&#39;./pdb/dummy_transform.pdb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The atom coordinates are:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [73]: </span><span class="n">db</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span>
+<span class="gh">Out[73]: </span><span class="go"></span>
+<span class="go">[[1.0, 0.0, 0.0],</span>
+<span class="go"> [-1.0, 0.0, 0.0],</span>
+<span class="go"> [0.0, 1.0, 0.0],</span>
+<span class="go"> [0.0, -1.0, 0.0],</span>
+<span class="go"> [0.0, 0.0, 1.0],</span>
+<span class="go"> [0.0, 0.0, -1.0]]</span>
+</pre></div>
+</div>
+<div class="section" id="rotations">
+<h3>Rotations<a class="headerlink" href="#rotations" title="Permalink to this headline">¶</a></h3>
+<p>Rotate strcutures 180 degrees along the x-axis:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [74]: </span><span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+<span class="gp">In [75]: </span><span class="n">axis</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
+
+<span class="gp">In [76]: </span><span class="n">transform</span><span class="o">.</span><span class="n">rot_axis</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+
+<span class="gp">In [77]: </span><span class="n">db</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span>
+<span class="gh">Out[77]: </span><span class="go"></span>
+<span class="go">[[1.0, 0.0, 0.0],</span>
+<span class="go"> [-1.0, 0.0, 0.0],</span>
+<span class="go"> [0.0, -1.0, 1.2246467991473532e-16],</span>
+<span class="go"> [0.0, 1.0, -1.2246467991473532e-16],</span>
+<span class="go"> [0.0, -1.2246467991473532e-16, -1.0],</span>
+<span class="go"> [0.0, 1.2246467991473532e-16, 1.0]]</span>
+</pre></div>
+</div>
+<p>Get random rotation axis and angle:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [78]: </span><span class="n">axis</span><span class="p">,</span> <span class="n">angle</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">get_rot_axis_angle</span><span class="p">()</span>
+
+<span class="gp">In [79]: </span><span class="n">axis</span>
+<span class="gh">Out[79]: </span><span class="go">[-0.2705978019594018, 0.5792068784993329, 0.7689578801688681]</span>
+
+<span class="gp">In [80]: </span><span class="n">angle</span>
+<span class="go">                                                                       Out[80]: 5.940726350789892</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="translations">
+<h3>Translations<a class="headerlink" href="#translations" title="Permalink to this headline">¶</a></h3>
+<p>Translate strcuture 5Å along y-axis:</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="gp">In [81]: </span><span class="n">trans_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="gp">In [82]: </span><span class="n">transform</span><span class="o">.</span><span class="n">translation</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">trans_vec</span><span class="p">)</span>
+
+<span class="gp">In [83]: </span><span class="n">db</span><span class="o">.</span><span class="n">get_xyz</span><span class="p">()</span>
+<span class="gh">Out[83]: </span><span class="go"></span>
+<span class="go">[[1.0, 5.0, 0.0],</span>
+<span class="go"> [-1.0, 5.0, 0.0],</span>
+<span class="go"> [0.0, 4.0, 1.2246467991473532e-16],</span>
+<span class="go"> [0.0, 6.0, -1.2246467991473532e-16],</span>
+<span class="go"> [0.0, 5.0, -1.0],</span>
+<span class="go"> [0.0, 5.0, 1.0]]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">10 minutes to pdb2sql</a><ul>
+<li><a class="reference internal" href="#get-and-set-data">Get and set data</a><ul>
+<li><a class="reference internal" href="#get-data">Get data</a></li>
+<li><a class="reference internal" href="#set-data">Set data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pdb-i-o">PDB I/O</a></li>
+<li><a class="reference internal" href="#interface-calculation">Interface calculation</a><ul>
+<li><a class="reference internal" href="#interface-atoms">Interface atoms</a></li>
+<li><a class="reference internal" href="#interface-residues">Interface residues</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#structure-similarity-calculation">Structure similarity calculation</a><ul>
+<li><a class="reference internal" href="#interface-rmsd">interface RMSD</a></li>
+<li><a class="reference internal" href="#ligand-rmsd">ligand RMSD</a></li>
+<li><a class="reference internal" href="#fnat">FNAT</a></li>
+<li><a class="reference internal" href="#dockq-score">DockQ score</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#structure-transformation">Structure transformation</a><ul>
+<li><a class="reference internal" href="#rotations">Rotations</a></li>
+<li><a class="reference internal" href="#translations">Translations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">pdb2sql: Processing PDB data with SQL</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pdb2sql.pdb2sqlcore.html"
+                        title="next chapter">PDB2SQL</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/tutorial.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.pdb2sqlcore.html" title="PDB2SQL"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="pdb2sql: Processing PDB data with SQL"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pdb2sql 0.2.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Netherlands eScience Center.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

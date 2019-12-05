@@ -1,0 +1,317 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pdb2sql.pdb2sql_base &#8212; pdb2sql 0.2.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pdb2sql.pdb2sql_base</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sqlite3</span>
+<span class="kn">import</span> <span class="nn">subprocess</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">time</span>
+
+
+<span class="k">class</span> <span class="nc">pdb2sql_base</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">pdbfile</span><span class="p">,</span>
+            <span class="n">sqlfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">fix_chainID</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Base class for the definition of sql database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pdbfile (str, list(str/bytes), ndarray) : name of pdbfile or</span>
+<span class="sd">                list or ndarray containing the pdb data</span>
+<span class="sd">            sqlfile (str, optional): name of the sqlfile.</span>
+<span class="sd">                By default it is created in memory only.</span>
+<span class="sd">            fix_chainID (bool, optinal): check if the name of the chains</span>
+<span class="sd">                are A,B,C, .... and fix it if not.</span>
+<span class="sd">            verbose (bool): probably print stuff</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdbfile</span> <span class="o">=</span> <span class="n">pdbfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sqlfile</span> <span class="o">=</span> <span class="n">sqlfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_chainID</span> <span class="o">=</span> <span class="n">fix_chainID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_valid</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">backbone_atoms</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CA&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">]</span>
+
+        <span class="c1"># hard limit for the number of SQL varaibles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SQLITE_LIMIT_VARIABLE_NUMBER</span> <span class="o">=</span> <span class="mi">999</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_sql_values</span> <span class="o">=</span> <span class="mi">950</span>
+
+        <span class="c1"># column names and types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;serial&#39;</span><span class="p">:</span> <span class="s1">&#39;INT&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;TEXT&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;altLoc&#39;</span><span class="p">:</span> <span class="s1">&#39;TEXT&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;resName&#39;</span><span class="p">:</span> <span class="s1">&#39;TEXT&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;chainID&#39;</span><span class="p">:</span> <span class="s1">&#39;TEXT&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;resSeq&#39;</span><span class="p">:</span> <span class="s1">&#39;INT&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;iCode&#39;</span><span class="p">:</span> <span class="s1">&#39;TEXT&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="s1">&#39;REAL&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="s1">&#39;REAL&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="s1">&#39;REAL&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;occ&#39;</span><span class="p">:</span> <span class="s1">&#39;REAL&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;temp&#39;</span><span class="p">:</span> <span class="s1">&#39;REAL&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;element&#39;</span><span class="p">:</span> <span class="s1">&#39;TEXT&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;INT&#39;</span><span class="p">}</span>
+
+        <span class="c1"># delimtier of the column format</span>
+        <span class="c1"># taken from</span>
+        <span class="c1"># http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delimiter</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;serial&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span>
+            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span>
+            <span class="s1">&#39;altLoc&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span>
+            <span class="s1">&#39;resName&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">17</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+            <span class="s1">&#39;chainID&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">],</span>
+            <span class="s1">&#39;resSeq&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">22</span><span class="p">,</span> <span class="mi">26</span><span class="p">],</span>
+            <span class="s1">&#39;iCode&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">26</span><span class="p">,</span> <span class="mi">27</span><span class="p">],</span>
+            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">38</span><span class="p">],</span>
+            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">38</span><span class="p">,</span> <span class="mi">46</span><span class="p">],</span>
+            <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">46</span><span class="p">,</span> <span class="mi">54</span><span class="p">],</span>
+            <span class="s1">&#39;occ&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">54</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span>
+            <span class="s1">&#39;temp&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">66</span><span class="p">],</span>
+            <span class="s1">&#39;element&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">76</span><span class="p">,</span><span class="mi">78</span><span class="p">]}</span>
+
+    <span class="c1">##########################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1">#   CREATION AND PRINTING</span>
+    <span class="c1">#</span>
+    <span class="c1">##########################################################################</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Main function to create the SQL data base</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_create_sql</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="c1"># get the properties</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">atnames</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;shortcut to get the xyz.&#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x,y,z&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_residues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Get the sequence of the selection.&#39;&#39;&#39;</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID,resName,resSeq&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">res</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">res</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_chains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;get the chain IDS.&#39;&#39;&#39;</span>
+        <span class="n">chains</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">chains</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">update_xyz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xyz</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update the xyz coordinate.&#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;x,y,z&#39;</span><span class="p">,</span> <span class="n">xyz</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Update a single column.&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">add_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colname</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;FLOAT&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Add an etra column to the ATOM table.&#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+<div class="viewcode-block" id="pdb2sql_base.exportpdb"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sql_base.pdb2sql_base.exportpdb.html#pdb2sql.pdb2sql_base.pdb2sql_base.exportpdb">[docs]</a>    <span class="k">def</span> <span class="nf">exportpdb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">append</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Export a PDB file with kwargs selection.&#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">append</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql2pdb</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="pdb2sql_base.sql2pdb"><a class="viewcode-back" href="../../api/pdb2sql.pdb2sql_base.pdb2sql_base.sql2pdb.html#pdb2sql.pdb2sql_base.pdb2sql_base.sql2pdb">[docs]</a>    <span class="k">def</span> <span class="nf">sql2pdb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert sql pdb data to PDB formatted lines</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: pdb-format lines</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">pdb</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># the PDB format is pretty strict</span>
+        <span class="c1"># http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;ATOM  &#39;</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:&gt;5}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>    <span class="c1"># serial</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_atomname</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="c1"># name</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:&gt;1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>    <span class="c1"># altLoc</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:&gt;3}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>    <span class="c1"># resname</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:&gt;1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>    <span class="c1"># chainID</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:&gt;4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>    <span class="c1"># resSeq</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:&gt;1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>    <span class="c1"># iCODE</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;   &#39;</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="n">pdb2sql_base</span><span class="o">.</span><span class="n">_format_xyz</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">7</span><span class="p">])</span> <span class="c1"># x</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="n">pdb2sql_base</span><span class="o">.</span><span class="n">_format_xyz</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span> <span class="c1"># y</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="n">pdb2sql_base</span><span class="o">.</span><span class="n">_format_xyz</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span>  <span class="c1"># z</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:&gt;6.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">10</span><span class="p">])</span>    <span class="c1"># occ</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:&gt;6.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">11</span><span class="p">])</span>    <span class="c1"># temp</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="mi">10</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{:&gt;2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="mi">12</span><span class="p">])</span>       <span class="c1"># element</span>
+            <span class="n">line</span> <span class="o">+=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="mi">2</span>                     <span class="c1"># charge, keep it blank</span>
+            <span class="n">pdb</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pdb</span></div>
+
+    <span class="k">def</span> <span class="nf">_format_atomname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Format atom name to align with PDB reqireuments:</span>
+<span class="sd">             - alignment of one-letter atom name starts at column 14,</span>
+<span class="sd">             - while two-letter atom name such as FE starts at column 13.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data(list): sql output for one pdb line</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: formatted atom name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">lname</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lname</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:^4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">lname</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="mi">12</span><span class="p">]:</span>  <span class="c1"># name == element</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:&lt;4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:^4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;0123456789&#39;</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:&lt;4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:&gt;4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">name</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_format_xyz</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Format PDB coordinations x,y or z value.</span>
+
+<span class="sd">        Note: PDB has a fixed 8-column space for x,y or z value.</span>
+<span class="sd">            Thus the value should be in the range of (-1e7, 1e8).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            i(float): PDB coordinations x, y or z.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Exceed the range of (-1e7, 1e8)</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: formated x, y or z value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mf">1e8</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">1e7</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="n">f</span><span class="s1">&#39;PDB coordination </span><span class="si">{i}</span><span class="s1"> exceeds the range of (-1e7, 1e8) &#39;</span>
+                <span class="n">f</span><span class="s1">&#39;after rounding.&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mf">1e6</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">1e5</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:&gt;8.0f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mf">1e5</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">1e4</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:&gt;8.1f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mf">1e4</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mf">1e3</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:&gt;8.2f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:&gt;8.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">i</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rmdb</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sqlfile</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">rmdb</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="s1">&#39;rm </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sqlfile</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Netherlands eScience Center.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>compute_fnat_fast &#8212; pdb2sql 0.2.2 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="compute_fnat_pdb2sql" href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_pdb2sql.html" />
+    <link rel="prev" title="compute_lzone" href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_lzone.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_pdb2sql.html" title="compute_fnat_pdb2sql"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_lzone.html" title="compute_lzone"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../pdb2sql.StructureSimilarity.html" accesskey="U">Structure Similarity</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="compute-fnat-fast">
+<h1>compute_fnat_fast<a class="headerlink" href="#compute-fnat-fast" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_fast">
+<code class="sig-prename descclassname">StructureSimilarity.</code><code class="sig-name descname">compute_fnat_fast</code><span class="sig-paren">(</span><em class="sig-param">cutoff=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdb2sql/StructureSimilarity.html#StructureSimilarity.compute_fnat_fast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_fast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the FNAT of the conformation.</p>
+<p>Fnat is the fraction of reference interface contacts preserved
+in the interface of decoy. The interface is defined as any pair
+of heavy atoms from two chains within 5Å of each other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a><em>, </em><em>optional</em>) – cutoff for the contact atoms</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>float</em> – FNAT value</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.8)"><strong>ValueError</strong></a> – if the decoy file is not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_lzone.html"
+                        title="previous chapter">compute_lzone</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_pdb2sql.html"
+                        title="next chapter">compute_fnat_pdb2sql</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_fast.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_pdb2sql.html" title="compute_fnat_pdb2sql"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_lzone.html" title="compute_lzone"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../pdb2sql.StructureSimilarity.html" >Structure Similarity</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Netherlands eScience Center.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>
