@@ -14,8 +14,8 @@
     <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="pdb2sql.transform.rot_euler" href="pdb2sql.transform.rot_euler.html" />
-    <link rel="prev" title="pdb2sql.transform.rot_xyz_around_axis" href="pdb2sql.transform.rot_xyz_around_axis.html" /> 
+    <link rel="next" title="pdb2sql.transform.rot_xyz_around_axis" href="pdb2sql.transform.rot_xyz_around_axis.html" />
+    <link rel="prev" title="pdb2sql.transform.get_rot_axis_angle" href="pdb2sql.transform.get_rot_axis_angle.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -27,10 +27,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pdb2sql.transform.rot_euler.html" title="pdb2sql.transform.rot_euler"
+          <a href="pdb2sql.transform.rot_xyz_around_axis.html" title="pdb2sql.transform.rot_xyz_around_axis"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pdb2sql.transform.rot_xyz_around_axis.html" title="pdb2sql.transform.rot_xyz_around_axis"
+          <a href="pdb2sql.transform.get_rot_axis_angle.html" title="pdb2sql.transform.get_rot_axis_angle"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../pdb2sql.transform.html" accesskey="U">Transform</a> &#187;</li> 
@@ -47,7 +47,20 @@
 <dl class="function">
 <dt id="pdb2sql.transform.rot_axis">
 <code class="sig-prename descclassname">pdb2sql.transform.</code><code class="sig-name descname">rot_axis</code><span class="sig-paren">(</span><em class="sig-param">db</em>, <em class="sig-param">axis</em>, <em class="sig-param">angle</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdb2sql/transform.html#rot_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.transform.rot_axis" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Rotate molecules in a SQL database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>db</strong> (<em>pdb2sql</em>) – SQL database</p></li>
+<li><p><strong>axis</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.8)"><em>list</em></a><em>(</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a><em>)</em>) – axis of rotation</p></li>
+<li><p><strong>angle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.8)"><em>float</em></a>) – angle of rotation</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>np.array</em> – rotated xyz coordinates</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 
@@ -58,11 +71,11 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="pdb2sql.transform.rot_xyz_around_axis.html"
-                        title="previous chapter">pdb2sql.transform.rot_xyz_around_axis</a></p>
+  <p class="topless"><a href="pdb2sql.transform.get_rot_axis_angle.html"
+                        title="previous chapter">pdb2sql.transform.get_rot_axis_angle</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="pdb2sql.transform.rot_euler.html"
-                        title="next chapter">pdb2sql.transform.rot_euler</a></p>
+  <p class="topless"><a href="pdb2sql.transform.rot_xyz_around_axis.html"
+                        title="next chapter">pdb2sql.transform.rot_xyz_around_axis</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -94,10 +107,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="pdb2sql.transform.rot_euler.html" title="pdb2sql.transform.rot_euler"
+          <a href="pdb2sql.transform.rot_xyz_around_axis.html" title="pdb2sql.transform.rot_xyz_around_axis"
              >next</a> |</li>
         <li class="right" >
-          <a href="pdb2sql.transform.rot_xyz_around_axis.html" title="pdb2sql.transform.rot_xyz_around_axis"
+          <a href="pdb2sql.transform.get_rot_axis_angle.html" title="pdb2sql.transform.get_rot_axis_angle"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../pdb2sql.transform.html" >Transform</a> &#187;</li> 

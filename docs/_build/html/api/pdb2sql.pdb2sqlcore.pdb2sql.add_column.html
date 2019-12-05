@@ -47,7 +47,7 @@
 <dl class="method">
 <dt id="pdb2sql.pdb2sqlcore.pdb2sql.add_column">
 <code class="sig-prename descclassname">pdb2sql.</code><code class="sig-name descname">add_column</code><span class="sig-paren">(</span><em class="sig-param">colname</em>, <em class="sig-param">coltype='FLOAT'</em>, <em class="sig-param">value=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdb2sql/pdb2sqlcore.html#pdb2sql.add_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.pdb2sqlcore.pdb2sql.add_column" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add an extra column to the ATOM table with same value for each row.</p>
+<dd><p>Add an new column to the ATOM table with same value for each row.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -59,7 +59,7 @@ Default to 0.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;positive&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">db</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">coltype</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;positive&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

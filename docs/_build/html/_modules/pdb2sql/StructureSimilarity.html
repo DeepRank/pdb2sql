@@ -125,6 +125,9 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            float: L-RMSD value of the conformation</span>
+
+<span class="sd">        See also:</span>
+<span class="sd">            :meth:`compute_lrmsd_pdb2sql`</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
         <span class="c1"># create/read the lzone file</span>
@@ -272,6 +275,9 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            float: i-RMSD value of the conformation</span>
+
+<span class="sd">        See also:</span>
+<span class="sd">            :meth:`compute_irmsd_pdb2sql`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># read the izone file</span>
@@ -376,7 +382,7 @@
     <span class="c1">#################################################################################################</span>
 
 <div class="viewcode-block" id="StructureSimilarity.compute_fnat_fast"><a class="viewcode-back" href="../../api/pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_fast.html#pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_fast">[docs]</a>    <span class="k">def</span> <span class="nf">compute_fnat_fast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Compute the FNAT of the conformation.</span>
+        <span class="sd">&quot;&quot;&quot;Fast method to cmpute the FNAT of the conformation.</span>
 
 <span class="sd">        Fnat is the fraction of reference interface contacts preserved</span>
 <span class="sd">        in the interface of decoy. The interface is defined as any pair</span>
@@ -390,6 +396,9 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: if the decoy file is not found</span>
+
+<span class="sd">        See also:</span>
+<span class="sd">            :meth:`compute_fnat_pdb2sql`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># compute ref residue pairs</span>
         <span class="n">residue_pairs_ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_residue_pairs_ref</span><span class="p">(</span> <span class="n">cutoff</span><span class="p">,</span><span class="n">save_file</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -510,6 +519,9 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            float: L-RMSD value of the conformation</span>
+
+<span class="sd">        See also:</span>
+<span class="sd">            :meth:`compute_lrmsd_fast`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">backbone</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CA&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">]</span>
 
@@ -672,6 +684,9 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            float: i-RMSD value of the conformation</span>
+
+<span class="sd">        See also:</span>
+<span class="sd">            :meth:`compute_irmsd_fast`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># create thes sql</span>
@@ -822,6 +837,21 @@
     <span class="c1">#################################################################################################</span>
 
 <div class="viewcode-block" id="StructureSimilarity.compute_fnat_pdb2sql"><a class="viewcode-back" href="../../api/pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_pdb2sql.html#pdb2sql.StructureSimilarity.StructureSimilarity.compute_fnat_pdb2sql">[docs]</a>    <span class="k">def</span> <span class="nf">compute_fnat_pdb2sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">cutoff</span><span class="o">=</span><span class="mf">5.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Slow method to compute the FNAT of the conformation.</span>
+
+<span class="sd">        Fnat is the fraction of reference interface contacts preserved</span>
+<span class="sd">        in the interface of decoy. The interface is defined as any pair</span>
+<span class="sd">        of heavy atoms from two chains within 5Å of each other.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cutoff (int, optional): cutoff for the contact atoms</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            float: FNAT value</span>
+
+<span class="sd">        See also:</span>
+<span class="sd">            :meth:`compute_fnat_fast`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># create the sql</span>
         <span class="n">sql_decoy</span> <span class="o">=</span> <span class="n">interface</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decoy</span><span class="p">)</span>
@@ -1054,7 +1084,8 @@
     <span class="k">def</span> <span class="nf">compute_CapriClass</span><span class="p">(</span><span class="n">fnat</span><span class="p">,</span> <span class="n">lrmsd</span><span class="p">,</span> <span class="n">irmsd</span><span class="p">,</span> <span class="n">system</span><span class="o">=</span><span class="s1">&#39;protein-protein&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute CAPRI ranking classes.</span>
 
-<span class="sd">        Note: Criteira of CAPRI classes https://doi.org/10.1002/prot.10393</span>
+<span class="sd">        Note:</span>
+<span class="sd">            Criteira of CAPRI classes https://doi.org/10.1002/prot.10393</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            fnat(float): fnat</span>
@@ -1117,7 +1148,8 @@
     <span class="k">def</span> <span class="nf">compute_clashes</span><span class="p">(</span><span class="n">pdb</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute number of atomic clashes.</span>
 
-<span class="sd">        Note: Clashes were defined as contacts between nonhydrogen atoms</span>
+<span class="sd">        Note:</span>
+<span class="sd">            Clashes were defined as contacts between nonhydrogen atoms</span>
 <span class="sd">            separated by &lt;3.0Å. Structural models where number of clashes</span>
 <span class="sd">            was 2 SD away from the average are excluded for assessment in</span>
 <span class="sd">            CAPRI. see ref:  https://doi.org/10.1002/prot.10393</span>

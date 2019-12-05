@@ -55,22 +55,22 @@
 <td><p>Rotate xyz from a rotation matrix.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_mat.html#pdb2sql.transform.rot_mat" title="pdb2sql.transform.rot_mat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_mat</span></code></a>(db, mat, **kwargs)</p></td>
-<td><p>Rotate molecule from a rotation matrix.</p></td>
+<td><p>Rotate molecule in SQL database from a rotation matrix.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.get_rot_axis_angle.html#pdb2sql.transform.get_rot_axis_angle" title="pdb2sql.transform.get_rot_axis_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_rot_axis_angle</span></code></a>([seed])</p></td>
 <td><p>Get the rotation angle and axis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_xyz_around_axis.html#pdb2sql.transform.rot_xyz_around_axis" title="pdb2sql.transform.rot_xyz_around_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_xyz_around_axis</span></code></a>(xyz, axis, angle[, center])</p></td>
-<td><p>Get the rotated xyz.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_axis.html#pdb2sql.transform.rot_axis" title="pdb2sql.transform.rot_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_axis</span></code></a>(db, axis, angle, **kwargs)</p></td>
+<td><p>Rotate molecules in a SQL database.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_axis.html#pdb2sql.transform.rot_axis" title="pdb2sql.transform.rot_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_axis</span></code></a>(db, axis, angle, **kwargs)</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_xyz_around_axis.html#pdb2sql.transform.rot_xyz_around_axis" title="pdb2sql.transform.rot_xyz_around_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_xyz_around_axis</span></code></a>(xyz, axis, angle[, center])</p></td>
+<td><p>Rotate given xyz coordinates.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_euler.html#pdb2sql.transform.rot_euler" title="pdb2sql.transform.rot_euler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_euler</span></code></a>(db, alpha, beta, gamma, **kwargs)</p></td>
-<td><p>Rotate molecule from Euler rotation axis.</p></td>
+<td><p>Rotate molecules in SQL database from Euler rotation axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.rotation_euler.html#pdb2sql.transform.rotation_euler" title="pdb2sql.transform.rotation_euler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation_euler</span></code></a>(xyz, alpha, beta, gamma[, center])</p></td>
-<td><p></p></td>
+<td><p>Rotate given xyz coordinates from Euler rotation axis.</p></td>
 </tr>
 </tbody>
 </table>
@@ -84,7 +84,7 @@
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.translation.html#pdb2sql.transform.translation" title="pdb2sql.transform.translation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translation</span></code></a>(db, vect, **kwargs)</p></td>
-<td><p></p></td>
+<td><p>Translate molecule in SQL database.</p></td>
 </tr>
 </tbody>
 </table>

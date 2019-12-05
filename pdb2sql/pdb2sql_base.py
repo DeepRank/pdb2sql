@@ -89,17 +89,31 @@ class pdb2sql_base(object):
         raise NotImplementedError()
 
     def get_xyz(self, **kwargs):
-        '''shortcut to get the xyz.'''
+        '''Shortcut to get the xyz coordinates.'''
         return self.get('x,y,z', **kwargs)
 
     def get_residues(self, **kwargs):
-        '''Get the sequence of the selection.'''
+        """Get the residue sequence.
+
+        Returns:
+            list : residue sequence
+
+        Examples:
+            >>> db.get_residues()
+        """
 
         res = [tuple(x) for x in self.get('chainID,resName,resSeq', **kwargs)]
         return sorted(set(res), key=res.index)
 
     def get_chains(self, **kwargs):
-        '''get the chain IDS.'''
+        """Get the chain IDs.
+
+        Returns:
+            list : chain IDs in alphabetical order.
+
+        Examples:
+            >>> db.get_chains()
+        """
         chains = self.get('chainID', **kwargs)
         return sorted(set(chains))
 
@@ -107,7 +121,7 @@ class pdb2sql_base(object):
         raise NotImplementedError()
 
     def update_xyz(self, xyz, **kwargs):
-        '''Update the xyz coordinate.'''
+        '''Update the xyz coordinates.'''
         self.update('x,y,z', xyz, **kwargs)
 
     def update_column(self, colname, values, index=None):
@@ -115,7 +129,7 @@ class pdb2sql_base(object):
         raise NotImplementedError()
 
     def add_column(self, colname, coltype='FLOAT', default=0):
-        '''Add an etra column to the ATOM table.'''
+        '''Add a new column to the ATOM table.'''
         raise NotImplementedError()
 
     def exportpdb(self, fname, append=False, periodic=False, **kwargs):
@@ -133,7 +147,7 @@ class pdb2sql_base(object):
         f.close()
 
     def sql2pdb(self, **kwargs):
-        """Convert sql pdb data to PDB formatted lines
+        """Convert SQL data to PDB formatted lines
 
         Returns:
             list: pdb-format lines

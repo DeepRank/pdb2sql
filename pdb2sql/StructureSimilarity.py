@@ -88,6 +88,9 @@ class StructureSimilarity(object):
 
         Returns:
             float: L-RMSD value of the conformation
+
+        See also:
+            :meth:`compute_lrmsd_pdb2sql`
         '''
 
         # create/read the lzone file
@@ -235,6 +238,9 @@ class StructureSimilarity(object):
 
         Returns:
             float: i-RMSD value of the conformation
+
+        See also:
+            :meth:`compute_irmsd_pdb2sql`
         """
 
         # read the izone file
@@ -339,7 +345,7 @@ class StructureSimilarity(object):
     #################################################################################################
 
     def compute_fnat_fast(self,cutoff=5):
-        """Compute the FNAT of the conformation.
+        """Fast method to cmpute the FNAT of the conformation.
 
         Fnat is the fraction of reference interface contacts preserved
         in the interface of decoy. The interface is defined as any pair
@@ -353,6 +359,9 @@ class StructureSimilarity(object):
 
         Raises:
             ValueError: if the decoy file is not found
+
+        See also:
+            :meth:`compute_fnat_pdb2sql`
         """
         # compute ref residue pairs
         residue_pairs_ref = self.compute_residue_pairs_ref( cutoff,save_file=False)
@@ -473,6 +482,9 @@ class StructureSimilarity(object):
 
         Returns:
             float: L-RMSD value of the conformation
+
+        See also:
+            :meth:`compute_lrmsd_fast`
         """
         backbone = ['CA', 'C', 'N', 'O']
 
@@ -635,6 +647,9 @@ class StructureSimilarity(object):
 
         Returns:
             float: i-RMSD value of the conformation
+
+        See also:
+            :meth:`compute_irmsd_fast`
         """
 
         # create thes sql
@@ -785,6 +800,21 @@ class StructureSimilarity(object):
     #################################################################################################
 
     def compute_fnat_pdb2sql(self,cutoff=5.0):
+        """Slow method to compute the FNAT of the conformation.
+
+        Fnat is the fraction of reference interface contacts preserved
+        in the interface of decoy. The interface is defined as any pair
+        of heavy atoms from two chains within 5Å of each other.
+
+        Args:
+            cutoff (int, optional): cutoff for the contact atoms
+
+        Returns:
+            float: FNAT value
+
+        See also:
+            :meth:`compute_fnat_fast`
+        """
 
         # create the sql
         sql_decoy = interface(self.decoy)
@@ -1017,7 +1047,8 @@ class StructureSimilarity(object):
     def compute_CapriClass(fnat, lrmsd, irmsd, system='protein-protein'):
         """Compute CAPRI ranking classes.
 
-        Note: Criteira of CAPRI classes https://doi.org/10.1002/prot.10393
+        Note:
+            Criteira of CAPRI classes https://doi.org/10.1002/prot.10393
 
         Args:
             fnat(float): fnat
@@ -1080,7 +1111,8 @@ class StructureSimilarity(object):
     def compute_clashes(pdb):
         """Compute number of atomic clashes.
 
-        Note: Clashes were defined as contacts between nonhydrogen atoms
+        Note:
+            Clashes were defined as contacts between nonhydrogen atoms
             separated by <3.0Å. Structural models where number of clashes
             was 2 SD away from the average are excluded for assessment in
             CAPRI. see ref:  https://doi.org/10.1002/prot.10393
