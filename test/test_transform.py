@@ -158,17 +158,20 @@ class TestTools(unittest.TestCase):
                 result = transform.rotate(self.xyz, mat)
                 np.testing.assert_almost_equal(result, target)
 
-        def test_rotation_matrix_center(self):
-            """Verify specific rotation center"""
-            # rotate pi around z-axis with rotation center [1,1,1,]
-            xyz = np.array([0., 0., 0.])
-            rot_mat = np.array([[cosa, -sina, 0], [sina, cosa, 0], [0, 0, 1]])
-            centers = [np.array([1., 1., 1.]), [1., 1., 1.]]
-            for center in centers:
-                with self.subTest(center=center):
-                    result = transform.rotate(xyz, rot_mat)
-                    target = np.array([2., 2., 0.])
-                    np.testing.assert_almost_equal(result, target)
+    def test_rotation_matrix_center(self):
+        """Verify specific rotation center"""
+        # rotate pi around z-axis with rotation center [1,1,1,]
+        theta = np.pi
+        cosa = np.cos(theta)
+        sina = np.sin(theta)
+        xyz = np.array([0., 0., 0.])
+        rot_mat = np.array([[cosa, -sina, 0], [sina, cosa, 0], [0, 0, 1]])
+        centers = [np.array([1., 1., 1.]), [1., 1., 1.]]
+        for center in centers:
+            with self.subTest(center=center):
+                result = transform.rotate(xyz, rot_mat, center=center)
+                target = np.array([2., 2., 0.])
+                np.testing.assert_almost_equal(result, target)
 
 if __name__ == "__main__":
     unittest.main()
