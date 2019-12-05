@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>compute_lrmsd_fast &#8212; pdb2sql 0.2.2 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="compute_lrmsd_pdb2sql" href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_lrmsd_pdb2sql.html" />
+    <link rel="prev" title="compute_izone" href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_izone.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_lrmsd_pdb2sql.html" title="compute_lrmsd_pdb2sql"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_izone.html" title="compute_izone"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../pdb2sql.StructureSimilarity.html" accesskey="U">Structure Similarity</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="compute-lrmsd-fast">
+<h1>compute_lrmsd_fast<a class="headerlink" href="#compute-lrmsd-fast" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="pdb2sql.StructureSimilarity.StructureSimilarity.compute_lrmsd_fast">
+<code class="sig-prename descclassname">StructureSimilarity.</code><code class="sig-name descname">compute_lrmsd_fast</code><span class="sig-paren">(</span><em class="sig-param">lzone=None</em>, <em class="sig-param">method='svd'</em>, <em class="sig-param">check=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdb2sql/StructureSimilarity.html#StructureSimilarity.compute_lrmsd_fast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.StructureSimilarity.StructureSimilarity.compute_lrmsd_fast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fast routine to compute the L-RMSD.</p>
+<p>L-RMSD is computed by aligning the longest chain of the decoy to
+the one of the reference and computing the RMSD of the shortest
+chain between decoy and reference. Both fitting and rms calculation
+use only backbone atoms. See reference:</p>
+<p>DockQ: A Quality Measure for Protein-Protein Docking Models
+<a class="reference external" href="https://doi.org/10.1371/journal.pone.0161879">https://doi.org/10.1371/journal.pone.0161879</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lzone</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.8)"><em>None</em></a><em>, </em><em>optional</em>) – name of the file containing the zone
+definition. If None the file will be calculated first.</p></li>
+<li><p><strong>method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a><em>, </em><em>optional</em>) – Method to align the fragments,
+‘svd’ or ‘quaternion’.</p></li>
+<li><p><strong>check</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)"><em>bool</em></a><em>, </em><em>optional</em>) – Check if the sequences are aligned
+and fix it if not. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>float</em> – L-RMSD value of the conformation</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_izone.html"
+                        title="previous chapter">compute_izone</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_lrmsd_pdb2sql.html"
+                        title="next chapter">compute_lrmsd_pdb2sql</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api/pdb2sql.StructureSimilarity.StructureSimilarity.compute_lrmsd_fast.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_lrmsd_pdb2sql.html" title="compute_lrmsd_pdb2sql"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pdb2sql.StructureSimilarity.StructureSimilarity.compute_izone.html" title="compute_izone"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../pdb2sql.StructureSimilarity.html" >Structure Similarity</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Netherlands eScience Center.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

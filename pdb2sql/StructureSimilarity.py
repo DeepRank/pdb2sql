@@ -74,8 +74,9 @@ class StructureSimilarity(object):
         the one of the reference and computing the RMSD of the shortest
         chain between decoy and reference. Both fitting and rms calculation
         use only backbone atoms. See reference:
-            DockQ: A Quality Measure for Protein-Protein Docking Models
-            https://doi.org/10.1371/journal.pone.0161879
+
+        DockQ: A Quality Measure for Protein-Protein Docking Models
+        https://doi.org/10.1371/journal.pone.0161879
 
         Args:
             lzone (None, optional): name of the file containing the zone
@@ -219,8 +220,9 @@ class StructureSimilarity(object):
         chains within 10Å of each other.
         Align these backbone atoms as best as possible with their
         coutner part in the decoy and compute the RMSD. See reference:
-            DockQ: A Quality Measure for Protein-Protein Docking Models
-            https://doi.org/10.1371/journal.pone.0161879
+
+        DockQ: A Quality Measure for Protein-Protein Docking Models
+        https://doi.org/10.1371/journal.pone.0161879
 
         Args:
             izone (None, optional): file name of the zone.
@@ -459,8 +461,9 @@ class StructureSimilarity(object):
         the one of the reference and computing the RMSD of the shortest
         chain between decoy and reference. Both fitting and rms calculation
         use only backbone atoms. See reference:
-            DockQ: A Quality Measure for Protein-Protein Docking Models
-            https://doi.org/10.1371/journal.pone.0161879
+
+        DockQ: A Quality Measure for Protein-Protein Docking Models
+        https://doi.org/10.1371/journal.pone.0161879
 
         Args:
             exportpath (str, optional): file name where the aligned pdbs
@@ -617,8 +620,9 @@ class StructureSimilarity(object):
         chains within 10Å of each other.
         Align these backbone atoms as best as possible with their
         coutner part in the decoy and compute the RMSD. See reference:
-            DockQ: A Quality Measure for Protein-Protein Docking Models
-            https://doi.org/10.1371/journal.pone.0161879
+
+        DockQ: A Quality Measure for Protein-Protein Docking Models
+        https://doi.org/10.1371/journal.pone.0161879
 
         Args:
             izone (None, optional): file name of the zone.

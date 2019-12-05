@@ -1,0 +1,356 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pdb2sql.interface &#8212; pdb2sql 0.2.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pdb2sql.interface</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">.pdb2sqlcore</span> <span class="k">import</span> <span class="n">pdb2sql</span>
+
+
+<span class="k">class</span> <span class="nc">interface</span><span class="p">(</span><span class="n">pdb2sql</span><span class="p">):</span>
+
+    <span class="c1"># def __init__(self, pdb):</span>
+<div class="viewcode-block" id="interface.__init__"><a class="viewcode-back" href="../../pdb2sql.interface.html#pdb2sql.interface.interface.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pdb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Identify interface between protein chains.&#39;&#39;&#39;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pdb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="c1">##########################################################################</span>
+    <span class="c1">#</span>
+    <span class="c1"># get the contact atoms</span>
+    <span class="c1">#</span>
+    <span class="c1">##########################################################################</span>
+
+<div class="viewcode-block" id="interface.get_contact_atoms"><a class="viewcode-back" href="../../api/pdb2sql.interface.interface.get_contact_atoms.html#pdb2sql.interface.interface.get_contact_atoms">[docs]</a>    <span class="k">def</span> <span class="nf">get_contact_atoms</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">cutoff</span><span class="o">=</span><span class="mf">8.5</span><span class="p">,</span>
+            <span class="n">allchains</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">chain1</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+            <span class="n">chain2</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span>
+            <span class="n">extend_to_residue</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">only_backbone_atoms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">excludeH</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">return_contact_pairs</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get rowIDs of contact atoms.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cutoff (float): distance cutoff for calculating contact.</span>
+<span class="sd">                Defaults to 8.5.</span>
+<span class="sd">            allchains (bool): calculate contacts for all chains or not.</span>
+<span class="sd">                 Defaults to False.</span>
+<span class="sd">            chain1 (str): first chain ID. Defaults to &#39;A&#39;.</span>
+<span class="sd">            chain2 (str): second chain ID. Defaults to &#39;B&#39;.</span>
+<span class="sd">            extend_to_residue (bool): get all atoms of the residues containing</span>
+<span class="sd">                at least one contact atom. Defaults to False.</span>
+<span class="sd">            only_backbone_atoms (bool): only use backbone atoms to</span>
+<span class="sd">                calculate contact or not. Defaults to False.</span>
+<span class="sd">            excludeH (bool): Exculde hydrogen atoms for contact</span>
+<span class="sd">                calculation or not. Defaults to False.</span>
+<span class="sd">            return_contact_pairs (bool): if return atomic contact pairs</span>
+<span class="sd">                or not. Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: rowID of contact atoms or rowID of contact atom pairs</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">allchains</span><span class="p">:</span>
+            <span class="n">chainIDs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_chains</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chainIDs</span> <span class="o">=</span> <span class="p">[</span><span class="n">chain1</span><span class="p">,</span> <span class="n">chain2</span><span class="p">]</span>
+
+        <span class="n">xyz</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">resName</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">atName</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">chainIDs</span><span class="p">:</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;x,y,z,rowID,resName,name&#39;</span><span class="p">,</span> <span class="n">chainID</span><span class="o">=</span><span class="n">chain</span><span class="p">))</span>
+            <span class="n">xyz</span><span class="p">[</span><span class="n">chain</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">index</span><span class="p">[</span><span class="n">chain</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">resName</span><span class="p">[</span><span class="n">chain</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">atName</span><span class="p">[</span><span class="n">chain</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># loop through the first chain</span>
+        <span class="c1"># TODO : loop through the smallest chain instead ...</span>
+        <span class="c1">#index_contact_1,index_contact_2 = [],[]</span>
+        <span class="c1">#index_contact_pairs = {}</span>
+
+        <span class="n">index_contact</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">index_contact_pairs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">chain1</span><span class="p">,</span> <span class="n">chain2</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">chainIDs</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+
+            <span class="n">xyz1</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="n">chain1</span><span class="p">]</span>
+            <span class="n">xyz2</span> <span class="o">=</span> <span class="n">xyz</span><span class="p">[</span><span class="n">chain2</span><span class="p">]</span>
+
+            <span class="n">atName1</span> <span class="o">=</span> <span class="n">atName</span><span class="p">[</span><span class="n">chain1</span><span class="p">]</span>
+            <span class="n">atName2</span> <span class="o">=</span> <span class="n">atName</span><span class="p">[</span><span class="n">chain2</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">chain1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">index_contact</span><span class="p">:</span>
+                <span class="n">index_contact</span><span class="p">[</span><span class="n">chain1</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">if</span> <span class="n">chain2</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">index_contact</span><span class="p">:</span>
+                <span class="n">index_contact</span><span class="p">[</span><span class="n">chain2</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x0</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xyz1</span><span class="p">):</span>
+
+                <span class="c1"># compute the contact atoms</span>
+                <span class="n">contacts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">xyz2</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">cutoff</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+                <span class="c1"># exclude the H if required</span>
+                <span class="k">if</span> <span class="n">excludeH</span> <span class="ow">and</span> <span class="n">atName1</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;H&#39;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contacts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+                        <span class="p">[</span><span class="ow">not</span> <span class="n">only_backbone_atoms</span><span class="p">,</span> <span class="n">atName1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone_atoms</span><span class="p">]):</span>
+
+                    <span class="n">pairs</span> <span class="o">=</span> <span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="n">chain2</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">contacts</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                            <span class="p">[</span><span class="n">atName2</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone_atoms</span><span class="p">,</span> <span class="ow">not</span> <span class="n">only_backbone_atoms</span><span class="p">])</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span> <span class="n">excludeH</span> <span class="ow">and</span> <span class="n">atName2</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;H&#39;</span><span class="p">)]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">index_contact_pairs</span><span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="n">chain1</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">pairs</span>
+                        <span class="n">index_contact</span><span class="p">[</span><span class="n">chain1</span><span class="p">]</span> <span class="o">+=</span> <span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="n">chain1</span><span class="p">][</span><span class="n">i</span><span class="p">]]</span>
+                        <span class="n">index_contact</span><span class="p">[</span><span class="n">chain2</span><span class="p">]</span> <span class="o">+=</span> <span class="n">pairs</span>
+
+        <span class="c1"># if no atoms were found</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index_contact_pairs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;No contact atoms detected in pdb2sql&#39;</span><span class="p">)</span>
+
+        <span class="c1"># get uniques</span>
+        <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">chainIDs</span><span class="p">:</span>
+            <span class="n">index_contact</span><span class="p">[</span><span class="n">chain</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">index_contact</span><span class="p">[</span><span class="n">chain</span><span class="p">]))</span>
+
+        <span class="c1"># extend the list to entire residue</span>
+        <span class="k">if</span> <span class="n">extend_to_residue</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">chainIDs</span><span class="p">:</span>
+                <span class="n">index_contact</span><span class="p">[</span><span class="n">chain</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extend_contact_to_residue</span><span class="p">(</span>
+                    <span class="n">index_contact</span><span class="p">[</span><span class="n">chain</span><span class="p">],</span> <span class="n">only_backbone_atoms</span><span class="p">)</span>
+
+        <span class="c1"># not sure that&#39;s the best way of dealing with that</span>
+        <span class="c1"># TODO split to two functions get_contact_atoms and get_contact_atom_pairs</span>
+        <span class="k">if</span> <span class="n">return_contact_pairs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">index_contact_pairs</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">index_contact</span></div>
+
+    <span class="c1"># extend the contact atoms to the residue</span>
+    <span class="k">def</span> <span class="nf">_extend_contact_to_residue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index1</span><span class="p">,</span> <span class="n">only_backbone_atoms</span><span class="p">):</span>
+
+        <span class="c1"># extract the data</span>
+        <span class="n">dataA</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID,resName,resSeq&#39;</span><span class="p">,</span> <span class="n">rowID</span><span class="o">=</span><span class="n">index1</span><span class="p">)</span>
+        <span class="c1">#dataB = self.get(&#39;chainID,resName,resSeq&#39;,rowID=index2)</span>
+
+        <span class="c1"># create tuple cause we want to hash through it</span>
+        <span class="n">dataA</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">dataA</span><span class="p">))</span>
+        <span class="c1">#dataB = list(map(lambda x: tuple(x),dataB))</span>
+
+        <span class="c1"># extract uniques</span>
+        <span class="n">resA</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dataA</span><span class="p">))</span>
+        <span class="c1">#resB = list(set(dataB))</span>
+
+        <span class="c1"># init the list</span>
+        <span class="n">index_contact_A</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># contact of chain A</span>
+        <span class="k">for</span> <span class="n">resdata</span> <span class="ow">in</span> <span class="n">resA</span><span class="p">:</span>
+            <span class="n">chainID</span><span class="p">,</span> <span class="n">resName</span><span class="p">,</span> <span class="n">resSeq</span> <span class="o">=</span> <span class="n">resdata</span>
+
+            <span class="k">if</span> <span class="n">only_backbone_atoms</span><span class="p">:</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s1">&#39;rowID&#39;</span><span class="p">,</span>
+                    <span class="n">chainID</span><span class="o">=</span><span class="n">chainID</span><span class="p">,</span>
+                    <span class="n">resName</span><span class="o">=</span><span class="n">resName</span><span class="p">,</span>
+                    <span class="n">resSeq</span><span class="o">=</span><span class="n">resSeq</span><span class="p">)</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s1">&#39;name&#39;</span><span class="p">,</span>
+                    <span class="n">chainID</span><span class="o">=</span><span class="n">chainID</span><span class="p">,</span>
+                    <span class="n">resName</span><span class="o">=</span><span class="n">resName</span><span class="p">,</span>
+                    <span class="n">resSeq</span><span class="o">=</span><span class="n">resSeq</span><span class="p">)</span>
+                <span class="n">index_contact_A</span> <span class="o">+=</span> <span class="p">[</span><span class="n">ind</span> <span class="k">for</span> <span class="n">ind</span><span class="p">,</span>
+                                    <span class="n">n</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone_atoms</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">index_contact_A</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rowID&#39;</span><span class="p">,</span>
+                                            <span class="n">chainID</span><span class="o">=</span><span class="n">chainID</span><span class="p">,</span>
+                                            <span class="n">resName</span><span class="o">=</span><span class="n">resName</span><span class="p">,</span>
+                                            <span class="n">resSeq</span><span class="o">=</span><span class="n">resSeq</span><span class="p">)</span>
+
+        <span class="c1"># make sure that we don&#39;t have double (maybe optional)</span>
+        <span class="n">index_contact_A</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">index_contact_A</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">index_contact_A</span>
+
+    <span class="c1"># get the contact residue</span>
+<div class="viewcode-block" id="interface.get_contact_residues"><a class="viewcode-back" href="../../api/pdb2sql.interface.interface.get_contact_residues.html#pdb2sql.interface.interface.get_contact_residues">[docs]</a>    <span class="k">def</span> <span class="nf">get_contact_residues</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">cutoff</span><span class="o">=</span><span class="mf">8.5</span><span class="p">,</span>
+            <span class="n">allchains</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">chain1</span><span class="o">=</span><span class="s1">&#39;A&#39;</span><span class="p">,</span>
+            <span class="n">chain2</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">,</span>
+            <span class="n">excludeH</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">only_backbone_atoms</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">return_contact_pairs</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;get contact residues represented with (chain,resSeq, resname).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cutoff (float): distance cutoff for contact calculation</span>
+<span class="sd">                Defaults to 8.5.</span>
+<span class="sd">            allchains (bool): calculate contacts for all chains or not.</span>
+<span class="sd">                 Defaults to False.</span>
+<span class="sd">            chain1 (str): first chain ID. Defaults to &#39;A&#39;.</span>
+<span class="sd">            chain2 (str): second chain ID. Defaults to &#39;B&#39;.</span>
+<span class="sd">            excludeH (bool): Exculde hydrogen atoms for contact</span>
+<span class="sd">                calculation or not. Defaults to False.</span>
+<span class="sd">            only_backbone_atoms (bool): only use backbone atoms to</span>
+<span class="sd">                calculate contact or not. Defaults to False.</span>
+<span class="sd">            return_contact_pairs (bool): if return residue contact pairs</span>
+<span class="sd">                or not. Defaults to False.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: (chain,resSeq,resName) of contact residues or</span>
+<span class="sd">                contact residue pairs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#TODO split this func to two functions</span>
+        <span class="c1">#TODO get_contact_residues and get_contact_residue_pairs</span>
+
+        <span class="c1"># get the contact atoms</span>
+        <span class="k">if</span> <span class="n">return_contact_pairs</span><span class="p">:</span>
+
+            <span class="c1"># declare the dict</span>
+            <span class="n">residue_contact_pairs</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="c1"># get the contact atom pairs</span>
+            <span class="n">atom_pairs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_contact_atoms</span><span class="p">(</span>
+                <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span>
+                <span class="n">allchains</span><span class="o">=</span><span class="n">allchains</span><span class="p">,</span>
+                <span class="n">chain1</span><span class="o">=</span><span class="n">chain1</span><span class="p">,</span>
+                <span class="n">chain2</span><span class="o">=</span><span class="n">chain2</span><span class="p">,</span>
+                <span class="n">only_backbone_atoms</span><span class="o">=</span><span class="n">only_backbone_atoms</span><span class="p">,</span>
+                <span class="n">excludeH</span><span class="o">=</span><span class="n">excludeH</span><span class="p">,</span>
+                <span class="n">return_contact_pairs</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># loop over the atom pair dict</span>
+            <span class="k">for</span> <span class="n">iat1</span><span class="p">,</span> <span class="n">atoms2</span> <span class="ow">in</span> <span class="n">atom_pairs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                <span class="c1"># get the res info of the current atom</span>
+                <span class="n">data1</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="s1">&#39;chainID,resSeq,resName&#39;</span><span class="p">,</span>
+                        <span class="n">rowID</span><span class="o">=</span><span class="p">[</span><span class="n">iat1</span><span class="p">])[</span><span class="mi">0</span><span class="p">])</span>
+
+                <span class="c1"># create a new entry in the dict if necessary</span>
+                <span class="k">if</span> <span class="n">data1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">residue_contact_pairs</span><span class="p">:</span>
+                    <span class="n">residue_contact_pairs</span><span class="p">[</span><span class="n">data1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+                <span class="c1"># get the res info of the atom in the other chain</span>
+                <span class="n">data2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;chainID,resSeq,resName&#39;</span><span class="p">,</span> <span class="n">rowID</span><span class="o">=</span><span class="n">atoms2</span><span class="p">)</span>
+
+                <span class="c1"># store that in the dict without double</span>
+                <span class="k">for</span> <span class="n">resData</span> <span class="ow">in</span> <span class="n">data2</span><span class="p">:</span>
+                    <span class="n">residue_contact_pairs</span><span class="p">[</span><span class="n">data1</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">resData</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">resData</span> <span class="ow">in</span> <span class="n">residue_contact_pairs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">residue_contact_pairs</span><span class="p">[</span><span class="n">resData</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                    <span class="n">residue_contact_pairs</span><span class="p">[</span><span class="n">resData</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="n">residue_contact_pairs</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="c1"># get the contact atoms</span>
+            <span class="n">contact_atoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_contact_atoms</span><span class="p">(</span>
+                <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">,</span>
+                <span class="n">allchains</span><span class="o">=</span><span class="n">allchains</span><span class="p">,</span>
+                <span class="n">chain1</span><span class="o">=</span><span class="n">chain1</span><span class="p">,</span>
+                <span class="n">chain2</span><span class="o">=</span><span class="n">chain2</span><span class="p">,</span>
+                <span class="n">excludeH</span><span class="o">=</span><span class="n">excludeH</span><span class="p">,</span>
+                <span class="n">only_backbone_atoms</span><span class="o">=</span><span class="n">only_backbone_atoms</span><span class="p">,</span>
+                <span class="n">return_contact_pairs</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># get the residue info</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="n">residue_contact</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="n">contact_atoms</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">chain</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s1">&#39;chainID,resSeq,resName&#39;</span><span class="p">,</span>
+                    <span class="n">rowID</span><span class="o">=</span><span class="n">contact_atoms</span><span class="p">[</span><span class="n">chain</span><span class="p">])</span>
+                <span class="n">residue_contact</span><span class="p">[</span><span class="n">chain</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                    <span class="nb">set</span><span class="p">([</span><span class="nb">tuple</span><span class="p">(</span><span class="n">resData</span><span class="p">)</span> <span class="k">for</span> <span class="n">resData</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">chain</span><span class="p">]]))</span>
+
+            <span class="k">return</span> <span class="n">residue_contact</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pdb2sql 0.2.2 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Netherlands eScience Center.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>PDB2SQL &#8212; pdb2sql 0.2.2 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="read_pdb" href="api/pdb2sql.pdb2sqlcore.pdb2sql.read_pdb.html" />
+    <link rel="prev" title="10 minutes to pdb2sql" href="tutorial.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api/pdb2sql.pdb2sqlcore.pdb2sql.read_pdb.html" title="read_pdb"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="10 minutes to pdb2sql"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pdb2sql 0.2.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pdb2sql">
+<h1>PDB2SQL<a class="headerlink" href="#pdb2sql" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="pdb2sql.pdb2sqlcore.pdb2sql.__init__">
+<code class="sig-prename descclassname">pdb2sql.</code><code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">pdbfile</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pdb2sql/pdb2sqlcore.html#pdb2sql.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdb2sql.pdb2sqlcore.pdb2sql.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="section" id="process-pdb">
+<h2>Process PDB<a class="headerlink" href="#process-pdb" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.read_pdb.html#pdb2sql.pdb2sqlcore.pdb2sql.read_pdb" title="pdb2sql.pdb2sqlcore.pdb2sql.read_pdb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_pdb</span></code></a>(pdbfile)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sql_base.pdb2sql_base.exportpdb.html#pdb2sql.pdb2sql_base.pdb2sql_base.exportpdb" title="pdb2sql.pdb2sql_base.pdb2sql_base.exportpdb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exportpdb</span></code></a>(fname[, append, periodic])</p></td>
+<td><p>Export a PDB file with kwargs selection.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sql_base.pdb2sql_base.sql2pdb.html#pdb2sql.pdb2sql_base.pdb2sql_base.sql2pdb" title="pdb2sql.pdb2sql_base.pdb2sql_base.sql2pdb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sql2pdb</span></code></a>(**kwargs)</p></td>
+<td><p>Convert sql pdb data to PDB formatted lines</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="get-sql-data">
+<h2>Get SQL Data<a class="headerlink" href="#get-sql-data" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.get.html#pdb2sql.pdb2sqlcore.pdb2sql.get" title="pdb2sql.pdb2sqlcore.pdb2sql.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(columns, **kwargs)</p></td>
+<td><p>Exectute simple SQL query to extract values of attributes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.get_colnames.html#pdb2sql.pdb2sqlcore.pdb2sql.get_colnames" title="pdb2sql.pdb2sqlcore.pdb2sql.get_colnames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_colnames</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.get_chains.html#pdb2sql.pdb2sqlcore.pdb2sql.get_chains" title="pdb2sql.pdb2sqlcore.pdb2sql.get_chains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_chains</span></code></a>(**kwargs)</p></td>
+<td><p>get the chain IDS.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.get_residues.html#pdb2sql.pdb2sqlcore.pdb2sql.get_residues" title="pdb2sql.pdb2sqlcore.pdb2sql.get_residues"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_residues</span></code></a>(**kwargs)</p></td>
+<td><p>Get the sequence of the selection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.get_xyz.html#pdb2sql.pdb2sqlcore.pdb2sql.get_xyz" title="pdb2sql.pdb2sqlcore.pdb2sql.get_xyz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xyz</span></code></a>(**kwargs)</p></td>
+<td><p>shortcut to get the xyz.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="set-sql-data">
+<h2>Set SQL data<a class="headerlink" href="#set-sql-data" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.update.html#pdb2sql.pdb2sqlcore.pdb2sql.update" title="pdb2sql.pdb2sqlcore.pdb2sql.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(columns, values, **kwargs)</p></td>
+<td><p>Update the database.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.add_column.html#pdb2sql.pdb2sqlcore.pdb2sql.add_column" title="pdb2sql.pdb2sqlcore.pdb2sql.add_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_column</span></code></a>(colname[, coltype, value])</p></td>
+<td><p>Add an extra column to the ATOM table with same value for each row.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.update_column.html#pdb2sql.pdb2sqlcore.pdb2sql.update_column" title="pdb2sql.pdb2sqlcore.pdb2sql.update_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_column</span></code></a>(colname, values[, index])</p></td>
+<td><p>Update a single column.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.update_xyz.html#pdb2sql.pdb2sqlcore.pdb2sql.update_xyz" title="pdb2sql.pdb2sqlcore.pdb2sql.update_xyz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_xyz</span></code></a>(xyz, **kwargs)</p></td>
+<td><p>Update the xyz coordinate.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="print-sql-data">
+<h2>Print SQL data<a class="headerlink" href="#print-sql-data" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.pprint.html#pdb2sql.pdb2sqlcore.pdb2sql.pprint" title="pdb2sql.pdb2sqlcore.pdb2sql.pprint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pprint</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.print.html#pdb2sql.pdb2sqlcore.pdb2sql.print" title="pdb2sql.pdb2sqlcore.pdb2sql.print"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.pdb2sqlcore.pdb2sql.print_colnames.html#pdb2sql.pdb2sqlcore.pdb2sql.print_colnames" title="pdb2sql.pdb2sqlcore.pdb2sql.print_colnames"><code class="xref py py-obj docutils literal notranslate"><span class="pre">print_colnames</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PDB2SQL</a><ul>
+<li><a class="reference internal" href="#process-pdb">Process PDB</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#get-sql-data">Get SQL Data</a></li>
+<li><a class="reference internal" href="#set-sql-data">Set SQL data</a></li>
+<li><a class="reference internal" href="#print-sql-data">Print SQL data</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">10 minutes to pdb2sql</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api/pdb2sql.pdb2sqlcore.pdb2sql.read_pdb.html"
+                        title="next chapter">read_pdb</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pdb2sql.pdb2sqlcore.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api/pdb2sql.pdb2sqlcore.pdb2sql.read_pdb.html" title="read_pdb"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="10 minutes to pdb2sql"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pdb2sql 0.2.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Netherlands eScience Center.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>

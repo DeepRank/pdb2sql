@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Transform &#8212; pdb2sql 0.2.2 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pdb2sql.transform.rotate" href="api/pdb2sql.transform.rotate.html" />
+    <link rel="prev" title="compute_clashes" href="api/pdb2sql.StructureSimilarity.StructureSimilarity.compute_clashes.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api/pdb2sql.transform.rotate.html" title="pdb2sql.transform.rotate"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api/pdb2sql.StructureSimilarity.StructureSimilarity.compute_clashes.html" title="compute_clashes"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pdb2sql 0.2.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="transform">
+<h1>Transform<a class="headerlink" href="#transform" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="rotation">
+<h2>Rotation<a class="headerlink" href="#rotation" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.rotate.html#pdb2sql.transform.rotate" title="pdb2sql.transform.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>(xyz, rot_mat[, center])</p></td>
+<td><p>Rotate xyz from a rotation matrix.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_mat.html#pdb2sql.transform.rot_mat" title="pdb2sql.transform.rot_mat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_mat</span></code></a>(db, mat, **kwargs)</p></td>
+<td><p>Rotate molecule from a rotation matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.get_rot_axis_angle.html#pdb2sql.transform.get_rot_axis_angle" title="pdb2sql.transform.get_rot_axis_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_rot_axis_angle</span></code></a>([seed])</p></td>
+<td><p>Get the rotation angle and axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_xyz_around_axis.html#pdb2sql.transform.rot_xyz_around_axis" title="pdb2sql.transform.rot_xyz_around_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_xyz_around_axis</span></code></a>(xyz, axis, angle[, center])</p></td>
+<td><p>Get the rotated xyz.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_axis.html#pdb2sql.transform.rot_axis" title="pdb2sql.transform.rot_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_axis</span></code></a>(db, axis, angle, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pdb2sql.transform.rot_euler.html#pdb2sql.transform.rot_euler" title="pdb2sql.transform.rot_euler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rot_euler</span></code></a>(db, alpha, beta, gamma, **kwargs)</p></td>
+<td><p>Rotate molecule from Euler rotation axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.rotation_euler.html#pdb2sql.transform.rotation_euler" title="pdb2sql.transform.rotation_euler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation_euler</span></code></a>(xyz, alpha, beta, gamma[, center])</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="translation">
+<h2>Translation<a class="headerlink" href="#translation" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pdb2sql.transform.translation.html#pdb2sql.transform.translation" title="pdb2sql.transform.translation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translation</span></code></a>(db, vect, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Transform</a><ul>
+<li><a class="reference internal" href="#rotation">Rotation</a></li>
+<li><a class="reference internal" href="#translation">Translation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="api/pdb2sql.StructureSimilarity.StructureSimilarity.compute_clashes.html"
+                        title="previous chapter">compute_clashes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api/pdb2sql.transform.rotate.html"
+                        title="next chapter">pdb2sql.transform.rotate</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pdb2sql.transform.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api/pdb2sql.transform.rotate.html" title="pdb2sql.transform.rotate"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api/pdb2sql.StructureSimilarity.StructureSimilarity.compute_clashes.html" title="compute_clashes"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pdb2sql 0.2.2 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Netherlands eScience Center.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2.
+    </div>
+  </body>
+</html>
