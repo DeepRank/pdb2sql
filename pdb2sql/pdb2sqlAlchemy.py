@@ -132,7 +132,7 @@ class pdb2sql_alchemy(pdb2sql_base):
             attribute (str) : attribute to retreive eg : ['x','y,'z'], 'xyz', 'resSeq'
                               if None all the attributes are returned
 
-            **kwargs : argument to select atoms eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+            kwargs : argument to select atoms eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
 
         Returns:
             data : array containing the value of the attributes
@@ -231,7 +231,7 @@ class pdb2sql_alchemy(pdb2sql_base):
             values (np.ndarray) : an array of values that corresponds
                                   to the number of attributes and atoms selected
 
-            **kwargs : selection arguments eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
+            kwargs : selection arguments eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
         '''
 
         # parse the commas in the attribute

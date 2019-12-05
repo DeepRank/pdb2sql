@@ -11,6 +11,14 @@ from .pdb2sql_base import pdb2sql_base
 class pdb2sql(pdb2sql_base):
 
     def __init__(self, pdbfile, **kwargs):
+        """Create a SQL database with PDB data.
+
+        Args:
+            pdbfile(str, list, ndarray): pdb file or data
+
+        Examples:
+            >>> db = pdb2sql.pdb2sql('3CRO.pdb')
+        """
 
         super().__init__(pdbfile, **kwargs)
 
@@ -128,6 +136,21 @@ class pdb2sql(pdb2sql_base):
 
     @staticmethod
     def read_pdb(pdbfile):
+        """Read pdb file or data to a list.
+
+        Args:
+            pdbfile(str, list or ndarray): pdb file or data
+
+        Raises:
+            FileNotFoundError: pdb file not found
+            ValueError: invalid input
+
+        Returns:
+            list: pdb content in list format
+
+        Examples:
+            >>> pdb2sql.read_pdb('3CRO.pdb')
+        """
         # read the pdb file a pure python way
         # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ...
         # we could do better than that. But the most time consuming step seems
@@ -144,7 +167,7 @@ class pdb2sql(pdb2sql_base):
             elif isinstance(pdbfile[0], bytes):
                 pdbdata = [line.decode() for line in pdbfile]
             else:
-                raise ValueError(f'Non-valid pdb input {pdbfile}')
+                raise ValueError(f'Invalid pdb input {pdbfile}')
         elif isinstance(pdbfile, np.ndarray):
             pdbfile = pdbfile.tolist()
             if isinstance(pdbfile[0], str):
@@ -152,9 +175,9 @@ class pdb2sql(pdb2sql_base):
             elif isinstance(pdbfile[0], bytes):
                 pdbdata = [line.decode() for line in pdbfile]
             else:
-                raise ValueError(f'Non-valid pdb input {pdbfile}')
+                raise ValueError(f'Invalid pdb input {pdbfile}')
         else:
-            raise ValueError(f'Non-valid pdb input: {pdbfile}')
+            raise ValueError(f'Invalid pdb input: {pdbfile}')
 
         return pdbdata
 
@@ -195,7 +218,7 @@ class pdb2sql(pdb2sql_base):
             pdb_line(str): one PDB ATOM line
 
         Returns:
-            [str]: element name
+            str : element name
         """
         first_char = pdb_line[12].strip()
         last_char = pdb_line[15].strip()
@@ -241,12 +264,26 @@ class pdb2sql(pdb2sql_base):
     # get the names of the columns
 
     def get_colnames(self):
+        """Get SQL column names
+
+        Returns:
+            list: all available column names
+
+        Examples:
+            >>> db.get_colnames()
+        """
+
         cd = self.conn.execute('select * from atom')
         names = list(map(lambda x: x[0], cd.description))
         names = ['rowID'] + names
         return names
 
     def print_colnames(self):
+        """Print out SQL column names.
+
+        Examples:
+            >>> db.print_colnames()
+        """
         names = self.get_colnames()
         print('Possible column names are:')
         for n in names:
@@ -254,11 +291,21 @@ class pdb2sql(pdb2sql_base):
 
     # print the database
     def pprint(self):
+        """Fancy print of SQL ATOM table.
+
+        Examples:
+            >>> db.pprint()
+        """
         import pandas.io.sql as psql
         df = psql.read_sql("SELECT * FROM ATOM", self.conn)
         print(df)
 
     def print(self):
+        """Print out SQL ATOM table.
+
+        Examples:
+            >>> db.print()
+        """
         ctmp = self.conn.cursor()
         ctmp.execute("SELECT * FROM ATOM")
         print(ctmp.fetchall())
@@ -266,15 +313,20 @@ class pdb2sql(pdb2sql_base):
     # get the properties
     def get(self, columns, **kwargs):
         '''Exectute simple SQL query to extract values of attributes
-            for certain conditions.
+        for certain conditions.
 
-        Args :
+        Args:
             columns (str): columns to retreive, eg: "x,y,z".
                 if "*" all the columns are returned.
-                Check all available columns by print_colnames().
-            **kwargs: argument to select atoms, dict value must be list.
-                eg: name = ['CA', 'O'], chainID = ['A'],
-                or no_name = ['CA', 'C'], no_chainID = ['A'].
+                Check all available columns by :py:meth:`print_colnames`.
+
+            kwargs: argument to select atoms, dict value must be list,
+                e.g.:
+
+                    - name = ['CA', 'O']
+                    - no_name = ['CA', 'C']
+                    - chainID = ['A']
+                    - no_chainID = ['A']
 
         Returns:
             data: list containing the value of the attributes
@@ -434,18 +486,18 @@ class pdb2sql(pdb2sql_base):
         return data
 
     def update(self, columns, values, **kwargs):
-        '''Update the database.
+        '''Update the database with given values.
 
         Args:
             columns (str): names of column to update, e.g. "x,y,z".
             values (np.ndarray): an array of values that corresponds
                         to the number of columns and atoms selected.
-            **kwargs: selection arguments,
+            kwargs: selection arguments,
                 eg: name = ['CA', 'O'], chainID = ['A'],
                 or no_name = ['CA', 'C'], no_chainID = ['A'].
         Examples:
             >>> values = np.array([[1.,2.,3.], [4.,5.,6.]])
-            >>> self.db.update("x,y,z", values=values, resName='MET', name=['CA', 'CB'])
+            >>> db.update("x,y,z", values=values, resName='MET', name=['CA', 'CB'])
         '''
         # check arguments format
         valid_colnames = self.get_colnames()
@@ -532,7 +584,7 @@ class pdb2sql(pdb2sql_base):
         self.c.executemany(query, data)
 
     def add_column(self, colname, coltype='FLOAT', value=0):
-        """Add an extra column to the ATOM table with same value for each row.
+        """Add an new column to the ATOM table with same value for each row.
 
         Args:
             colname (str): the new column name
@@ -541,7 +593,7 @@ class pdb2sql(pdb2sql_base):
                 Default to 0.
 
         Examples:
-            >>> add_column('id', coltype='str', value='positive')
+            >>> db.add_column('id', coltype='str', value='positive')
         """
 
         query = "ALTER TABLE ATOM ADD COLUMN '%s' %s DEFAULT %s" % (

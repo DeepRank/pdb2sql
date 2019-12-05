@@ -12,6 +12,12 @@ definition of the data set.
 # Translation
 ########################################################################
 def translation(db, vect, **kwargs):
+    """Translate molecule in SQL database.
+
+    Args:
+        db(pdb2sql): SQL database
+        vect(array): translation vector
+    """
     xyz = _get_xyz(db, **kwargs)
     xyz += vect
     _update(db, xyz, **kwargs)
@@ -21,6 +27,16 @@ def translation(db, vect, **kwargs):
 # see https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle
 ########################################################################
 def rot_axis(db, axis, angle, **kwargs):
+    """Rotate molecules in a SQL database.
+
+    Args:
+        db (pdb2sql): SQL database
+        axis (list(float)): axis of rotation
+        angle (float): angle of rotation
+
+    Returns:
+        np.array: rotated xyz coordinates
+    """
     xyz = _get_xyz(db, **kwargs)
     xyz = rot_xyz_around_axis(xyz, axis, angle)
     _update(db, xyz, **kwargs)
@@ -55,7 +71,7 @@ def get_rot_axis_angle(seed=None):
     return axis, angle
 
 def rot_xyz_around_axis(xyz, axis, angle, center=None):
-    """Get the rotated xyz.
+    """Rotate given xyz coordinates.
 
     Args:
         xyz(np.array): original xyz coordinates
@@ -91,20 +107,31 @@ def rot_xyz_around_axis(xyz, axis, angle, center=None):
 ########################################################################
 
 def rot_euler(db, alpha, beta, gamma, **kwargs):
-    """Rotate molecule from Euler rotation axis.
+    """Rotate molecules in SQL database from Euler rotation axis.
 
     Args:
         alpha (float): angle of rotation around the x axis
         beta (float): angle of rotation around the y axis
         gamma (float): angle of rotation around the z axis
-        **kwargs: keyword argument to select the atoms.
-            See pdb2sql.get()
+        kwargs: keyword argument to select the atoms.
     """
     xyz = _get_xyz(db, **kwargs)
     xyz = rotation_euler(xyz, alpha, beta, gamma)
     _update(db, xyz, **kwargs)
 
 def rotation_euler(xyz, alpha, beta, gamma, center=None):
+    """Rotate given xyz coordinates from Euler rotation axis.
+
+    Args:
+        xyz (array): original xyz coordinates
+        alpha (float): angle of rotation around the x axis
+        beta (float): angle of rotation around the y axis
+        gamma (float): angle of rotation around the z axis
+        kwargs: keyword argument to select the atoms.
+
+    Returns:
+        array: x,y,z coordinates after rotation
+    """
 
     # precomte the trig
     ca, sa = np.cos(alpha), np.sin(alpha)
@@ -127,12 +154,11 @@ def rotation_euler(xyz, alpha, beta, gamma, center=None):
 ########################################################################
 
 def rot_mat(db, mat, **kwargs):
-    """Rotate molecule from a rotation matrix.
+    """Rotate molecule in SQL database from a rotation matrix.
 
     Args:
         mat (np.array): 3x3 rotation matrix
-        **kwargs: keyword argument to select the atoms.
-            See pdb2sql.get()
+        kwargs: keyword argument to select the atoms.
     """
     xyz = _get_xyz(db, **kwargs)
     xyz = rotate(xyz, mat)
