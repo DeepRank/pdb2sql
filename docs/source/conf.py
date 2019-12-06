@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../pdb2sql'))
+sys.path.insert(0, os.path.abspath('../../pdb2sql'))
 
 # -- Project information -----------------------------------------------------
 
@@ -101,6 +101,7 @@ autosummary_generate = True
 ## ipython
 ipython_warning_is_error = False
 ipython_exec_lines = [
+    "import pdb2sql",
     "import numpy as np",
     "import pandas as pd",
     'pd.options.display.encoding="utf8"',
