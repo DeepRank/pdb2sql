@@ -9,20 +9,21 @@ SQLalchemy allows to have a object oriented approach but seems a bit slower.
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3232888.svg)](https://doi.org/10.5281/zenodo.3232888)
 
 
-[![Build Status](https://secure.travis-ci.org/DeepRank/pdb2sql.svg?branch=master)](https://travis-ci.org/DeepRank/pdb2sql)
-[![Coverage Status](https://coveralls.io/repos/github/DeepRank/pdb2sql/badge.svg?branch=master)](https://coveralls.io/github/pdb2sql/iScore?branch=master)
-
+[![Travis](https://secure.travis-ci.org/DeepRank/pdb2sql.svg?branch=master)](https://travis-ci.org/DeepRank/pdb2sql)
+[![Coverage Status](https://coveralls.io/repos/github/DeepRank/pdb2sql/badge.svg)](https://coveralls.io/github/DeepRank/pdb2sql)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7cce335b21cc49d6bb3ff9878d6ac904)](https://www.codacy.com/manual/CunliangGeng/pdb2sql?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=DeepRank/pdb2sql&amp;utm_campaign=Badge_Grade)
+[![Documentation Status](https://readthedocs.org/api/v2/webhook/pdb2sql/105918/)](https://pdb2sql.readthedocs.io/)
 
 
 ## Installation
-<!-- 
+<!--
   1. Clone the repository : `git clone https://github.com/DeepRank/pdb2sql`
 
   2. Go in the repo and type : `pip install -e ./`
 
   3. Test by going in the test folder and type : `pytest` -->
 
-`pip install pdb2sql` 
+`pip install pdb2sql`
 
 ## pdb2sql
 
