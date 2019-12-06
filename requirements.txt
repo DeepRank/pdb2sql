@@ -1,3 +1,6 @@
-numpy
 sqlalchemy
-pickle
+matplotlib
+numpy
+schema
+tqdm
+pandas
