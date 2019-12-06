@@ -9,10 +9,6 @@ First we import as follows:
 .. ipython:: python
 
     from pdb2sql import pdb2sql
-    from pdb2sql import interface
-    from pdb2sql import transform
-    from pdb2sql.StructureSimilarity import StructureSimilarity
-
 
 Get and set data
 ----------------
@@ -180,6 +176,7 @@ Create an interface SQL database instance:
 
 .. ipython:: python
 
+    from pdb2sql import interface
     db = interface('./pdb/3CRO.pdb')
 
 Interface atoms
@@ -213,6 +210,7 @@ Create a ``StructureSimilarity`` instance:
 
 .. ipython:: python
 
+    from pdb2sql.StructureSimilarity import StructureSimilarity
     sim = StructureSimilarity('./pdb/decoy.pdb', './pdb/ref.pdb')
 
 interface RMSD
@@ -265,6 +263,7 @@ Create SQL instance:
 
 .. ipython:: python
 
+    from pdb2sql import transform
     db = pdb2sql('./pdb/dummy_transform.pdb')
 
 The atom coordinates are:
