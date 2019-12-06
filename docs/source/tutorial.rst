@@ -1,3 +1,9 @@
+.. ipython:: python
+    :suppress:
+
+    import os
+    os.chdir('..')
+
 =====================
 10 minutes to pdb2sql
 =====================
@@ -9,6 +15,7 @@ First we import as follows:
 .. ipython:: python
 
     from pdb2sql import pdb2sql
+
 
 Get and set data
 ----------------
