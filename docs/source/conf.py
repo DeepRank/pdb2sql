@@ -14,6 +14,15 @@ import os
 import sys
 # sys.path.insert(0, os.path.abspath('../../pdb2sql'))
 
+
+# -- File setup --------------------------------------------------------------
+# source_suffix = ['.rst', '.md']
+source_suffix = '.rst'
+
+# The master toctree document.
+master_doc = 'index'
+
+
 # -- Project information -----------------------------------------------------
 
 project = 'pdb2sql'
