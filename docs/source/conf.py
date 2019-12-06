@@ -12,8 +12,6 @@
 #
 import os
 import sys
-# sys.path.insert(0, os.path.abspath('../../pdb2sql'))
-
 
 # -- File setup --------------------------------------------------------------
 # source_suffix = ['.rst', '.md']
@@ -29,8 +27,9 @@ project = 'pdb2sql'
 copyright = '2019, Netherlands eScience Center'
 author = 'Nicolas Renaud'
 
+import pdb2sql
 # The full version, including alpha/beta/rc tags
-release = '0.2.2'
+release = pdb2sql.__version__
 
 
 # -- General configuration ---------------------------------------------------
