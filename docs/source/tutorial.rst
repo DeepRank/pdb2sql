@@ -224,6 +224,7 @@ interface RMSD
 ^^^^^^^^^^^^^^
 
 .. ipython:: python
+    :okwarning:
 
     irmsd_fast = sim.compute_irmsd_fast()
     irmsd_pdb2sql = sim.compute_irmsd_pdb2sql()
@@ -235,6 +236,7 @@ ligand RMSD
 ^^^^^^^^^^^
 
 .. ipython:: python
+    :okwarning:
 
     lrmsd_fast = sim.compute_lrmsd_fast()
     lrmsd_pdb2sql = sim.compute_lrmsd_pdb2sql()
@@ -247,6 +249,7 @@ FNAT
 Calculate the fraction of native contacts:
 
 .. ipython:: python
+    :okwarning:
 
     fnat_fast = sim.compute_fnat_fast()
     fnat_pdb2sql = sim.compute_fnat_pdb2sql()
