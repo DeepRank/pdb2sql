@@ -4,3 +4,4 @@ numpy
 schema
 tqdm
 pandas
+ipython
