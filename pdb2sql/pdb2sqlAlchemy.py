@@ -88,14 +88,14 @@ class pdb2sql_alchemy(pdb2sql_base):
 
                 # get the piece of data
                 if colname in del_copy.keys():
-                    data = line[del_copy[colname][0]:del_copy[colname][1]].strip()
+                    data = line[del_copy[colname][0]
+                        :del_copy[colname][1]].strip()
 
                     # convert it if necessary
                     if coltype == 'INT':
                         data = int(data)
                     elif coltype == 'REAL':
                         data = float(data)
-
 
                     # append to dict
                     at[colname] = data

@@ -65,7 +65,7 @@ class pdb2sql_base(object):
             'z': [46, 54],
             'occ': [54, 60],
             'temp': [60, 66],
-            'element': [76,78]}
+            'element': [76, 78]}
 
     ##########################################################################
     #
@@ -156,7 +156,7 @@ class pdb2sql_base(object):
             line = 'ATOM  '
             line += '{:>5}'.format(d[0])    # serial
             line += ' '
-            line += self._format_atomname(d) # name
+            line += self._format_atomname(d)  # name
             line += '{:>1}'.format(d[2])    # altLoc
             line += '{:>3}'.format(d[3])    # resname
             line += ' '
@@ -164,8 +164,8 @@ class pdb2sql_base(object):
             line += '{:>4}'.format(d[5])    # resSeq
             line += '{:>1}'.format(d[6])    # iCODE
             line += '   '
-            line += pdb2sql_base._format_xyz(d[7]) # x
-            line += pdb2sql_base._format_xyz(d[8]) # y
+            line += pdb2sql_base._format_xyz(d[7])  # x
+            line += pdb2sql_base._format_xyz(d[8])  # y
             line += pdb2sql_base._format_xyz(d[9])  # z
             line += '{:>6.2f}'.format(d[10])    # occ
             line += '{:>6.2f}'.format(d[11])    # temp

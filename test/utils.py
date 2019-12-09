@@ -1,6 +1,7 @@
 import sys
 from io import StringIO
 
+
 class CaptureOutErr(object):
     """Context manager to capture the content of stdout and stderr.
 

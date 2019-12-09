@@ -10,6 +10,8 @@ definition of the data set.
 ########################################################################
 # Translation
 ########################################################################
+
+
 def translation(db, vect, **kwargs):
     """Translate molecule in SQL database.
 
@@ -25,6 +27,8 @@ def translation(db, vect, **kwargs):
 # Rotation using axis–angle presentation
 # see https://en.wikipedia.org/wiki/Rotation_matrix#Rotation_matrix_from_axis_and_angle
 ########################################################################
+
+
 def rot_axis(db, axis, angle, **kwargs):
     """Rotate molecules in a SQL database.
 
@@ -39,6 +43,7 @@ def rot_axis(db, axis, angle, **kwargs):
     xyz = _get_xyz(db, **kwargs)
     xyz = rot_xyz_around_axis(xyz, axis, angle)
     _update(db, xyz, **kwargs)
+
 
 def get_rot_axis_angle(seed=None):
     """Get the rotation angle and axis.
@@ -58,16 +63,17 @@ def get_rot_axis_angle(seed=None):
     # eq1,2 in http://mathworld.wolfram.com/SpherePointPicking.html
     u1, u2 = np.random.rand(), np.random.rand()
     theta = 2 * np.pi * u1      # [0, 2*pi)
-    phi = np.arccos(2 * u2 - 1) # [0, pi]
+    phi = np.arccos(2 * u2 - 1)  # [0, pi]
     # eq19 in http://mathworld.wolfram.com/SphericalCoordinates.html
     axis = [np.sin(phi) * np.cos(theta),
             np.sin(phi) * np.sin(theta),
             np.cos(phi)]
 
     # define the rotation angle
-    angle =  2 * np.pi * np.random.rand()
+    angle = 2 * np.pi * np.random.rand()
 
     return axis, angle
+
 
 def rot_xyz_around_axis(xyz, axis, angle, center=None):
     """Rotate given xyz coordinates.
@@ -105,6 +111,7 @@ def rot_xyz_around_axis(xyz, axis, angle, center=None):
 # see https://en.wikipedia.org/wiki/Rotation_matrix#General_rotations
 ########################################################################
 
+
 def rot_euler(db, alpha, beta, gamma, **kwargs):
     """Rotate molecules in SQL database from Euler rotation axis.
 
@@ -117,6 +124,7 @@ def rot_euler(db, alpha, beta, gamma, **kwargs):
     xyz = _get_xyz(db, **kwargs)
     xyz = rotation_euler(xyz, alpha, beta, gamma)
     _update(db, xyz, **kwargs)
+
 
 def rotation_euler(xyz, alpha, beta, gamma, center=None):
     """Rotate given xyz coordinates from Euler rotation axis.
@@ -152,6 +160,7 @@ def rotation_euler(xyz, alpha, beta, gamma, center=None):
 # Rotation using provided rotation matrix
 ########################################################################
 
+
 def rot_mat(db, mat, **kwargs):
     """Rotate molecule in SQL database from a rotation matrix.
 
@@ -162,6 +171,7 @@ def rot_mat(db, mat, **kwargs):
     xyz = _get_xyz(db, **kwargs)
     xyz = rotate(xyz, mat)
     _update(db, xyz, **kwargs)
+
 
 def rotate(xyz, rot_mat, center=None):
     """Rotate xyz from a rotation matrix.
@@ -191,8 +201,11 @@ def rotate(xyz, rot_mat, center=None):
 ########################################################################
 # helper functions
 ########################################################################
+
+
 def _get_xyz(db, **kwargs):
     return np.array(db.get('x,y,z', **kwargs))
+
 
 def _update(db, xyz, **kwargs):
     db.update('x,y,z', xyz, **kwargs)

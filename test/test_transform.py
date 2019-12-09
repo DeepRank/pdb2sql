@@ -3,6 +3,7 @@ import numpy as np
 from pdb2sql import pdb2sql
 from pdb2sql import transform
 
+
 class TestTools(unittest.TestCase):
 
     def setUp(self):
@@ -16,17 +17,17 @@ class TestTools(unittest.TestCase):
         """Verfify getting xyz from sql."""
 
         result = transform._get_xyz(self.db)
-        target = np.array([[1.,  0.,  0.], [-1.,  0.,  0.],
-                           [ 0., 1.,  0.], [ 0., -1.,  0.],
-                           [ 0., 0.,  1.], [ 0.,  0., -1.]])
+        target = np.array([[1., 0., 0.], [-1., 0., 0.],
+                           [0., 1., 0.], [0., -1., 0.],
+                           [0., 0., 1.], [0., 0., -1.]])
         np.testing.assert_equal(result, target)
 
     def test_translation(self):
         """Verify sql translation."""
-        trans_vec = np.array([1,1,1])
-        target = np.array([[2.,   1.,  1.], [ 0.,  1.,  1.],
-                           [ 1.,  2.,  1.], [ 1.,  0.,  1.],
-                           [ 1.,  1.,  2.], [ 1.,  1.,  0.]])
+        trans_vec = np.array([1, 1, 1])
+        target = np.array([[2., 1., 1.], [0., 1., 1.],
+                           [1., 2., 1.], [1., 0., 1.],
+                           [1., 1., 2.], [1., 1., 0.]])
         transform.translation(self.db, trans_vec)
         result = self.db.get('x,y,z')
         np.testing.assert_almost_equal(result, target)
@@ -36,9 +37,9 @@ class TestTools(unittest.TestCase):
         # rotate pi around x axis
         angle = np.pi
         axis = (1., 0., 0.)
-        target = np.array([[1.,   0.,  0.], [-1.,  0.,  0.],
-                           [ 0., -1.,  0.], [ 0.,  1.,  0.],
-                           [ 0.,  0., -1.], [ 0.,  0.,  1.]])
+        target = np.array([[1., 0., 0.], [-1., 0., 0.],
+                           [0., -1., 0.], [0., 1., 0.],
+                           [0., 0., -1.], [0., 0., 1.]])
         transform.rot_axis(self.db, axis, angle)
         result = self.db.get('x,y,z')
         np.testing.assert_almost_equal(result, target)
@@ -50,15 +51,15 @@ class TestTools(unittest.TestCase):
         axes_xyz = [(1., 0., 0.),
                     (0., 1., 0.),
                     (0., 0., 1.)]
-        targets = [np.array([[1.,   0.,  0.], [-1.,  0.,  0.],
-                            [ 0., -1.,  0.], [ 0.,  1.,  0.],
-                            [ 0.,  0., -1.], [ 0.,  0.,  1.]]),
-                   np.array([[-1.,  0.,  0.], [ 1.,  0.,  0.],
-                             [ 0.,  1.,  0.], [ 0., -1.,  0.],
-                             [ 0.,  0., -1.], [ 0.,  0.,  1.]]),
-                   np.array([[-1.,  0.,  0.], [ 1.,  0.,  0.],
-                             [ 0., -1.,  0.], [ 0.,  1.,  0.],
-                             [ 0.,  0.,  1.], [ 0.,  0., -1.]])]
+        targets = [np.array([[1., 0., 0.], [-1., 0., 0.],
+                             [0., -1., 0.], [0., 1., 0.],
+                             [0., 0., -1.], [0., 0., 1.]]),
+                   np.array([[-1., 0., 0.], [1., 0., 0.],
+                             [0., 1., 0.], [0., -1., 0.],
+                             [0., 0., -1.], [0., 0., 1.]]),
+                   np.array([[-1., 0., 0.], [1., 0., 0.],
+                             [0., -1., 0.], [0., 1., 0.],
+                             [0., 0., 1.], [0., 0., -1.]])]
         for axis, target in zip(axes_xyz, targets):
             with self.subTest(axis=axis, target=target):
                 xyz_rot = transform.rot_xyz_around_axis(self.xyz, axis, angle)
@@ -90,9 +91,9 @@ class TestTools(unittest.TestCase):
         """Verify sql rotation using Euler angles."""
         # rotate pi around z axis
         alpha, beta, gamma = 0, 0, np.pi
-        target = np.array([[-1.,  0.,  0.], [ 1.,  0.,  0.],
-                           [ 0., -1.,  0.], [ 0.,  1.,  0.],
-                           [ 0.,  0.,  1.], [ 0.,  0., -1.]])
+        target = np.array([[-1., 0., 0.], [1., 0., 0.],
+                           [0., -1., 0.], [0., 1., 0.],
+                           [0., 0., 1.], [0., 0., -1.]])
         transform.rot_euler(self.db, alpha, beta, gamma)
         result = self.db.get('x,y,z')
         np.testing.assert_almost_equal(result, target)
@@ -103,15 +104,15 @@ class TestTools(unittest.TestCase):
         angles = [(np.pi, 0., 0.),
                   (0., np.pi, 0.),
                   (0., 0., np.pi)]
-        targets = [np.array([[1.,   0.,  0.], [-1.,  0.,  0.],
-                            [ 0., -1.,  0.], [ 0.,  1.,  0.],
-                            [ 0.,  0., -1.], [ 0.,  0.,  1.]]),
-                   np.array([[-1.,  0.,  0.], [ 1.,  0.,  0.],
-                             [ 0.,  1.,  0.], [ 0., -1.,  0.],
-                             [ 0.,  0., -1.], [ 0.,  0.,  1.]]),
-                   np.array([[-1.,  0.,  0.], [ 1.,  0.,  0.],
-                             [ 0., -1.,  0.], [ 0.,  1.,  0.],
-                             [ 0.,  0.,  1.], [ 0.,  0., -1.]])]
+        targets = [np.array([[1., 0., 0.], [-1., 0., 0.],
+                             [0., -1., 0.], [0., 1., 0.],
+                             [0., 0., -1.], [0., 0., 1.]]),
+                   np.array([[-1., 0., 0.], [1., 0., 0.],
+                             [0., 1., 0.], [0., -1., 0.],
+                             [0., 0., -1.], [0., 0., 1.]]),
+                   np.array([[-1., 0., 0.], [1., 0., 0.],
+                             [0., -1., 0.], [0., 1., 0.],
+                             [0., 0., 1.], [0., 0., -1.]])]
         for angle, target in zip(angles, targets):
             with self.subTest(angle=angle, target=target):
                 result = transform.rotation_euler(
@@ -125,11 +126,11 @@ class TestTools(unittest.TestCase):
         cosa = np.cos(theta)
         sina = np.sin(theta)
         rot_mat = np.array([[cosa, -sina, 0],
-                           [sina, cosa, 0],
-                           [0, 0, 1]])
-        target = np.array([[-1.,  0.,  0.], [ 1.,  0.,  0.],
-                           [ 0., -1.,  0.], [ 0.,  1.,  0.],
-                           [ 0.,  0.,  1.], [ 0.,  0., -1.]])
+                            [sina, cosa, 0],
+                            [0, 0, 1]])
+        target = np.array([[-1., 0., 0.], [1., 0., 0.],
+                           [0., -1., 0.], [0., 1., 0.],
+                           [0., 0., 1.], [0., 0., -1.]])
         transform.rot_mat(self.db, rot_mat)
         result = self.db.get('x,y,z')
         np.testing.assert_almost_equal(result, target)
@@ -143,14 +144,14 @@ class TestTools(unittest.TestCase):
         rot_mats = [np.array([[1, 0, 0], [0, cosa, -sina], [0, sina, cosa]]),
                     np.array([[cosa, 0, sina], [0, 1, 0], [-sina, 0, cosa]]),
                     np.array([[cosa, -sina, 0], [sina, cosa, 0], [0, 0, 1]])]
-        targets = [np.array([[1.,   0.,  0.], [-1.,  0.,  0.],
-                            [ 0., -1.,  0.], [ 0.,  1.,  0.],
-                            [ 0.,  0., -1.], [ 0.,  0.,  1.]]),
-                   np.array([[-1.,  0.,  0.], [ 1.,  0.,  0.],
-                             [ 0.,  1.,  0.], [ 0., -1.,  0.],
-                             [ 0.,  0., -1.], [ 0.,  0.,  1.]]),
-                   np.array([[-1.,  0.,  0.], [ 1.,  0.,  0.],
-                             [ 0., -1.,  0.], [ 0.,  1.,  0.],
+        targets = [np.array([[1., 0., 0.], [-1., 0., 0.],
+                             [0., -1., 0.], [0., 1., 0.],
+                             [0., 0., -1.], [0., 0., 1.]]),
+                   np.array([[-1., 0., 0.], [1., 0., 0.],
+                             [0., 1., 0.], [0., -1., 0.],
+                             [0., 0., -1.], [0., 0., 1.]]),
+                   np.array([[-1., 0., 0.], [1., 0., 0.],
+                             [0., -1., 0.], [0., 1., 0.],
                              [0., 0., 1.], [0., 0., - 1.]])]
         for mat, target in zip(rot_mats, targets):
             with self.subTest(mat=mat, target=target):
@@ -171,6 +172,7 @@ class TestTools(unittest.TestCase):
                 result = transform.rotate(xyz, rot_mat, center=center)
                 target = np.array([2., 2., 0.])
                 np.testing.assert_almost_equal(result, target)
+
 
 if __name__ == "__main__":
     unittest.main()

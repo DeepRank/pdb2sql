@@ -101,8 +101,12 @@ class interface(pdb2sql):
                 if len(contacts) > 0 and any(
                         [not only_backbone_atoms, atName1[i] in self.backbone_atoms]):
 
-                    pairs = [index[chain2][k] for k in contacts if any(
-                            [atName2[k] in self.backbone_atoms, not only_backbone_atoms]) and not ( excludeH and atName2[k][0] == 'H')]
+                    pairs = [
+                        index[chain2][k] for k in contacts if any(
+                            [
+                                atName2[k] in self.backbone_atoms,
+                                not only_backbone_atoms]) and not (
+                            excludeH and atName2[k][0] == 'H')]
                     if len(pairs) > 0:
                         index_contact_pairs[index[chain1][i]] = pairs
                         index_contact[chain1] += [index[chain1][i]]
@@ -123,7 +127,8 @@ class interface(pdb2sql):
                     index_contact[chain], only_backbone_atoms)
 
         # not sure that's the best way of dealing with that
-        # TODO split to two functions get_contact_atoms and get_contact_atom_pairs
+        # TODO split to two functions get_contact_atoms and
+        # get_contact_atom_pairs
         if return_contact_pairs:
             return index_contact_pairs
         else:
@@ -163,7 +168,8 @@ class interface(pdb2sql):
                     resName=resName,
                     resSeq=resSeq)
                 index_contact_A += [ind for ind,
-                                    n in zip(index, name) if n in self.backbone_atoms]
+                                    n in zip(index,
+                                             name) if n in self.backbone_atoms]
             else:
                 index_contact_A += self.get('rowID',
                                             chainID=chainID,
@@ -205,8 +211,8 @@ class interface(pdb2sql):
             dict: (chain,resSeq,resName) of contact residues or
                 contact residue pairs.
         """
-        #TODO split this func to two functions
-        #TODO get_contact_residues and get_contact_residue_pairs
+        # TODO split this func to two functions
+        # TODO get_contact_residues and get_contact_residue_pairs
 
         # get the contact atoms
         if return_contact_pairs:

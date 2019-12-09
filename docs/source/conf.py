@@ -10,6 +10,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import pdb2sql
 import os
 import sys
 
@@ -27,7 +28,6 @@ project = 'pdb2sql'
 copyright = '2019, Netherlands eScience Center'
 author = 'Nicolas Renaud'
 
-import pdb2sql
 # The full version, including alpha/beta/rc tags
 release = pdb2sql.__version__
 
@@ -100,13 +100,13 @@ intersphinx_mapping = {
     'numpy': ('http://docs.scipy.org/doc/numpy/', None)
 }
 
-## autosummary
+# autosummary
 # Make _autosummary files and include them
 autosummary_generate = True
 # autosummary_imported_members = True
 
 
-## ipython
+# ipython
 ipython_warning_is_error = False
 ipython_execlines = [
     "import numpy as np",

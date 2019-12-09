@@ -95,7 +95,7 @@ class TestSim(unittest.TestCase):
     def test_lrmsdfast_check(self):
         """verify compute_lrmsd_fast(check=False)"""
         with self.assertRaisesRegex(ValueError,
-            'operands could not be broadcast'):
+                                    'operands could not be broadcast'):
             _ = self.sim.compute_lrmsd_fast(check=False)
 
     def test_lrmsdsql_default(self):
@@ -154,13 +154,13 @@ class TestSim(unittest.TestCase):
 
     def test_capri_dummy(self):
         """verify compute_CapriClass()"""
-        fnat =  [0.9, 0.8, 0.7, 0.5, 0.3, 0.1]
+        fnat = [0.9, 0.8, 0.7, 0.5, 0.3, 0.1]
         lrmsd = [0.8, 2.4, 6.2, 7.5, 12.0, 10.0]
         irmsd = [0.6, 0.8, 1.6, 2.3, 3.1, 3.3]
         targets = ['high', 'high', 'medium',
-                'acceptable', 'acceptable', 'acceptable']
+                   'acceptable', 'acceptable', 'acceptable']
         results = []
-        for i,j,k in zip(fnat, lrmsd, irmsd):
+        for i, j, k in zip(fnat, lrmsd, irmsd):
             results.append(self.sim.compute_CapriClass(i, j, k))
         self.assertEqual(results, targets)
 
@@ -171,6 +171,7 @@ class TestSim(unittest.TestCase):
         """verify compute_clashes()"""
         result = self.sim.compute_clashes(self.ref)
         self.assertEqual(result, self.nclashes_ref)
+
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner(verbosity=2)

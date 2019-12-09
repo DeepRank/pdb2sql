@@ -573,7 +573,7 @@ class pdb2sql(pdb2sql_base):
         if index is None:
             data = [[v, i + 1] for i, v in enumerate(values)]
         else:
-            data = [[v, ind+1] for v, ind in zip(values, index)]
+            data = [[v, ind + 1] for v, ind in zip(values, index)]
 
         query = 'UPDATE ATOM SET {cn}=? WHERE rowID=?'.format(cn=colname)
         self.c.executemany(query, data)

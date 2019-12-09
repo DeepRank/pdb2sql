@@ -21,7 +21,13 @@ class TestAlchemy(unittest.TestCase):
         db.update('x,y,z', xyz)
 
         # extract atoms but not 'H' atoms
-        atoms = db.get(chainID='A',resName=['THR','GLN'],no_element=['H'], model=0)
+        atoms = db.get(
+            chainID='A',
+            resName=[
+                'THR',
+                'GLN'],
+            no_element=['H'],
+            model=0)
         for at in atoms:
             print(at.resName, at.name, at.x, at.y, at.z, at.element)
 
