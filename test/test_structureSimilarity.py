@@ -95,8 +95,8 @@ class TestSim(unittest.TestCase):
     def test_lrmsdfast_check(self):
         """verify compute_lrmsd_fast(check=False)"""
         with self.assertRaisesRegex(ValueError,
-            'operands could not be broadcast') as ex:
-            result = self.sim.compute_lrmsd_fast(check=False)
+            'operands could not be broadcast'):
+            _ = self.sim.compute_lrmsd_fast(check=False)
 
     def test_lrmsdsql_default(self):
         """verify compute_lrmsd_pdb2sql()"""
@@ -106,7 +106,7 @@ class TestSim(unittest.TestCase):
 
     def test_lrmsdsql_method(self):
         """verify compute_lrmsd_pdb2sql(method='quaternion')"""
-        with self.assertWarns(UserWarning) as ex:
+        with self.assertWarns(UserWarning):
             result = self.sim.compute_lrmsd_pdb2sql(method='quaternion')
         self.assertEqual(result, self.lrmsd)
 

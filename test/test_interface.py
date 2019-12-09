@@ -3,7 +3,7 @@ from pdb2sql import interface
 
 
 class Test_1_ContactAtoms(unittest.TestCase):
-    """Test function get_contact_atoms"""
+    """Test function get_contact_atoms."""
 
     def setUp(self):
         self.pdb = 'pdb/3CRO.pdb'
@@ -13,7 +13,7 @@ class Test_1_ContactAtoms(unittest.TestCase):
         self.db.close()
 
     def test_get_contact_atoms_default(self):
-        """"verify get_contact_atoms default"""
+        """"verify get_contact_atoms default."""
         contact_atoms = self.db.get_contact_atoms()
         self.assertIsInstance(contact_atoms, dict)
         self.assertEqual(len(contact_atoms), 2)
@@ -65,7 +65,8 @@ class Test_1_ContactAtoms(unittest.TestCase):
         self.assertEqual(len(contact_atoms['B']), 409)
 
     def test_get_contact_atoms_onlybackbone_NA(self):
-        """"verify get_contact_atoms(extend_to_residue=True) for nuclear acids"""
+        """"verify get_contact_atoms(extend_to_residue=True) for nuclear
+        acids."""
         with self.assertWarns(UserWarning) as ex:
             contact_atoms = self.db.get_contact_atoms(only_backbone_atoms=True)
         self.assertEqual(len(ex.warnings), 1)
@@ -78,7 +79,7 @@ class Test_1_ContactAtoms(unittest.TestCase):
         self.assertEqual(len(contact_atoms['B']), 0)
 
     def test_get_contact_atoms_onlybackbone_protein(self):
-        """"verify get_contact_atoms(extend_to_residue=True) for proteins"""
+        """"verify get_contact_atoms(extend_to_residue=True) for proteins."""
         contact_atoms = self.db.get_contact_atoms(
             only_backbone_atoms=True,
             chain1='L',
@@ -144,7 +145,7 @@ class Test_1_ContactAtoms(unittest.TestCase):
 
 
 class Test_2_ContactResidues(unittest.TestCase):
-    """test get_contact_residues function"""
+    """test get_contact_residues function."""
 
     def setUp(self):
         self.pdb = 'pdb/3CRO.pdb'
@@ -154,7 +155,7 @@ class Test_2_ContactResidues(unittest.TestCase):
         self.db.close()
 
     def test_get_contact_residues_default(self):
-        """"verify get_contact_residues default"""
+        """"verify get_contact_residues default."""
         contact_residues = self.db.get_contact_residues()
         self.assertIsInstance(contact_residues, dict)
         self.assertEqual(len(contact_residues), 2)
@@ -213,7 +214,7 @@ class Test_2_ContactResidues(unittest.TestCase):
         db.close()
 
     def test_get_contact_residues_onlybackbone_NA(self):
-        """"verify get_contact_residues(only_backbone_atoms=True) for NA"""
+        """"verify get_contact_residues(only_backbone_atoms=True) for NA."""
         with self.assertWarns(UserWarning) as ex:
             contact_residues = self.db.get_contact_residues(
                 only_backbone_atoms=True)
@@ -229,7 +230,8 @@ class Test_2_ContactResidues(unittest.TestCase):
         self.assertEqual(len(contact_residues['B']), 0)
 
     def test_get_contact_residues_onlybackbone_protein(self):
-        """"verify get_contact_residues(only_backbone_atoms=True) for proteins"""
+        """"verify get_contact_residues(only_backbone_atoms=True) for
+        proteins."""
         contact_residues = self.db.get_contact_residues(
             only_backbone_atoms=True,
             chain1='L',

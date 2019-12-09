@@ -1,7 +1,6 @@
 import unittest
 import warnings
 import os
-import sys
 import io
 import numpy as np
 from pdb2sql import pdb2sql
@@ -22,7 +21,7 @@ class TestCreateSQL(unittest.TestCase):
         self.pdb_noelement = "./pdb/dummy_blank_element.pdb"
 
     def test_init(self):
-        """Verify default init"""
+        """Verify default init."""
         db = pdb2sql(self.pdbfile)
         db.c.execute('SELECT * FROM ATOM')
         result = db.c.fetchall()
@@ -34,7 +33,7 @@ class TestCreateSQL(unittest.TestCase):
         self.assertEqual(result[-1], last_line)
 
     def test_pdbfile_list_strings(self):
-        """Verify list of strings as input pdb"""
+        """Verify list of strings as input pdb."""
         with open(self.pdbfile) as f:
             pdb = f.readlines()
         db = pdb2sql(pdb)
@@ -48,7 +47,7 @@ class TestCreateSQL(unittest.TestCase):
         self.assertEqual(result[-1], last_line)
 
     def test_pdbfile_list_bytes(self):
-        """Verify list of bytes as input pdb"""
+        """Verify list of bytes as input pdb."""
 
         with open(self.pdbfile) as f:
             pdb = [line.encode() for line in f]
@@ -63,7 +62,7 @@ class TestCreateSQL(unittest.TestCase):
         self.assertEqual(result[-1], last_line)
 
     def test_pdbfile_array(self):
-        """Verify numpy array as input pdb"""
+        """Verify numpy array as input pdb."""
 
         with open(self.pdbfile) as f:
             pdb = np.array(f.readlines())
@@ -78,7 +77,7 @@ class TestCreateSQL(unittest.TestCase):
         self.assertEqual(result[-1], last_line)
 
     def test_fix_chainID(self):
-        """Verify fix chainID"""
+        """Verify fix chainID."""
         db = pdb2sql(self.pdbfile, fix_chainID=True)
         db.c.execute('SELECT * FROM ATOM')
         result = db.c.fetchall()
@@ -92,14 +91,14 @@ class TestCreateSQL(unittest.TestCase):
         self.assertEqual(result_chainIDs, target)
 
     def test_sqlfile_nosave(self):
-        """Verify sqlfile without saving"""
+        """Verify sqlfile without saving."""
         db = pdb2sql(self.pdbfile, sqlfile=self.sqlfile)
         self.assertTrue(os.path.exists(self.sqlfile))
         self.assertTrue(os.path.isfile(self.sqlfile))
         db.close()
 
     def test_sqlfile_save(self):
-        """Verify sqlfile with saving"""
+        """Verify sqlfile with saving."""
         db = pdb2sql(self.pdbfile, sqlfile=self.sqlfile)
         db.close(rmdb=False)
         self.assertTrue(os.path.exists(self.sqlfile))
@@ -118,7 +117,7 @@ class TestCreateSQL(unittest.TestCase):
         self.assertEqual(ex_msg, target)
 
     def test_blank_chainID_without_segID(self):
-        """Verify blank chainID without segID"""
+        """Verify blank chainID without segID."""
         with self.assertRaises(ValueError) as ex:
             db = pdb2sql(self.pdb_nochainID_nosegID)
             db.close()
@@ -127,7 +126,7 @@ class TestCreateSQL(unittest.TestCase):
         self.assertEqual(result, target)
 
     def test_blank_chainID_with_segID(self):
-        """Verify blank chainID with segID"""
+        """Verify blank chainID with segID."""
         with self.assertWarns(UserWarning) as ex:
             db = pdb2sql(self.pdb_nochainID_segID)
         self.assertEqual(len(ex.warnings), 24)
@@ -140,7 +139,7 @@ class TestCreateSQL(unittest.TestCase):
         db.close()
 
     def test_blank_occ(self):
-        """Verify blank occ"""
+        """Verify blank occ."""
         db = pdb2sql(self.pdb_noocc)
         db.c.execute('SELECT occ FROM ATOM')
         result = list(set(db.c.fetchall()))
@@ -149,7 +148,7 @@ class TestCreateSQL(unittest.TestCase):
         db.close()
 
     def test_blank_temp(self):
-        """Verify blank temperature"""
+        """Verify blank temperature."""
         db = pdb2sql(self.pdb_notemp)
         db.c.execute('SELECT temp FROM ATOM')
         result = list(set(db.c.fetchall()))
@@ -158,7 +157,7 @@ class TestCreateSQL(unittest.TestCase):
         db.close()
 
     def test_blank_element(self):
-        """Verify blank element"""
+        """Verify blank element."""
         with self.assertWarns(UserWarning) as ex:
             db = pdb2sql(self.pdb_noelement)
         self.assertEqual(len(ex.warnings), 26)
@@ -224,17 +223,17 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertEqual(chainID, {"L"})
 
     def test_1_get_columns_wrongtype(self):
-        """Verfity get(columns) wrong column type"""
+        """Verfity get(columns) wrong column type."""
         with self.assertRaises(TypeError) as ex:
-            result = self.db.get(['x','y'])
+            _ = self.db.get(['x','y'])
         ex_msg = ex.exception.args[0]
         target = "argument columns must be str"
         self.assertEqual(ex_msg, target)
 
     def test_1_get_columns_wrongname(self):
-        """Verfity get(columns) wrong column name"""
+        """Verfity get(columns) wrong column name."""
         with self.assertRaises(ValueError) as ex:
-            result = self.db.get('chain')
+            _ = self.db.get('chain')
         ex_msg = ex.exception.args[0]
         target = "Invalid column name chain"
         self.assertIn(target, ex_msg)
@@ -259,15 +258,15 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertEqual(resname, {'MET'})
 
     def test_1_get_kwargs_wrongname(self):
-        """Verfity get(**kwargs) wrong column name"""
+        """Verfity get(**kwargs) wrong column name."""
         with self.assertRaises(ValueError) as ex:
-            result = self.db.get('*', no_chain='A')
+            _ = self.db.get('*', no_chain='A')
         ex_msg = ex.exception.args[0]
         target = "Invalid column name chain"
         self.assertIn(target, ex_msg)
 
     def test_1_get_empty(self):
-        """Verfity get() empty"""
+        """Verfity get() empty."""
         with self.assertWarns(UserWarning) as ex:
             result = self.db.get('*', chainID='A')
         ex_msg = ex.warning.args[0]
@@ -275,7 +274,7 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertIn(target, ex_msg)
 
     def test_1_get_sql_limit(self):
-        """Verfity get() sql varibale limit 999"""
+        """Verfity get() sql varibale limit 999."""
         with CaptureOutErr() as cm:
             with self.assertRaises(ValueError) as ex:
                 result = self.db.get('*', chainID = ['L'] * 950, name = ["CA"]*50)
@@ -286,7 +285,7 @@ class TestPrintGetUpdate(unittest.TestCase):
                     cm.stdout[1])
 
     def test_2_update(self):
-        """Verfity update() default"""
+        """Verfity update() default."""
         values = np.array([[1.,2.,3.], [4.,5.,6.]])
         self.db.update("x,y,z", values=values, resName='MET', name=['CA', 'CB'])
         result = self.db.get("resName,name,x,y,z", resName='MET', name=['CA', 'CB'])
@@ -294,7 +293,7 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertEqual(result, target)
 
     def test_2_update_column_wrongtype(self):
-        """Verfity update() wrong column type"""
+        """Verfity update() wrong column type."""
         values = np.array([[1.,2.,3.], [4.,5.,6.]])
         with self.assertRaises(TypeError) as ex:
             self.db.update(['x', 'y', 'z'], values=values,
@@ -304,7 +303,7 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertEqual(ex_msg, target)
 
     def test_2_update_column_wrongname(self):
-        """Verfity update() wrong column name"""
+        """Verfity update() wrong column name."""
         values = np.array([[1.,2.,3.], [4.,5.,6.]])
         with self.assertRaises(ValueError) as ex:
             self.db.update('xyz', values=values,
@@ -314,7 +313,7 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertIn(target, ex_msg)
 
     def test_2_update_columns_values_mismatch(self):
-        """Verfity update() columns and values mismatch"""
+        """Verfity update() columns and values mismatch."""
         values = np.array([[1.,2.,3.], [4.,5.,6.]])
         with self.assertRaises(ValueError) as ex:
             self.db.update('x,y', values=values,
@@ -324,7 +323,7 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertIn(target, ex_msg)
 
     def test_2_update_rows_values_mismatch(self):
-        """Verfity update() rows and values mismatch"""
+        """Verfity update() rows and values mismatch."""
         values = np.array([[1.,2.,3.], [4.,5.,6.]])
         with self.assertRaises(ValueError) as ex:
             self.db.update('x,y,z', values=values,
@@ -334,7 +333,7 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertIn(target, ex_msg)
 
     def test_3_update_cloumn(self):
-        """Verfity update_column() default"""
+        """Verfity update_column() default."""
         values = list(range(24))
         self.db.update_column("x", values=values)
         result = self.db.get("x")
@@ -342,7 +341,7 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertEqual(result, target)
 
     def test_3_update_cloumn_index(self):
-        """Verfity update_column() default"""
+        """Verfity update_column() default."""
         values = [1., 2., 3.]
         self.db.update_column("x", values=values, index=list(range(3)))
         result = self.db.get("x", resName='MET', name=['N', 'CA', 'C'])
@@ -350,14 +349,14 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertEqual(result, target)
 
     def test_4_add_cloumn(self):
-        """Verfity add_column() default"""
+        """Verfity add_column() default."""
         self.db.add_column("id")
         result = self.db.get("id")
         self.assertEqual(len(result), 24)
         self.assertEqual(set(result), {0.})
 
     def test_4_add_cloumn_str(self):
-        """Verfity add_column() add string"""
+        """Verfity add_column() add string."""
         values = 'C'
         self.db.add_column("id", coltype='str', value=values)
         result = self.db.get("id")

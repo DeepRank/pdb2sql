@@ -8,7 +8,7 @@ import sys,os,time,pickle
 class StructureSimilarity(object):
 
     def __init__(self,decoy,ref,verbose=False):
-        '''Compute structure similarity between two structures.
+        """Compute structure similarity between two structures.
 
         This class allows to compute the i-RMSD, L-RMSD, Fnat and DockQ
         score of a given conformation.
@@ -48,7 +48,7 @@ class StructureSimilarity(object):
             ...     ref_pairs='1AK4.ref_pairs')
             >>> dockQ = sim.compute_DockQScore(Fnat_fast,
             ...     lrmsd_fast,irmsd_fast)
-        '''
+        """
 
         self.decoy = decoy
         self.ref = ref
@@ -68,7 +68,7 @@ class StructureSimilarity(object):
 
     # compute the L-RMSD
     def compute_lrmsd_fast(self,lzone=None,method='svd',check=True):
-        '''Fast routine to compute the L-RMSD.
+        """Fast routine to compute the L-RMSD.
 
         L-RMSD is computed by aligning the longest chain of the decoy to
         the one of the reference and computing the RMSD of the shortest
@@ -91,7 +91,7 @@ class StructureSimilarity(object):
 
         See also:
             :meth:`compute_lrmsd_pdb2sql`
-        '''
+        """
 
         # create/read the lzone file
         if lzone is None:
@@ -257,8 +257,6 @@ class StructureSimilarity(object):
             data_decoy  = self.get_data_zone_backbone(self.decoy,resData,return_not_in_zone=False)
             data_ref    = self.get_data_zone_backbone(self.ref,resData,return_not_in_zone=False)
 
-            atom_decoy = [ data[:3] for data in data_decoy]
-            atom_ref   = [ data[:3] for data in data_ref ]
             atom_common = data_ref.intersection(data_decoy)
             xyz_contact_decoy = self._get_xyz(self.decoy, atom_common)
             xyz_contact_ref = self._get_xyz(self.ref, atom_common)
@@ -301,7 +299,7 @@ class StructureSimilarity(object):
         contact_ref = sql_ref.get_contact_atoms(cutoff=cutoff,extend_to_residue=True)
 
         index_contact_ref = []
-        for k,v in contact_ref.items():
+        for _,v in contact_ref.items():
         	index_contact_ref += v
 
         # get the xyz and atom identifier of the decoy contact atoms
@@ -415,7 +413,7 @@ class StructureSimilarity(object):
                             nCommon += 1
                     nTotal += 1
             else:
-                msg = f'\t FNAT: not find residue: {resA} in {decoy_name}'
+                msg = f'\t FNAT: not find residue: {resA}'
                 warnings.warn(msg)
 
         # normalize
@@ -935,10 +933,6 @@ class StructureSimilarity(object):
                 resSeq = int(line[22:26])
                 name = line[12:16].strip()
 
-                x = float(line[30:38])
-                y = float(line[38:46])
-                z = float(line[46:54])
-
                 backbone = ['C','CA','N','O']
                 if chainID in resData.keys():
 
@@ -1228,7 +1222,7 @@ class StructureSimilarity(object):
         A = np.dot(P.T,Q)/npts
 
         # SVD the matrix
-        V,S,W = np.linalg.svd(A)
+        V,_,W = np.linalg.svd(A)
 
         # the W matrix returned here is
         # already its transpose

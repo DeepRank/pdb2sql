@@ -2,8 +2,8 @@ import sqlite3
 import warnings
 import subprocess as sp
 import os
+import sys
 import numpy as np
-from time import time
 
 from .pdb2sql_base import pdb2sql_base
 
@@ -30,19 +30,15 @@ class pdb2sql(pdb2sql_base):
             self._fix_chainID()
 
     def _create_sql(self):
-        '''Create a sql database containg a model PDB.'''
+        """Create a sql database containg a model PDB."""
         pdbfile = self.pdbfile
         sqlfile = self.sqlfile
 
         if self.verbose:
             print('-- Create SQLite3 database')
 
-         # name of the table
-        table = 'ATOM'
-
         # size of the things
         ncol = len(self.col)
-        ndel = len(self.delimiter)
 
         # open the data base
         # if we do not specify a db name
@@ -202,7 +198,7 @@ class pdb2sql(pdb2sql_base):
 
     @staticmethod
     def _get_element(pdb_line):
-        """Get element type from the atom type of a pdb line
+        """Get element type from the atom type of a pdb line.
 
         Notes:
             Atom type occupies 13-16th columns of a PDB line.
@@ -264,7 +260,7 @@ class pdb2sql(pdb2sql_base):
     # get the names of the columns
 
     def get_colnames(self):
-        """Get SQL column names
+        """Get SQL column names.
 
         Returns:
             list: all available column names
@@ -312,8 +308,7 @@ class pdb2sql(pdb2sql_base):
 
     # get the properties
     def get(self, columns, **kwargs):
-        '''Exectute simple SQL query to extract values of attributes
-        for certain conditions.
+        """Exectute simple SQL query to extract values.
 
         Args:
             columns (str): columns to retreive, eg: "x,y,z".
@@ -333,7 +328,7 @@ class pdb2sql(pdb2sql_base):
 
         Examples:
             >>> db.get('x,y,z', chainID=['A'], no_resName=['ALA', 'TRP'])
-        '''
+        """
         # check arguments format
         valid_colnames = self.get_colnames()
 
@@ -393,7 +388,7 @@ class pdb2sql(pdb2sql_base):
             vals = ()
 
             # iterate through the kwargs
-            for ik, (k, v) in enumerate(kwargs.items()):
+            for _, (k, v) in enumerate(kwargs.items()):
 
                 # deals with negative conditions
                 if k.startswith('no_'):
@@ -486,7 +481,7 @@ class pdb2sql(pdb2sql_base):
         return data
 
     def update(self, columns, values, **kwargs):
-        '''Update the database with given values.
+        """Update the database with given values.
 
         Args:
             columns (str): names of column to update, e.g. "x,y,z".
@@ -498,7 +493,7 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> values = np.array([[1.,2.,3.], [4.,5.,6.]])
             >>> db.update("x,y,z", values=values, resName='MET', name=['CA', 'CB'])
-        '''
+        """
         # check arguments format
         valid_colnames = self.get_colnames()
 
@@ -565,7 +560,7 @@ class pdb2sql(pdb2sql_base):
         self.c.executemany(query, data)
 
     def update_column(self, colname, values, index=None):
-        '''Update a single column.
+        """Update a single column.
 
         Args:
             colname (str): name of the column to update
@@ -574,7 +569,7 @@ class pdb2sql(pdb2sql_base):
 
         Example:
             >>> db.update_column('x',np.random.rand(10),index=list(range(10)))
-        '''
+        """
         if index is None:
             data = [[v, i + 1] for i, v in enumerate(values)]
         else:
@@ -601,5 +596,5 @@ class pdb2sql(pdb2sql_base):
         self.c.execute(query)
 
     def commit(self):
-        '''Cpmmit to the database.'''
+        """Cpmmit to the database."""
         self.conn.commit()

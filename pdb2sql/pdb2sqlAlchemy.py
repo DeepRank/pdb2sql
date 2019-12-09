@@ -1,7 +1,5 @@
-from sqlalchemy import *
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.schema import Sequence
 from sqlalchemy.orm import sessionmaker
@@ -13,7 +11,7 @@ Base = declarative_base()
 
 
 class ATOM(Base):
-    '''SQLAlchemy object for atoms.'''
+    """SQLAlchemy object for atoms."""
 
     __tablename__ = 'ATOM'
     rowID = Column(Integer, primary_key=True)
@@ -41,16 +39,16 @@ class pdb2sql_alchemy(pdb2sql_base):
             sqlfile=None,
             fix_chainID=False,
             verbose=False):
-        '''Use sqlAlchemy to load the database.'''
+        """Use sqlAlchemy to load the database."""
         super().__init__(pdbfile, sqlfile, fix_chainID, verbose)
         self._create_sql()
 
     def _create_sql(self):
 
         # sqlalchemy init
-        self.engine = create_engine('sqlite:///:memory:')
-        Base.metadata.create_all(self.engine)
-        DBSession = sessionmaker(bind=self.engine)
+        self.conn = create_engine('sqlite:///:memory:')
+        Base.metadata.create_all(self.conn)
+        DBSession = sessionmaker(bind=self.conn)
         self.session = DBSession()
 
         # read the pdb file a pure python way
@@ -82,11 +80,11 @@ class pdb2sql_alchemy(pdb2sql_base):
                     del_copy['chainID'] = [72, 73]
                 if line[del_copy['chainID'][0]] == ' ':
                     raise ValueError('chainID not found sorry')
-                _check_format_ = False
+                _check_format = False
 
             # browse all attribute of each atom
             at = {}
-            for ik, (colname, coltype) in enumerate(self.col.items()):
+            for _, (colname, coltype) in enumerate(self.col.items()):
 
                 # get the piece of data
                 if colname in del_copy.keys():
@@ -126,7 +124,8 @@ class pdb2sql_alchemy(pdb2sql_base):
         fi.close()
 
     def get(self, attribute=None, **kwargs):
-        '''Exectute a simple SQL query that extracts values of attributes for certain condition.
+        """Exectute a simple SQL query that extracts values of attributes for
+        certain condition.
 
         Args :
             attribute (str) : attribute to retreive eg : ['x','y,'z'], 'xyz', 'resSeq'
@@ -139,7 +138,7 @@ class pdb2sql_alchemy(pdb2sql_base):
 
         Example :
         >>> db.get('x,y,z',chainID='A',no_name=['H']")
-        '''
+        """
 
         # parse the commas in the attribute
         if attribute is not None:
@@ -223,7 +222,7 @@ class pdb2sql_alchemy(pdb2sql_base):
                         1 if attribute == 'rowID' else atom.__dict__[attribute] for atom in atom_list]
 
     def update(self, attribute, values, **kwargs):
-        '''Update the database.
+        """Update the database.
 
         Args:
             attribute (str) : string of attribute names eg. ['x','y,'z'], 'xyz', 'resSeq'
@@ -232,7 +231,7 @@ class pdb2sql_alchemy(pdb2sql_base):
                                   to the number of attributes and atoms selected
 
             kwargs : selection arguments eg : name = ['CA','O'], chainID = 'A', no_name = ['H']
-        '''
+        """
 
         # parse the commas in the attribute
         if ',' in attribute:

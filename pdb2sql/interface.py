@@ -1,4 +1,3 @@
-
 import numpy as np
 import itertools
 import warnings
@@ -7,10 +6,8 @@ from .pdb2sqlcore import pdb2sql
 
 class interface(pdb2sql):
 
-    # def __init__(self, pdb):
     def __init__(self, pdb, **kwargs):
-        '''Identify interface between protein chains.'''
-
+        """Identify interface between protein chains."""
         super().__init__(pdb, **kwargs)
 
     ##########################################################################
@@ -29,7 +26,7 @@ class interface(pdb2sql):
             only_backbone_atoms=False,
             excludeH=False,
             return_contact_pairs=False):
-        """get rowIDs of contact atoms.
+        """Get rowIDs of contact atoms.
 
         Args:
             cutoff (float): distance cutoff for calculating contact.
@@ -188,7 +185,7 @@ class interface(pdb2sql):
             excludeH=False,
             only_backbone_atoms=False,
             return_contact_pairs=False):
-        """get contact residues represented with (chain,resSeq, resname).
+        """Get contact residues represented with (chain,resSeq, resname).
 
         Args:
             cutoff (float): distance cutoff for contact calculation

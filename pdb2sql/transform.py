@@ -1,6 +1,5 @@
 import numpy as np
 from time import time
-from .pdb2sqlcore import pdb2sql
 
 '''
 This file contains several transformations of the

@@ -13,7 +13,7 @@ class TestTools(unittest.TestCase):
         self.db.close()
 
     def test_get_xyz(self):
-        """Verfify getting xyz from sql"""
+        """Verfify getting xyz from sql."""
 
         result = transform._get_xyz(self.db)
         target = np.array([[1.,  0.,  0.], [-1.,  0.,  0.],
@@ -22,7 +22,7 @@ class TestTools(unittest.TestCase):
         np.testing.assert_equal(result, target)
 
     def test_translation(self):
-        """Verify sql translation"""
+        """Verify sql translation."""
         trans_vec = np.array([1,1,1])
         target = np.array([[2.,   1.,  1.], [ 0.,  1.,  1.],
                            [ 1.,  2.,  1.], [ 1.,  0.,  1.],
@@ -32,7 +32,7 @@ class TestTools(unittest.TestCase):
         np.testing.assert_almost_equal(result, target)
 
     def test_rot_axis(self):
-        """Verify sql rotation using axis and angle"""
+        """Verify sql rotation using axis and angle."""
         # rotate pi around x axis
         angle = np.pi
         axis = (1., 0., 0.)
@@ -44,7 +44,7 @@ class TestTools(unittest.TestCase):
         np.testing.assert_almost_equal(result, target)
 
     def test_rot_xyz_around_axis(self):
-        """Verify xyz values rot ation using axis and angle"""
+        """Verify xyz values rot ation using axis and angle."""
         # rotate pi around x, y and z axis
         angle = np.pi
         axes_xyz = [(1., 0., 0.),
@@ -65,7 +65,7 @@ class TestTools(unittest.TestCase):
                 np.testing.assert_almost_equal(xyz_rot, target)
 
     def test_get_rot_axis_angle(self):
-        """Verify generation of random axis and angle"""
+        """Verify generation of random axis and angle."""
         # number of repeats
         n = 1000
         for i in range(n):
@@ -79,7 +79,7 @@ class TestTools(unittest.TestCase):
                 self.assertTrue(0. <= angle < 2 * np.pi)
 
     def test_get_rot_axis_angle_seed(self):
-        """Verify specific random seed"""
+        """Verify specific random seed."""
         seed = 2019
         axis1, angle1 = transform.get_rot_axis_angle(seed)
         axis2, angle2 = transform.get_rot_axis_angle(seed)
@@ -87,7 +87,7 @@ class TestTools(unittest.TestCase):
         self.assertEqual(angle1, angle2)
 
     def test_rot_euler(self):
-        """Verify sql rotation using Euler angles"""
+        """Verify sql rotation using Euler angles."""
         # rotate pi around z axis
         alpha, beta, gamma = 0, 0, np.pi
         target = np.array([[-1.,  0.,  0.], [ 1.,  0.,  0.],
@@ -98,8 +98,7 @@ class TestTools(unittest.TestCase):
         np.testing.assert_almost_equal(result, target)
 
     def test_rotation_euler(self):
-        """Verify xyz values rotation using Euler angles"""
-        alpha, beta, gamma = 0, 0, np.pi
+        """Verify xyz values rotation using Euler angles."""
         # rotate pi around x, y and z axis
         angles = [(np.pi, 0., 0.),
                   (0., np.pi, 0.),
@@ -120,7 +119,7 @@ class TestTools(unittest.TestCase):
                 np.testing.assert_almost_equal(result, target)
 
     def test_rot_mat(self):
-        """Verify sql roation using rotation matrix"""
+        """Verify sql roation using rotation matrix."""
         # rotate pi around z-axis
         theta = np.pi
         cosa = np.cos(theta)
@@ -136,7 +135,7 @@ class TestTools(unittest.TestCase):
         np.testing.assert_almost_equal(result, target)
 
     def test_rotation_matrix(self):
-        """Verify xyz values roation using rotation matrix"""
+        """Verify xyz values roation using rotation matrix."""
         theta = np.pi
         cosa = np.cos(theta)
         sina = np.sin(theta)
@@ -159,7 +158,7 @@ class TestTools(unittest.TestCase):
                 np.testing.assert_almost_equal(result, target)
 
     def test_rotation_matrix_center(self):
-        """Verify specific rotation center"""
+        """Verify specific rotation center."""
         # rotate pi around z-axis with rotation center [1,1,1,]
         theta = np.pi
         cosa = np.cos(theta)

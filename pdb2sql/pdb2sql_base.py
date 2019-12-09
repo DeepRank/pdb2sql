@@ -1,7 +1,4 @@
-import sqlite3
-import subprocess as sp
 import os
-import numpy as np
 from time import time
 
 
@@ -13,7 +10,7 @@ class pdb2sql_base(object):
             sqlfile=None,
             fix_chainID=False,
             verbose=False):
-        '''Base class for the definition of sql database.
+        """Base class for the definition of sql database.
 
         Args:
             pdbfile (str, list(str/bytes), ndarray) : name of pdbfile or
@@ -23,8 +20,7 @@ class pdb2sql_base(object):
             fix_chainID (bool, optinal): check if the name of the chains
                 are A,B,C, .... and fix it if not.
             verbose (bool): probably print stuff
-        '''
-
+        """
         self.pdbfile = pdbfile
         self.sqlfile = sqlfile
         self.fix_chainID = fix_chainID
@@ -89,7 +85,7 @@ class pdb2sql_base(object):
         raise NotImplementedError()
 
     def get_xyz(self, **kwargs):
-        '''Shortcut to get the xyz coordinates.'''
+        """Shortcut to get the xyz coordinates."""
         return self.get('x,y,z', **kwargs)
 
     def get_residues(self, **kwargs):
@@ -121,19 +117,19 @@ class pdb2sql_base(object):
         raise NotImplementedError()
 
     def update_xyz(self, xyz, **kwargs):
-        '''Update the xyz coordinates.'''
+        """Update the xyz coordinates."""
         self.update('x,y,z', xyz, **kwargs)
 
     def update_column(self, colname, values, index=None):
-        '''Update a single column.'''
+        """Update a single column."""
         raise NotImplementedError()
 
     def add_column(self, colname, coltype='FLOAT', default=0):
-        '''Add a new column to the ATOM table.'''
+        """Add a new column to the ATOM table."""
         raise NotImplementedError()
 
     def exportpdb(self, fname, append=False, periodic=False, **kwargs):
-        '''Export a PDB file with kwargs selection.'''
+        """Export a PDB file with kwargs selection."""
 
         if append:
             f = open(fname, 'a')
@@ -147,7 +143,7 @@ class pdb2sql_base(object):
         f.close()
 
     def sql2pdb(self, **kwargs):
-        """Convert SQL data to PDB formatted lines
+        """Convert SQL data to PDB formatted lines.
 
         Returns:
             list: pdb-format lines
@@ -181,7 +177,8 @@ class pdb2sql_base(object):
         return pdb
 
     def _format_atomname(self, data):
-        """Format atom name to align with PDB reqireuments:
+        """Format atom name to align with PDB reqireuments.
+
              - alignment of one-letter atom name starts at column 14,
              - while two-letter atom name such as FE starts at column 13.
 
