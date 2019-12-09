@@ -1,8 +1,10 @@
-.. ipython:: python
-    :suppress:
+.. .. ipython:: python
+..     :suppress:
 
-    import os
-    os.chdir('..')
+..     # change working dir to docs/
+..     # check pdb2sql.pdb2sqlAlchemy.rst
+..     import os
+..     os.chdir('..')
 
 =====================
 10 minutes to pdb2sql
@@ -170,10 +172,13 @@ Write PDB file from SQL database:
 .. ipython:: python
 
     db.exportpdb('./pdb/test.pdb')
-    ls ./pdb
 
     # close SQL database
     db.close()
+
+    # show the test.pdb file
+    ls ./pdb
+
 
 
 Interface calculation

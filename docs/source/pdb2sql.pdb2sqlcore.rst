@@ -1,6 +1,9 @@
 =======
 PDB2SQL
 =======
+
+This module is based on :py:mod:`sqlite3`.
+
 .. automethod:: pdb2sql.pdb2sqlcore.pdb2sql.__init__
 .. currentmodule:: pdb2sql.pdb2sqlcore.pdb2sql
 
