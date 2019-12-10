@@ -184,7 +184,7 @@ Write PDB file from SQL database:
 Interface calculation
 ---------------------
 
-Create an interface SQL database instance:
+Create an :class:`~pdb2sql.interface.interface` SQL database instance:
 
 .. ipython:: python
 
@@ -218,7 +218,7 @@ Interface residues
 Structure similarity calculation
 --------------------------------
 
-Create a ``StructureSimilarity`` instance:
+Create a :class:`~pdb2sql.StructureSimilarity.StructureSimilarity` instance:
 
 .. ipython:: python
 

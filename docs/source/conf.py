@@ -96,7 +96,7 @@ todo_include_todos = True
 
 # intersphinx
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/', None),
+    'python': ('https://docs.python.org/3', None),
     'numpy': ('http://docs.scipy.org/doc/numpy/', None)
 }
 

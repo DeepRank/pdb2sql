@@ -1,7 +1,7 @@
 =========
 Interface
 =========
-.. automethod:: pdb2sql.interface.interface.__init__
+.. autoclass:: pdb2sql.interface.interface
 .. currentmodule:: pdb2sql.interface.interface
 
 Contact Atoms

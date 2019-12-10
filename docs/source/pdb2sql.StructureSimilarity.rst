@@ -1,7 +1,7 @@
 ====================
 Structure Similarity
 ====================
-.. automethod:: pdb2sql.StructureSimilarity.StructureSimilarity.__init__
+.. autoclass:: pdb2sql.StructureSimilarity.StructureSimilarity
 
 .. currentmodule:: pdb2sql.StructureSimilarity.StructureSimilarity
 
