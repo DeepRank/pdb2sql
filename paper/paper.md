@@ -22,11 +22,10 @@ bibliography: paper.bib
 # Summary
 
 
-The analysis of protein structure is a crucial task for a wide range of applications ranging from drug design to enzyme catalyziz. The Protein Data Bank (PDB) file format is the most popular format to describe protein structure. In this text-based format each line represents a given atom and entails its main properties such as atom type, positions, residues etc .... Several solutions have been developed to parse  PDF files in dedicated objects that facilitate the analysis and manipulation of protein structure. This is for example the case of the BioPython [@biopython] parser that loads PDB files in a nested dictionary whose structure mimic the hierarchical nature of the protein structure. Selecting a given sub-part of the protein can then be done by going through the dictionaries and selecting the required atoms.
+The analysis of protein structure is a crucial task for a wide range of applications ranging from drug design to enzyme catalyziz. The Protein Data Bank (PDB) file format is the most popular format to describe protein structure. In this text-based format each line represents a given atom and entails its main properties such as atom type, positions, residues etc .... Several solutions have been developed to parse  PDF files in dedicated objects that facilitate the analysis and manipulation of protein structure. This is for example the case of the BioPython [@biopython,@biopdb] parser that loads PDB files in a nested dictionary whose structure mimic the hierarchical nature of the protein structure. Selecting a given sub-part of the protein can then be done by going through the dictionaries and selecting the required atoms. Other packages, such as ``ProDy`` [@prody], ``BioJava`` [@biojava], ``MMTK`` [@mmtk] and ``MDAnalysis`` [@mdanalysis] to cite a few, also offer solution to parse PDB files. However these parsers are embedded in large applications that are sometimes difficult to integrate in new applications and are oftern geared toward the analysis of molecular dynamics simulations.
 
-Relational database are extensively used to organize data and to query data banks with impressive performance. Among different solutions the Structured Query Language is the most popular solution to query a given database. However SQL is its own language and domain scientists such as bioinformatician are not exposed to it. This lack of exposure represents an important barrier for the adoption of SQL technology in bioinformatics.
 
-We present here Python package called ``pdb2sql`` that laods individual PDB files in a SQL database and expose complex SQL queries through simple methods that are intuitive for end users. As such our library leverage the power of SQL queries and remove the barrier that SQL complexity represents. Native ``SQLlite3`` database can be used or ``sqlalchemy`` [@sqlalchemy] can be leverage to obtain an object oriented approach. Additional modules have been build on top of this technology for example to characterize protein-protein interfaces and to mesure similarity structure between two proteins. Additional modules can easily be developed following the same scheme.
+We present here Python package called ``pdb2sql`` that laods individual PDB files in a relational database. Among different solutions the Structured Query Language (SQL) is the most popular solution to query a given database. However SQL is its own language and domain scientists such as bioinformaticians are not familiar with it which represents an important barrier for the adoption of SQL technology in bioinformatics. ``pdb2sql`` exposes complex SQL queries through simple methods that are intuitive for end users. As such our library leverage the power of SQL queries and remove the barrier that SQL complexity represents. Native ``SQLlite3`` database can be used or ``sqlalchemy`` [@sqlalchemy] can be leverage to obtain an object oriented approach. Additional modules have been build on top of this technology for example to characterize protein-protein interfaces and to mesure structre similarity between two proteins. Additional modules can easily be developed following the same scheme. As a consequence ``pdb2sql`` is a light weight PDB parser that is easy to extend and to integrate with new applications.
 
 # Capabilities of ``pdb2sql``
 
@@ -52,7 +51,7 @@ The keyword argument can then be used to specify a sub selection of atoms. Every
 ```python
 from pdb2sql.pdb2sqlcore import pdb2sql
 pdb = pdb2sql('1AK4.pdb')
-pdb.get('x,y,z',name=['C','H'], 
+atoms = pdb.get('x,y,z',name=['C','H'], 
          resName=['VAL','LEU'], chainID='A')
 ```
 
@@ -61,10 +60,10 @@ extracts the positions of the carbon and hydrogen atoms that belong to a VAL or 
 ```python
 from pdb2sql.pdb2sqlcore import pdb2sql
 pdb = pdb2sql('1AK4.pdb')
-pdb.get('name, resName', no_resName=['GLY', 'PHE'])
+atoms = pdb.get('name, resName', no_resName=['GLY', 'PHE'])
 ```
 
-## Manipulating PDB Files
+## Manipulating PDB files
 
 The data contained in the sql data base can also be modified using the ``.update(attr,vals,**kwargs)`` method. The attributes and keyword arguments are identical to the ``.get(attr,vals,**kwargs)`` method and the ``vals`` argument should contain an array of data matching the selection criteria.  For example the following code first extract the positions of atoms in the first residue of chain A, then translate this fragment to the origin and update the coordinate values in the database.
 
