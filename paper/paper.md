@@ -28,6 +28,9 @@ Relational database are extensively used to organize data and to query data bank
 
 We present here Python package called ``pdb2sql`` that laods individual PDB files in a SQL database and expose complex SQL queries through simple methods that are intuitive for end users. As such our library leverage the power of SQL queries and remove the barrier that SQL complexity represents. Native ``SQLlite3`` database can be used or ``sqlalchemy`` [@sqlalchemy] can be leverage to obtain an object oriented approach. Additional modules have been build on top of this technology for example to characterize protein-protein interfaces and to mesure similarity structure between two proteins. Additional modules can easily be developed following the same scheme.
 
+# Capabilities of ``pdb2sql``
+
+``pdb2sql`` allows to query, manipulate and process PDB files through a series of dedicated classes. We give an overview of these features and illustrate them with snippets of code. More examples can be found in the documentation.
 
 ## Extracting data from a PDB files
 
@@ -75,7 +78,7 @@ xyz -= np.mean(xyz)
 pdb.update('x,y,z',xyz,chainID='A',resSeq=1)
 ```
 
-# Identifying protein-protein interface
+## Identifying protein-protein interface
 
 The ``interface()`` class is derived from the ``pdb2sql()`` class and offers functionalities to identify contact atoms of the different chains composing the structure. Contact atoms are defined as atom of a given chain with an atom of a different chain located less than a given distance away. For example the following snippet returns all the atoms and all the residue of the interface of '1AK4.pdb' defined by a contact distance of 6.0 Angstrom.
 
