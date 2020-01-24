@@ -139,7 +139,7 @@ dockQ = sim.compute_DockQScore(fnat, lrmsd, irmsd)
 
 
 # Application
-``psb2sql`` has been used at the Netherlands eScience center for bioinformatics projects. This is for example the case of ``iScore`` [@iScore] that uses graph kernels and support vector machines to rank protein-protein interface. We illustrate here the use of the pacakge by computing the interface rmsd and ligand rmsd of a series of structural models using the experimental structure as a reference. This is a common task for protein-protein docking where a large number of docked conformations are generated and have then to be compared to a ground truth to identify the best generated poses. This calculation is usually done using the ProFit software and we therefore compare our results with those obtained with ProFit. The code do compute the similarity measure for different decoys is simple:
+``psb2sql`` has been used at the Netherlands eScience center for bioinformatics projects. This is for example the case of ``iScore`` [@iscore] that uses graph kernels and support vector machines to rank protein-protein interface. We illustrate here the use of the pacakge by computing the interface rmsd and ligand rmsd of a series of structural models using the experimental structure as a reference. This is a common task for protein-protein docking where a large number of docked conformations are generated and have then to be compared to a ground truth to identify the best generated poses. This calculation is usually done using the ProFit software and we therefore compare our results with those obtained with ProFit. The code do compute the similarity measure for different decoys is simple:
 
 ```python
 from pdb2sql import StructureSimilarity
