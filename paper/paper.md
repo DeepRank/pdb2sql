@@ -100,7 +100,8 @@ trans_vec = np.array([0,5,0])
 transform.translation(pdb, trans_vec, resSeq=1, chainID='A')
 ```
 
-or to rotate strcutures 180 degrees along the X-axis,
+One can also rotate a given selection around a given axis with the `rotate_axis` method :
+
 ```python
 angle = np.pi
 axis = (1., 0., 0.)
