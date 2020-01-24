@@ -81,6 +81,7 @@ The data contained in the SQL database can also be modified using the ``update(a
 ```python
 import numpy as np
 from pdb2sql import pdb2sql
+
 pdb = pdb2sql('1AK4.pdb')
 xyz = pdb.get('x,y,z', chainID='A', resSeq=1)
 xyz = np.array(xyz)
@@ -114,6 +115,7 @@ The ``interface`` class is derived from the ``pdb2sql`` class and offers functio
 
 ```python
 from pdb2sql import interface
+
 pdb = interface('1AK4.pdb')
 atoms = pdb.get_contact_atoms(cutoff=6.0)
 res = pdb.get_contact_residues(cutoff=6.0)
@@ -125,6 +127,7 @@ The ``StructureSimilarity`` class allows to compute similarity measures between 
 
 ```python
 from pdb2sql import StructureSimilarity
+
 sim = StructureSimilarity(decoy = '1AK4_model.pdb',
                           ref = '1AK4_xray.pdb')
 
