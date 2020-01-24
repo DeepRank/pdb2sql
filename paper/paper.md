@@ -15,8 +15,7 @@ affiliations:
  - name: Netherlands eScience Center, Science Park 140 1098 XG Amsterdam, the Netherlands
    index: 1
 date: 13 January 2020
-bibliography: paper.bib
-
+bibliography: paper.bibtex
 ---
 
 # Summary
