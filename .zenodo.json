@@ -1,28 +1,25 @@
 {
    "creators": [
       {
-         "affiliation": "Netherlands eScience Center", 
-         "name": "Renaud, Nicolas", 
+         "affiliation": "Netherlands eScience Center",
+         "name": "Renaud, Nicolas",
          "orcid": "0000-0001-9589-2694"
-      }, 
+      },
       {
-         "affiliation": "Netherlands eScience Center", 
-         "name": "Geng, Cunliang", 
+         "affiliation": "Netherlands eScience Center",
+         "name": "Geng, Cunliang",
          "orcid": "0000-0002-1409-8358"
       }
-   ], 
-   "description": "Fast and versatile PDB parser using SQL queries.", 
-   "doi": "10.5281/zenodo.3232887", 
+   ],
+   "description": "Fast and versatile PDB parser using SQL queries.",
    "keywords": [
-      "pdb", 
-      "sql", 
-      "protein structure", 
+      "pdb",
+      "sql",
+      "protein structure",
       "biomolecule"
-   ], 
+   ],
    "license": {
       "id": "Apache-2.0"
-   }, 
-   "publication_date": "2020-02-03", 
-   "title": "pdb2sql", 
-   "version": "0.2.3"
+   },
+   "title": "pdb2sql"
 }
