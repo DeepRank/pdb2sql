@@ -11,12 +11,13 @@
          "orcid": "0000-0002-1409-8358"
       }
    ],
-   "description": "Fast and versatile PDB parser using SQL queries.",
+   "description": "Fast and versatile biomolecular structure PDB file parser using SQL queries.",
    "keywords": [
-      "pdb",
-      "sql",
+      "pdb parser",
       "protein structure",
-      "biomolecule"
+      "biomolecule",
+      "bioinformatics",
+      "CAPRI"
    ],
    "license": {
       "id": "Apache-2.0"
