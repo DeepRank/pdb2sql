@@ -1,5 +1,6 @@
 # PDB2SQL
 
+[![RSD](https://img.shields.io/badge/RSD-iScore-red)](https://research-software.nl/software/pdb2sql)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3232888.svg)](https://doi.org/10.5281/zenodo.3232888)
 [![Travis](https://secure.travis-ci.org/DeepRank/pdb2sql.svg?branch=master)](https://travis-ci.org/DeepRank/pdb2sql)
 [![Coverage Status](https://coveralls.io/repos/github/DeepRank/pdb2sql/badge.svg)](https://coveralls.io/github/DeepRank/pdb2sql)
@@ -31,8 +32,8 @@ The documentation of the package alongside small tutorial can be found at :
 ```python
 from pdb2sql.pdb2sqlcore import pdb2sql
 pdb = pdb2sql('1AK4.pdb')
-atoms = pdb.get('x,y,z', 
-                name = ['C','N', 'O'], 
+atoms = pdb.get('x,y,z',
+                name = ['C','N', 'O'],
                 no_resName = ['VAL','LEU'],
                 chainID = 'A')
 ```
