@@ -1,6 +1,8 @@
 # PDB2SQL
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3232888.svg)](https://doi.org/10.5281/zenodo.3232888)
+[![PyPI](https://img.shields.io/pypi/v/pdb2sql)](https://pypi.org/project/pdb2sql/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3232887.svg)](https://doi.org/10.5281/zenodo.3232887)
+[![RSD](https://img.shields.io/badge/RSD-pdb2sql-red)](https://research-software.nl/software/pdb2sql)
 [![Travis](https://secure.travis-ci.org/DeepRank/pdb2sql.svg?branch=master)](https://travis-ci.org/DeepRank/pdb2sql)
 [![Coverage Status](https://coveralls.io/repos/github/DeepRank/pdb2sql/badge.svg)](https://coveralls.io/github/DeepRank/pdb2sql)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7cce335b21cc49d6bb3ff9878d6ac904)](https://www.codacy.com/manual/CunliangGeng/pdb2sql?utm_source=github.com&utm_medium=referral&utm_content=DeepRank/pdb2sql&utm_campaign=Badge_Grade)
@@ -31,8 +33,8 @@ The documentation of the package alongside small tutorial can be found at :
 ```python
 from pdb2sql.pdb2sqlcore import pdb2sql
 pdb = pdb2sql('1AK4.pdb')
-atoms = pdb.get('x,y,z', 
-                name = ['C','N', 'O'], 
+atoms = pdb.get('x,y,z',
+                name = ['C','N', 'O'],
                 no_resName = ['VAL','LEU'],
                 chainID = 'A')
 ```
