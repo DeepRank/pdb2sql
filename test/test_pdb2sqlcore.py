@@ -1,7 +1,5 @@
 import unittest
-import warnings
 import os
-import io
 import numpy as np
 from pdb2sql import pdb2sql
 from utils import CaptureOutErr

@@ -3,9 +3,7 @@ import numpy as np
 from .pdb2sqlcore import pdb2sql
 from .interface import interface
 from . import transform
-import sys
 import os
-import time
 import pickle
 
 

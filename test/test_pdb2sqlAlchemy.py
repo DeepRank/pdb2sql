@@ -1,5 +1,4 @@
 from time import time
-import numpy as np
 from pdb2sql.pdb2sqlAlchemy import pdb2sql_alchemy
 import unittest
 

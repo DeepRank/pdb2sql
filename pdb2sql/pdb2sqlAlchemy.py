@@ -1,10 +1,8 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
-from sqlalchemy.schema import Sequence
 from sqlalchemy.orm import sessionmaker
 from .pdb2sql_base import pdb2sql_base
-from time import time
 import re
 
 Base = declarative_base()

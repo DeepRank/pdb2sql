@@ -1,6 +1,4 @@
 import os
-from time import time
-
 
 class pdb2sql_base(object):
 
