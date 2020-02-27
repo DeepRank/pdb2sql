@@ -46,7 +46,8 @@ setup(
         'dev': [
             'prospector[with_pyroma]',
             'autopep8',
-            'isort'],
+            'isort',
+            'twine'],
         'doc': [
             'sphinx',
             'ipython',],
