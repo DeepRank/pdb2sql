@@ -159,8 +159,9 @@ class TestCreateSQL(unittest.TestCase):
         with self.assertWarns(UserWarning) as ex:
             db = pdb2sql(self.pdb_noelement)
         self.assertEqual(len(ex.warnings), 26)
-        self.assertEqual(ex.warning.args[0],
-                         "Missing element and guess it with atom type")
+        self.assertRegex(ex.warning.args[0],
+                        "Element is missing and guessed using atom type")
+                        #  "Missing element and guess it with atom type")
         db.c.execute('SELECT element FROM ATOM')
         elements = db.c.fetchall()
         result = []

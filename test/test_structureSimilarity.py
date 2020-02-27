@@ -58,7 +58,7 @@ class TestSim(unittest.TestCase):
 
     def test_irmssql_method(self):
         """verify compute_irmsd_pdb2sql(method='quaternion')"""
-        with self.assertWarnsRegex(UserWarning, 'Missing element'):
+        with self.assertWarnsRegex(UserWarning, 'Element is missing'):
             result = self.sim.compute_irmsd_pdb2sql(method='quaternion')
         self.assertEqual(result, self.irmsd)
 
@@ -112,7 +112,7 @@ class TestSim(unittest.TestCase):
 
     def test_lrmsdsql_exportpdb(self):
         """verify compute_lrmsd_pdb2sql(exportpath='.')"""
-        with self.assertWarnsRegex(UserWarning, 'Missing element'):
+        with self.assertWarnsRegex(UserWarning, 'Element is missing'):
             result = self.sim.compute_lrmsd_pdb2sql(exportpath='.')
         self.assertEqual(result, self.lrmsd)
         self.assertTrue(os.path.isfile('./lrmsd_ref.pdb'))
@@ -132,7 +132,7 @@ class TestSim(unittest.TestCase):
 
     def test_fnatsql_default(self):
         """verify compute_fnat_pdb2sql()"""
-        with self.assertWarnsRegex(UserWarning, 'Missing element'):
+        with self.assertWarnsRegex(UserWarning, 'Element is missing'):
             result = self.sim.compute_fnat_pdb2sql()
         self.assertEqual(result, self.fnat)
 
