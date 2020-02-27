@@ -192,7 +192,7 @@ class StructureSimilarity(object):
         data_test = sorted(set(data_test))
 
         # close the sql
-        sql_ref.close()
+        sql_ref._close()
 
         if save_file:
             if filename is None:
@@ -331,7 +331,7 @@ class StructureSimilarity(object):
         data_test = sorted(set(data_test))
 
         # close the sql
-        sql_ref.close()
+        sql_ref._close()
 
         if save_file:
 
@@ -461,7 +461,7 @@ class StructureSimilarity(object):
         sql_ref = interface(self.ref)
         residue_pairs_ref = sql_ref.get_contact_residues(
             cutoff=cutoff, return_contact_pairs=True, excludeH=True)
-        sql_ref.close()
+        sql_ref._close()
 
         if save_file:
             if filename is None:
@@ -610,8 +610,8 @@ class StructureSimilarity(object):
             sql_ref.exportpdb(exportpath + '/lrmsd_ref.pdb')
 
         # close the db
-        sql_decoy.close()
-        sql_ref.close()
+        sql_decoy._close()
+        sql_ref._close()
 
         return lrmsd
 
@@ -792,8 +792,8 @@ class StructureSimilarity(object):
                 rowID=index_contact_ref)
 
         # close the db
-        sql_decoy.close()
-        sql_ref.close()
+        sql_decoy._close()
+        sql_ref._close()
 
         return irmsd
 
@@ -899,8 +899,8 @@ class StructureSimilarity(object):
         # normalize
         fnat = nCommon / len(data_pair_ref)
 
-        sql_decoy.close()
-        sql_ref.close()
+        sql_decoy._close()
+        sql_ref._close()
 
         return round(fnat, 6)
 
@@ -1177,7 +1177,7 @@ class StructureSimilarity(object):
         atom_contact_pairs = db.get_contact_atoms(
             cutoff=3.0, excludeH=True,
             return_contact_pairs=True)
-        db.close()
+        db._close()
         nclash = 0
         for v in atom_contact_pairs.values():
             nclash += len(v)
