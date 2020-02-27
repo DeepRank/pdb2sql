@@ -173,9 +173,6 @@ Write PDB file from SQL database:
 
     db.exportpdb('./pdb/test.pdb')
 
-    # close SQL database
-    db.close()
-
     # show the test.pdb file
     ls ./pdb
 
@@ -211,9 +208,6 @@ Interface residues
     itf_residue_pair = db.get_contact_residues(cutoff = 3, return_contact_pairs=True)
     itf_residue
     itf_residue_pair
-
-    # close SQL database
-    db.close()
 
 Structure similarity calculation
 --------------------------------
