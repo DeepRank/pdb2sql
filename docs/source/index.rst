@@ -28,7 +28,7 @@ Python API
 
     PDB2SQL <pdb2sql.pdb2sqlcore>
     Interface <pdb2sql.interface>
-    Strcuture Similarity <pdb2sql.StructureSimilarity>
+    Structure Similarity <pdb2sql.StructureSimilarity>
     Structure Transformation <pdb2sql.transform>
     PDB2SQL Alchemy <pdb2sql.pdb2sqlAlchemy>
 

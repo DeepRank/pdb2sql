@@ -12,7 +12,7 @@
 
 This is a short introduction to pdb2sql.
 
-First we import as follows:
+First, we import as follows:
 
 .. ipython:: python
 
@@ -48,21 +48,21 @@ Get chainID, residue number, residue name and atom name of all atoms:
     p = db.get('chainID, resSeq, resName, name')
     p
 
-Get x,y,z cooridnates of all atoms:
+Get x,y,z coordinates of all atoms:
 
 .. ipython:: python
 
     p = db.get('x,y,z')
     p
 
-Get x,y,z cooridnates of chain A atoms:
+Get x,y,z coordinates of chain A atoms:
 
 .. ipython:: python
 
     p = db.get('chainID, x,y,z', chainID=['A'])
     p
 
-Get x,y,z cooridnates of atoms on residue 1 and 4 of Chain A
+Get x,y,z coordinates of atoms on residue 1 and 4 of Chain A
 
 .. ipython:: python
 
@@ -86,7 +86,7 @@ Get data of all atoms except residue MET and GLN atoms or CA (carbon alpha) atom
 
 Get all data, a simple way is ``db.get('*')``.
 
-A shortcut to get x,y,z cooridnates:
+A shortcut to get x,y,z coordinates:
 
 .. ipython:: python
 
@@ -122,7 +122,7 @@ Rename chain B to C:
     db.get_chains()
 
 
-Update x,y,z coordinates for strcuture translatation of [10,10,10]
+Update x,y,z coordinates for structure translatation of [10,10,10]
 
 .. ipython:: python
 
@@ -283,7 +283,7 @@ The atom coordinates are:
 
 Rotations
 ^^^^^^^^^
-Rotate strcutures 180 degrees along the x-axis:
+Rotate structures 180 degrees along the x-axis:
 
 .. ipython:: python
 
@@ -303,7 +303,7 @@ Get random rotation axis and angle:
 Translations
 ^^^^^^^^^^^^
 
-Translate strcuture 5Å along y-axis:
+Translate structure 5Å along y-axis:
 
 .. ipython:: python
 

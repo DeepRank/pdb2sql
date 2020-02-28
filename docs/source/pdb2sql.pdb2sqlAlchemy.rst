@@ -2,7 +2,7 @@
 PDB2SQL Alchemy (beta)
 ======================
 
-This module is based on `SQLAlchemy`_ that combines sql queries and object oriented programming.
+This module is based on `SQLAlchemy`_ that combines sql queries and object-oriented programming.
 Therfore :class:`~pdb2sql.pdb2sqlAlchemy.pdb2sql_alchemy` works in the same way as
 :class:`~pdb2sql.pdb2sqlcore.pdb2sql` but returns arrays of objects instead of nested lists. It is however a bit slower.
 
@@ -16,7 +16,7 @@ Examples
 
 You can get values from the database and update values to
 the database with the methods .get() and .update().
-The syntax is identical to the the one of pdbsqlcore:
+The syntax is identical to the one of pdbsqlcore:
 
 .. ipython:: python
     :suppress:
