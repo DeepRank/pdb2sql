@@ -23,7 +23,6 @@ class TestCreateSQL(unittest.TestCase):
         db = pdb2sql(self.pdbfile)
         db.c.execute('SELECT * FROM ATOM')
         result = db.c.fetchall()
-        db.close()
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1856)
         last_line = (1859, "O", "", "GLY", "R", 62, "",
@@ -37,7 +36,6 @@ class TestCreateSQL(unittest.TestCase):
         db = pdb2sql(pdb)
         db.c.execute('SELECT * FROM ATOM')
         result = db.c.fetchall()
-        db.close()
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1856)
         last_line = (1859, "O", "", "GLY", "R", 62, "",
@@ -52,7 +50,6 @@ class TestCreateSQL(unittest.TestCase):
         db = pdb2sql(pdb)
         db.c.execute('SELECT * FROM ATOM')
         result = db.c.fetchall()
-        db.close()
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1856)
         last_line = (1859, "O", "", "GLY", "R", 62, "",
@@ -67,7 +64,6 @@ class TestCreateSQL(unittest.TestCase):
         db = pdb2sql(pdb)
         db.c.execute('SELECT * FROM ATOM')
         result = db.c.fetchall()
-        db.close()
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1856)
         last_line = (1859, "O", "", "GLY", "R", 62, "",
@@ -79,7 +75,6 @@ class TestCreateSQL(unittest.TestCase):
         db = pdb2sql(self.pdbfile, fix_chainID=True)
         db.c.execute('SELECT * FROM ATOM')
         result = db.c.fetchall()
-        db.close()
         result_chainIDs = []
         for line in result:
             chainID = line[4]
@@ -93,12 +88,11 @@ class TestCreateSQL(unittest.TestCase):
         db = pdb2sql(self.pdbfile, sqlfile=self.sqlfile)
         self.assertTrue(os.path.exists(self.sqlfile))
         self.assertTrue(os.path.isfile(self.sqlfile))
-        db.close()
 
     def test_sqlfile_save(self):
         """Verify sqlfile with saving."""
         db = pdb2sql(self.pdbfile, sqlfile=self.sqlfile)
-        db.close(rmdb=False)
+        db._close(rmdb=False)
         self.assertTrue(os.path.exists(self.sqlfile))
         self.assertTrue(os.path.isfile(self.sqlfile))
         os.remove(self.sqlfile)
@@ -109,7 +103,6 @@ class TestCreateSQL(unittest.TestCase):
     def test_pdb_longline(self):
         with self.assertRaises(ValueError) as ex:
             db = pdb2sql(self.pdb_longline)
-            db.close()
         ex_msg = ex.exception.args[0]
         target = "pdb line is longer than 80:\nATOM      1  O5'  DA A   1     -16.851  -5.543  74.981  1.00 55.62      A    O  1"
         self.assertEqual(ex_msg, target)
@@ -118,7 +111,6 @@ class TestCreateSQL(unittest.TestCase):
         """Verify blank chainID without segID."""
         with self.assertRaises(ValueError) as ex:
             db = pdb2sql(self.pdb_nochainID_nosegID)
-            db.close()
         result = ex.exception.args[0]
         target = 'chainID not found'
         self.assertEqual(result, target)
@@ -134,7 +126,6 @@ class TestCreateSQL(unittest.TestCase):
         result = list(set(db.c.fetchall()))
         target = [('L',)]
         self.assertEqual(result, target)
-        db.close()
 
     def test_blank_occ(self):
         """Verify blank occ."""
@@ -143,7 +134,6 @@ class TestCreateSQL(unittest.TestCase):
         result = list(set(db.c.fetchall()))
         target = [(1.0,)]
         self.assertEqual(result, target)
-        db.close()
 
     def test_blank_temp(self):
         """Verify blank temperature."""
@@ -152,7 +142,6 @@ class TestCreateSQL(unittest.TestCase):
         result = list(set(db.c.fetchall()))
         target = [(10.0,)]
         self.assertEqual(result, target)
-        db.close()
 
     def test_blank_element(self):
         """Verify blank element."""
@@ -195,16 +184,12 @@ class TestCreateSQL(unittest.TestCase):
             "H",
             "CA"]
         self.assertEqual(result, target)
-        db.close()
 
 
 class TestPrintGetUpdate(unittest.TestCase):
     def setUp(self):
         pdbfile = "./pdb/dummy_template.pdb"
         self.db = pdb2sql(pdbfile)
-
-    def tearDown(self):
-        self.db.close()
 
     def test_print(self):
         with CaptureOutErr() as cm:

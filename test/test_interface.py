@@ -9,9 +9,6 @@ class Test_1_ContactAtoms(unittest.TestCase):
         self.pdb = 'pdb/3CRO.pdb'
         self.db = interface(self.pdb)
 
-    def tearDown(self):
-        self.db.close()
-
     def test_get_contact_atoms_default(self):
         """"verify get_contact_atoms default."""
         contact_atoms = self.db.get_contact_atoms()
@@ -103,7 +100,6 @@ class Test_1_ContactAtoms(unittest.TestCase):
         self.assertEqual(list(contact_atoms.keys()), ['A', 'B'])
         self.assertEqual(len(contact_atoms['A']), 341)
         self.assertEqual(len(contact_atoms['B']), 333)
-        db.close()
 
     def test_get_contact_atoms_contactpairs(self):
         """"verify get_contact_atoms(return_conact_pairs=True)"""
@@ -141,7 +137,6 @@ class Test_1_ContactAtoms(unittest.TestCase):
         self.assertEqual(len(contact_atoms['B']), 0)
         self.assertEqual(len(contact_atoms['L']), 36)
         self.assertEqual(len(contact_atoms['R']), 32)
-        db.close()
 
 
 class Test_2_ContactResidues(unittest.TestCase):
@@ -150,9 +145,6 @@ class Test_2_ContactResidues(unittest.TestCase):
     def setUp(self):
         self.pdb = 'pdb/3CRO.pdb'
         self.db = interface(self.pdb)
-
-    def tearDown(self):
-        self.db.close()
 
     def test_get_contact_residues_default(self):
         """"verify get_contact_residues default."""
@@ -211,7 +203,6 @@ class Test_2_ContactResidues(unittest.TestCase):
         self.assertEqual(len(contact_residues['B']), 20)
         self.assertEqual(len(contact_residues['L']), 47)
         self.assertEqual(len(contact_residues['R']), 48)
-        db.close()
 
     def test_get_contact_residues_onlybackbone_NA(self):
         """"verify get_contact_residues(only_backbone_atoms=True) for NA."""
@@ -275,7 +266,6 @@ class Test_2_ContactResidues(unittest.TestCase):
         self.assertEqual(len(contact_residues['B']), 0)
         self.assertEqual(len(contact_residues['L']), 9)
         self.assertEqual(len(contact_residues['R']), 8)
-        db.close()
 
 
 if __name__ == '__main__':
