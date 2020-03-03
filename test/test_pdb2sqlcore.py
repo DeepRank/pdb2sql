@@ -150,7 +150,6 @@ class TestCreateSQL(unittest.TestCase):
         self.assertEqual(len(ex.warnings), 26)
         self.assertRegex(ex.warning.args[0],
                         "Element is missing and guessed using atom type")
-                        #  "Missing element and guess it with atom type")
         db.c.execute('SELECT element FROM ATOM')
         elements = db.c.fetchall()
         result = []
