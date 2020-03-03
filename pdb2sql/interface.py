@@ -8,10 +8,10 @@ class interface(pdb2sql):
 
     def __init__(self, pdb, **kwargs):
         """Identify interface between protein chains."""
-        if isinstance(pdb, str):
-            super().__init__(pdb, **kwargs)
-        elif isinstance(pdb, pdb2sql):
-            super().__init__(pdb.pdbfile, **kwargs)
+        if isinstance(pdb, pdb2sql):
+            pdb.commit()
+            pdb = pdb.sql2pdb()
+        super().__init__(pdb, **kwargs)
 
     ##########################################################################
     #
