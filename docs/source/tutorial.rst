@@ -1,10 +1,9 @@
-.. .. ipython:: python
-..     :suppress:
+.. ipython:: python
+    :suppress:
 
-..     # change working dir to docs/
-..     # check pdb2sql.pdb2sqlAlchemy.rst
-..     import os
-..     os.chdir('..')
+    # change working dir to docs/
+    import os
+    os.chdir('..')
 
 =====================
 10 minutes to pdb2sql
