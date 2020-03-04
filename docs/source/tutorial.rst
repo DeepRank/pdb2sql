@@ -185,6 +185,13 @@ Create an :class:`~pdb2sql.interface.interface` SQL database instance:
 .. ipython:: python
 
     from pdb2sql import interface
+
+    # use pdb2sql instance as input
+    from pdb2sql import pdb2sql
+    pdb_db = pdb2sql('./pdb/3CRO.pdb')
+    db = interface(pdb_db)
+
+    # or use pdb file as input
     db = interface('./pdb/3CRO.pdb')
 
 Interface atoms
