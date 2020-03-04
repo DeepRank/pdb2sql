@@ -7,7 +7,27 @@ from .pdb2sqlcore import pdb2sql
 class interface(pdb2sql):
 
     def __init__(self, pdb, **kwargs):
-        """Identify interface between protein chains."""
+        """Create an independent SQL database for interface object.
+
+        Args:
+            pdb(str, list, ndarray, pdb2sql): pdb file or data, or pdb2sql object.
+                If pdb2sql object is used, all changes in the database of pdb2sql
+                object before initializing the interface instance will be used in the
+                new sql database of the interface instance; afterwards, two databses
+                will be independent from each other.
+
+        Examples:
+            >>> from pdb2sql import pdb2sql
+            >>> from pdb2sql import interface
+            >>> # use pdb2sql object as input
+            >>> pdb_db = pdb2sql('3CRO.pdb')
+            >>> interface_db1 = interface(pdb_db)
+            >>> # use pdb file as input
+            >>> interface_db2 = interface('3CRO.pdb')
+        """
+        if isinstance(pdb, pdb2sql):
+            pdb.commit()
+            pdb = pdb.sql2pdb()
         super().__init__(pdb, **kwargs)
 
     ##########################################################################

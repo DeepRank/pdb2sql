@@ -10,9 +10,6 @@ class TestTools(unittest.TestCase):
         self.db = pdb2sql('./pdb/dummy_transform.pdb')
         self.xyz = self.db.get('x,y,z')
 
-    def tearDown(self):
-        self.db.close()
-
     def test_get_xyz(self):
         """Verfify getting xyz from sql."""
 

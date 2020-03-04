@@ -1,6 +1,4 @@
 import os
-from time import time
-
 
 class pdb2sql_base(object):
 
@@ -236,7 +234,7 @@ class pdb2sql_base(object):
 
         return i
 
-    def close(self, rmdb=True):
+    def _close(self, rmdb=True):
 
         if self.sqlfile is None:
             self.conn.close()

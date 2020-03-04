@@ -1,5 +1,6 @@
 import unittest
 from pdb2sql import interface
+from pdb2sql import pdb2sql
 
 
 class Test_1_ContactAtoms(unittest.TestCase):
@@ -8,9 +9,6 @@ class Test_1_ContactAtoms(unittest.TestCase):
     def setUp(self):
         self.pdb = 'pdb/3CRO.pdb'
         self.db = interface(self.pdb)
-
-    def tearDown(self):
-        self.db.close()
 
     def test_get_contact_atoms_default(self):
         """"verify get_contact_atoms default."""
@@ -103,7 +101,6 @@ class Test_1_ContactAtoms(unittest.TestCase):
         self.assertEqual(list(contact_atoms.keys()), ['A', 'B'])
         self.assertEqual(len(contact_atoms['A']), 341)
         self.assertEqual(len(contact_atoms['B']), 333)
-        db.close()
 
     def test_get_contact_atoms_contactpairs(self):
         """"verify get_contact_atoms(return_conact_pairs=True)"""
@@ -141,7 +138,6 @@ class Test_1_ContactAtoms(unittest.TestCase):
         self.assertEqual(len(contact_atoms['B']), 0)
         self.assertEqual(len(contact_atoms['L']), 36)
         self.assertEqual(len(contact_atoms['R']), 32)
-        db.close()
 
 
 class Test_2_ContactResidues(unittest.TestCase):
@@ -150,9 +146,6 @@ class Test_2_ContactResidues(unittest.TestCase):
     def setUp(self):
         self.pdb = 'pdb/3CRO.pdb'
         self.db = interface(self.pdb)
-
-    def tearDown(self):
-        self.db.close()
 
     def test_get_contact_residues_default(self):
         """"verify get_contact_residues default."""
@@ -211,7 +204,6 @@ class Test_2_ContactResidues(unittest.TestCase):
         self.assertEqual(len(contact_residues['B']), 20)
         self.assertEqual(len(contact_residues['L']), 47)
         self.assertEqual(len(contact_residues['R']), 48)
-        db.close()
 
     def test_get_contact_residues_onlybackbone_NA(self):
         """"verify get_contact_residues(only_backbone_atoms=True) for NA."""
@@ -275,8 +267,34 @@ class Test_2_ContactResidues(unittest.TestCase):
         self.assertEqual(len(contact_residues['B']), 0)
         self.assertEqual(len(contact_residues['L']), 9)
         self.assertEqual(len(contact_residues['R']), 8)
-        db.close()
 
+
+class Test_3_PDB2SQLInstanceInput(unittest.TestCase):
+    """test using pdb2sql instance as input"""
+
+    def setUp(self):
+        self.pdb = 'pdb/3CRO.pdb'
+
+    def test_get_contact_residues_default(self):
+        """"verify get_contact_residues default."""
+        pdb_db = pdb2sql(self.pdb)
+        self.db = interface(pdb_db)
+        contact_residues = self.db.get_contact_residues()
+        self.assertIsInstance(contact_residues, dict)
+        self.assertEqual(len(contact_residues), 2)
+        self.assertEqual(list(contact_residues.keys()), ['A', 'B'])
+        self.assertEqual(len(contact_residues['A']), 20)
+        self.assertEqual(len(contact_residues['B']), 20)
+
+    def test_database_consistency(self):
+        """"verify initilizing interface with updated pdb2sql database"""
+        pdb_db = pdb2sql(self.pdb)
+        pdb_db.update_column('temp', [99]*10)
+        target = pdb_db.get('*')
+
+        self.db = interface(pdb_db)
+        result = self.db.get('*')
+        self.assertEqual(target, result)
 
 if __name__ == '__main__':
     runner = unittest.TextTestRunner(verbosity=2)

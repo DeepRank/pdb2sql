@@ -69,7 +69,7 @@ class pdb2sql(pdb2sql_base):
         # get pdb data
         pdbdata = pdb2sql.read_pdb(pdbfile)
 
-        self.nModel = 0
+        self._nModel = 0
         data_atom = []
 
         for line in pdbdata:
@@ -79,7 +79,7 @@ class pdb2sql(pdb2sql_base):
                 line = line.split('\n')[0]
 
             elif line.startswith('ENDMDL'):
-                self.nModel += 1
+                self._nModel += 1
                 continue
 
             else:
@@ -120,7 +120,7 @@ class pdb2sql(pdb2sql_base):
                     at += (data,)
 
             # append the model number
-            at += (self.nModel,)
+            at += (self._nModel,)
 
             # append
             data_atom.append(at)
@@ -227,7 +227,7 @@ class pdb2sql(pdb2sql_base):
                 elem = pdb_line[12:14]
         else:
             elem = pdb_line[13]
-        warnings.warn("Missing element and guess it with atom type")
+        warnings.warn(f'Element is missing and guessed using atom type for line\n {pdb_line}')
         return elem
 
     # replace the chain ID by A,B,C,D, ..... in that order
@@ -345,9 +345,9 @@ class pdb2sql(pdb2sql_base):
         # the asked keys
         keys = kwargs.keys()
 
-        if 'model' not in kwargs.keys() and self.nModel > 0:
+        if 'model' not in kwargs.keys() and self._nModel > 0:
             model_data = []
-            for iModel in range(self.nModel):
+            for iModel in range(self._nModel):
                 kwargs['model'] = iModel
                 model_data.append(self.get(columns, **kwargs))
             return model_data
@@ -511,8 +511,8 @@ class pdb2sql(pdb2sql_base):
         keys = kwargs.keys()
 
         # handle the multi model cases
-        if 'model' not in keys and self.nModel > 0:
-            for iModel in range(self.nModel):
+        if 'model' not in keys and self._nModel > 0:
+            for iModel in range(self._nModel):
                 kwargs['model'] = iModel
                 self.update(columns, values, **kwargs)
             return

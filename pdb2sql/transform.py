@@ -1,5 +1,4 @@
 import numpy as np
-from time import time
 
 '''
 This file contains several transformations of the

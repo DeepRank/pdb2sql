@@ -31,7 +31,7 @@ The documentation of the package alongside small tutorial can be found at :
 `pdb2sql` easily allows to load a PDB file in an object. Once loaded, the data can be parsed using SQL queries. To facilitate the adoption of the tool simple methods have been developped to wrap the SQL queries in simple methods. For example obtaining the positions of all carbon, nitrogen and oxygen atoms of chain A from all residues but VAL and LEU, one can use :
 
 ```python
-from pdb2sql.pdb2sqlcore import pdb2sql
+from pdb2sql import pdb2sql
 pdb = pdb2sql('1AK4.pdb')
 atoms = pdb.get('x,y,z',
                 name = ['C','N', 'O'],

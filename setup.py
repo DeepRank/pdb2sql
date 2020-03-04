@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 import os
-
 from setuptools import (find_packages, setup)
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-# To update the package version number, edit DeepQMC/__version__.py
+# To update the package version number, edit pdb2sql/__version__.py
 version = {}
 with open(os.path.join(here, 'pdb2sql', '__version__.py')) as f:
     exec(f.read(), version)
@@ -40,24 +39,21 @@ setup(
             'Topic :: Scientific/Engineering :: Bio-Informatics'],
     test_suite='tests',
     install_requires=[
-        'cython',
-        'sqlalchemy',
-        'matplotlib',
         'numpy',
-        'schema',
-        'tqdm',
         'pandas'],
     extras_require={
         'dev': [
             'prospector[with_pyroma]',
-            'yapf',
-            'isort'],
+            'autopep8',
+            'isort',
+            'twine'],
         'doc': [
-            'recommonmark',
             'sphinx',
-            'sphinx_rtd_theme'],
+            'ipython',],
         'test': [
             'coverage',
+            'codacy-coverage',
+            'coveralls',
             'pycodestyle',
             'pytest',
             'pytest-cov',
