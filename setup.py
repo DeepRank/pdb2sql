@@ -39,7 +39,6 @@ setup(
             'Topic :: Scientific/Engineering :: Bio-Informatics'],
     test_suite='tests',
     install_requires=[
-        'sqlalchemy',
         'numpy',
         'pandas'],
     extras_require={
