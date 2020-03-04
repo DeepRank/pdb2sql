@@ -12,7 +12,7 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile clean
+.PHONY: help Makefile clean check
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
@@ -24,3 +24,6 @@ clean:
 	rm -f source/decoy.db
 	rm -fr source/api
 	rm -fr source/_build
+
+check:
+	open source/_build/html/index.html
