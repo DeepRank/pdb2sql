@@ -11,15 +11,29 @@
 
 This is a short introduction to pdb2sql.
 
+
+Download PDB files
+------------------
+
+A handy tool `fetch` is provided to download PDB files from `PDB <https://www.rcsb.org>`_ website.
+
+.. ipython:: python
+
+    from pdb2sql import fetch
+    fetch('3CRO', './pdb/')
+    ls ./pdb
+
+For clear illustration, some `dummy PDB files <https://github.com/DeepRank/pdb2sql/tree/master/docs/pdb>`_
+are used in the following examples.
+
+Get and set data
+----------------
+
 First, we import as follows:
 
 .. ipython:: python
 
     from pdb2sql import pdb2sql
-
-
-Get and set data
-----------------
 
 Create a SQL database instance:
 

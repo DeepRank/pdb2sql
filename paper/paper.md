@@ -123,6 +123,19 @@ atoms = pdb.get_contact_atoms(cutoff=6.0)
 res = pdb.get_contact_residues(cutoff=6.0)
 ```
 
+It is also possible to directly create an ``interface`` instance with a ``pdb2sql`` instance as input. In this case, all the changes in the ``pdb2sql`` instance before creating the new ``interface`` instance will be kept in the ``interface`` instance; afterwards, the two instances will be independent, which means changes in one will not affect the other.
+
+```python
+from pdb2sql import pdb2sql
+from pdb2sql import interface
+
+pdb = pdb2sql('1AK4.pdb')
+pdbitf = interface(pdb)
+atoms = pdbitf.get_contact_atoms(cutoff=6.0)
+res = pdbitf.get_contact_residues(cutoff=6.0)
+```
+
+
 ## Computing Structure Similarity
 
 The ``StructureSimilarity`` class allows to compute similarity measures between two protein-protein complexes. Several popular measures used to classify qualities of protein complex structures in the CAPRI (Critical Assessment of PRedicted Interactions) challenges [@capri] have been implemented: interface rmsd, ligand rmsd,  fraction of native contacts and DockQ[@dockq]. The approach implemented to compute the interface rmsd and ligand rmsd is identical to the well-known package ``ProFit`` [@profit]. All the methods required to superimpose structures have been implemented in the ``transform`` class and therefore relies on no external dependencies. The following snippet shows how to compute these measures:

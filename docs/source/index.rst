@@ -30,6 +30,7 @@ Python API
     Interface <pdb2sql.interface>
     Structure Similarity <pdb2sql.StructureSimilarity>
     Structure Transformation <pdb2sql.transform>
+    Utilities <pdb2sql.utils>
 
 .. :caption: Python API
 ..
