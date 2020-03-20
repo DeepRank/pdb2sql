@@ -33,14 +33,8 @@ def align(pdb, axis='z', export=True, **kwargs):
     # perform pca
     u, v = pca(xyz)
 
-    # extract max eigenvector
-    vmax = v[:, np.argmax(u)]
-    x, y, z = vmax
-    r = np.linalg.norm(vmax)
-
-    # rotation angle
-    phi = np.arctan2(y, x)
-    theta = np.arccos(z/r)
+    # rotation angles
+    phi, theta = get_rotation_angle(u, v)
 
     # complete coordinate
     xyz = np.array(sql.get('x,y,z'))
@@ -51,7 +45,7 @@ def align(pdb, axis='z', export=True, **kwargs):
         xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
 
     if axis == 'y':
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), np.pi/2-phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), np.pi/2 - phi)
         xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
 
     if axis == 'z':
@@ -68,6 +62,24 @@ def align(pdb, axis='z', export=True, **kwargs):
 
     return sql
 
+def get_rotation_angle(u, v):
+    """Extracts the rotation angles from the PCA
+    
+    Arguments:
+        u {np.array} -- eigenvalues of the PCA
+        V {np.array} -- eigenvectors of the PCA
+    """
+
+    # extract max eigenvector
+    vmax = v[:, np.argmax(u)]
+    x, y, z = vmax
+    r = np.linalg.norm(vmax)
+
+    # rotation angle
+    phi = np.arctan2(y, x)
+    theta = np.arccos(z/r)
+
+    return phi, theta
 
 def pca(A):
     """computes the principal component analysis of the points A
