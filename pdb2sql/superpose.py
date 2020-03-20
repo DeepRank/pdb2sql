@@ -26,12 +26,12 @@ def superpose(pdb1, pdb2, method='svd', only_backbone=True, **kwargs):
 
     backbone_atoms = ['CA', 'C', 'N', 'O']
 
-    if not isinstance(pdb1,pdb2sql):
+    if not isinstance(pdb1, pdb2sql):
         sql1 = pdb2sql(pdb1)
     else:
         sql1 = pdb1
 
-    if not isinstance(pdb2,pdb2sql):
+    if not isinstance(pdb2, pdb2sql):
         sql2 = pdb2sql(pdb2)
     else:
         sql2 = pdb2
@@ -54,18 +54,18 @@ def superpose(pdb1, pdb2, method='svd', only_backbone=True, **kwargs):
     chain_xyz1 += tr1
     chain_xyz2 += tr2
     center = np.mean(chain_xyz2, 0)
-    U = get_rotation_matrix(chain_xyz2, chain_xyz1, method=method)
+    rmat = get_rotation_matrix(chain_xyz2, chain_xyz1, method=method)
 
     # transform the coordinate of second pdb
     xyz2 = np.array(sql2.get("x,y,z"))
     xyz2 += tr2
-    xyz2 = rotate(xyz2, U, center=center)
+    xyz2 = rotate(xyz2, rmat, center=center)
     xyz2 -= tr1
 
     # update the second sql
     sql2.update('x,y,z', xyz2)
     pdb1_name = os.path.basename(pdb1)
-    fname = pdb2.rstrip('.pdb')+'_superposed_on_'+pdb1_name.rstrip('.pdb')+'.pdb'
+    fname = pdb2.rstrip('.pdb') + '_superposed_on_' + pdb1_name.rstrip('.pdb') + '.pdb'
     sql2.exportpdb(fname)
 
 # compute the translation vector to center a set of points

@@ -7,21 +7,13 @@ class TestSuperpose(unittest.TestCase):
 
     def setUp(self):
 
-        self.pdb1 = 'pdb/1AK4/1AK4_5w.pdb' 
-        self.pdb2 = 'pdb/1AK4/1AK4_10w.pdb' 
+        self.pdb1 = 'pdb/1AK4/1AK4_5w.pdb'
+        self.pdb2 = 'pdb/1AK4/1AK4_10w.pdb'
 
     def test_superpose(self):
         """test the routine."""
-        superpose(self.pdb1,self.pdb2, chainID='A')
+        superpose(self.pdb1, self.pdb2, chainID='A')
 
     @unittest.expectedFailure    
     def test_fails(self):
-        superpose(self.pdb1,self.pdb2, name='CA')
-
-
-if __name__ == "__main__":
-    t = TestSuperpose()
-    t.setUp()
-    t.test_superpose()
-
-
+        superpose(self.pdb1, self.pdb2, name='CA')

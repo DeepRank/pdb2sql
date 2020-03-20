@@ -19,7 +19,7 @@ def align(pdb, axis='z', export=True, **kwargs):
 
     Example:
         >>> pdb = '1AK4'
-        >>> sql = align(pdb,chainID='A'
+        >>> sql = align(pdb,chainID='A')
     """
 
     if not isinstance(pdb,pdb2sql):
@@ -28,54 +28,56 @@ def align(pdb, axis='z', export=True, **kwargs):
         sql = pdb
 
     # extract coordinate
-    xyz = np.array(sql.get('x,y,z',**kwargs))
+    xyz = np.array(sql.get('x,y,z', **kwargs))
     
     # perform pca
-    u,v,score = pca(xyz)
+    u, v = pca(xyz)
 
     # extract max eigenvector
-    vmax = v[:,np.argmax(u)]
-    x,y,z = vmax
+    vmax = v[:, np.argmax(u)]
+    x, y, z = vmax
     r = np.linalg.norm(vmax)
 
+    # rotation angle
+    phi = np.arctan2(y, x)
+    theta = np.arccos(z/r)
+
+    # complete coordinate
+    xyz = np.array(sql.get('x,y,z'))
+
     # align along preferred axis
-    if axis == 'x':
-        phi = np.arctan2(y,x)
-        xyz = rot_xyz_around_axis(xyz,np.array([0,0,1]),-phi)
+    if axis == 'x':    
+        xyz = rot_xyz_around_axis(xyz, np.array([0,0,1]), -phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0,1,0]), np.pi/2 -theta)    
 
     if axis == 'y':
-        phi = np.arctan2(y,x)
-        xyz = rot_xyz_around_axis(xyz,np.array([0,0,1]),np.pi/2-phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0,0,1]), np.pi/2-phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0,1,0]), np.pi/2 -theta)    
 
-    if axis == 'z':
-
-        phi = np.arctan2(y,x)
-        theta = np.arccos(z/r)
-        
-        xyz = np.array(sql.get('x,y,z'))
-        xyz = rot_xyz_around_axis(xyz,np.array([0,0,1]),-phi)
-        xyz = rot_xyz_around_axis(xyz,np.array([0,1,0]),-theta)    
+    if axis == 'z': 
+        xyz = rot_xyz_around_axis(xyz, np.array([0,0,1]), -phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0,1,0]), -theta)    
 
     # update the sql
-    sql.update('x,y,z',xyz)
+    sql.update('x,y,z', xyz)
 
     # export the pdbfile
     if export:
-        fname = sql.pdbfile.rstrip('.pdb')+'_aligned.pdb'
+        fname = sql.pdbfile.rstrip('.pdb') + '_aligned.pdb'
         sql.exportpdb(fname)
 
     return sql
 
+
 def pca(A):
     """computes the principal component analysis of the points A
-    
+
     Arguments:
         A {numpy.ndarray} -- matrix of points [npoints x ndim]
     
     Returns:
         tuple -- eigenvalues, eigenvectors, score
     """
-    scat = (A-np.mean(A.T,axis=1)).T
-    u,v = np.linalg.eig(np.cov(scat))
-    score = np.dot(v.T,scat)
-    return u, v, score
+    scat = (A-np.mean(A.T, axis=1)).T
+    u, v = np.linalg.eig(np.cov(scat))
+    return u, v
