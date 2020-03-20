@@ -101,7 +101,7 @@ def rot_xyz_around_axis(xyz, axis, angle, center=None):
                         [uz * ux * (1 - ct) - uy * st,
                          uz * uy * (1 - ct) + ux * st,
                          ct + uz**2 * (1 - ct)]])
-
+    
     # apply the rotation
     return rotate(xyz, rot_mat, center)
 

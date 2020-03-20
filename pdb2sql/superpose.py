@@ -1,27 +1,50 @@
 
+import os
 import numpy as np
 from .pdb2sqlcore import pdb2sql
 from .transform import rotate
 
-def superpose(pdb1,pdb2,chainID=None,method='svd'):
+
+def superpose(pdb1, pdb2, method='svd', only_backbone=True, **kwargs):
     """superpose two complexes
-    
+
     Arguments:
-        pdb1 {[type]} -- [description]
-        pdb2 {[type]} -- [description]
-    
+        pdb1 {str or pdb2sql} -- name or sqldb of the first pdb
+        pdb2 {str or pdb2sql} -- name or sqldb of the second pdb
+
     Keyword Arguments:
-        method {str} -- [description] (default: {'svd'})
+        method {str} -- method used to superpose the complex (default: {'svd'})
+        only_backbone {bool} -- use only backbone atos to align (default: True)
+        **kwargs -- keyword arguments used to select a portion of the pdb
+
+    Example:
+        >> pdb1 = '1AK4_5w.pdb'
+        >> pdb2 = '1AK4_10w.pdb'
+        >> superpose(pdb1, pdb2, chainID='A')
+
     """
 
-    backbone_atoms = ['CA','C','N','O']
+    backbone_atoms = ['CA', 'C', 'N', 'O']
 
-    sql1 = pdb2sql(pdb1)
-    sql2 = pdb2sql(pdb2)
+    if not isinstance(pdb1,pdb2sql):
+        sql1 = pdb2sql(pdb1)
+    else:
+        sql1 = pdb1
+
+    if not isinstance(pdb2,pdb2sql):
+        sql2 = pdb2sql(pdb2)
+    else:
+        sql2 = pdb2
+
+    if only_backbone:
+        if 'name' not in kwargs:
+            kwargs['name'] = backbone_atoms
+        else:
+            raise ValueError('Atom type specified but only_backbone == True')
 
     # xyz of the chains selected
-    chain_xyz1 = np.array(sql1.get("x,y,z",chainID=chainID, name = backbone_atoms))
-    chain_xyz2 = np.array(sql2.get("x,y,z",chainID=chainID, name = backbone_atoms))
+    chain_xyz1 = np.array(sql1.get("x,y,z", **kwargs))
+    chain_xyz2 = np.array(sql2.get("x,y,z", **kwargs))
 
     # translation vector
     tr1 = get_trans_vect(chain_xyz1)
@@ -30,21 +53,24 @@ def superpose(pdb1,pdb2,chainID=None,method='svd'):
     # rotation matrix
     chain_xyz1 += tr1
     chain_xyz2 += tr2
-    center = np.mean(chain_xyz2,0)
+    center = np.mean(chain_xyz2, 0)
     U = get_rotation_matrix(chain_xyz2, chain_xyz1, method=method)
 
     # transform the coordinate of second pdb
     xyz2 = np.array(sql2.get("x,y,z"))
-    xyz2 += tr2 
-    xyz2 = rotate(xyz2,U,center=center)
+    xyz2 += tr2
+    xyz2 = rotate(xyz2, U, center=center)
     xyz2 -= tr1
 
     # update the second sql
-    sql2.update('x,y,z',xyz2)
-    fname = pdb2.strip('.pdb')+'_aligned_on_'+pdb1.strip('.pdb')+'.pdb'
+    sql2.update('x,y,z', xyz2)
+    pdb1_name = os.path.basename(pdb1)
+    fname = pdb2.rstrip('.pdb')+'_superposed_on_'+pdb1_name.rstrip('.pdb')+'.pdb'
     sql2.exportpdb(fname)
 
 # compute the translation vector to center a set of points
+
+
 def get_trans_vect(P):
     """Get the translationv vector to the origin.
 
@@ -58,6 +84,8 @@ def get_trans_vect(P):
 
 # main switch for the rotation matrix
 # add new methods here if necessary
+
+
 def get_rotation_matrix(P, Q, method='svd'):
 
     # get the matrix with Kabsh method
@@ -77,6 +105,8 @@ def get_rotation_matrix(P, Q, method='svd'):
 
 # get the rotation matrix via a SVD
 # decomposition of the correlation matrix
+
+
 def get_rotation_matrix_Kabsh(P, Q):
     """Get the rotation matrix to aligh two point clouds.
 
@@ -100,7 +130,7 @@ def get_rotation_matrix_Kabsh(P, Q):
         npts = pshape[0]
     else:
         raise ValueError("Matrix don't have the same number of points",
-                            P.shape, Q.shape)
+                         P.shape, Q.shape)
 
     p0, q0 = np.abs(np.mean(P, 0)), np.abs(np.mean(Q, 0))
     eps = 1E-6
@@ -132,6 +162,8 @@ def get_rotation_matrix_Kabsh(P, Q):
 
 # get the rotation amtrix via the quaternion approach
 # doesn't work great so far
+
+
 def get_rotation_matrix_quaternion(P, Q):
     """Get the rotation matrix to aligh two point clouds.
 
@@ -153,7 +185,7 @@ def get_rotation_matrix_quaternion(P, Q):
 
     if pshape[0] != qshape[0]:
         raise ValueError("Matrix don't have the same number of points",
-                            P.shape, Q.shape)
+                         P.shape, Q.shape)
 
     p0, q0 = np.abs(np.mean(P, 0)), np.abs(np.mean(Q, 0))
     eps = 1E-6
@@ -207,4 +239,3 @@ def get_rotation_matrix_quaternion(P, Q):
     U[2, 2] = q0**2 - q1**2 - q2**2 + q3**2
 
     return U
-
