@@ -65,7 +65,8 @@ def superpose(pdb1, pdb2, method='svd', only_backbone=True, **kwargs):
     # update the second sql
     sql2.update('x,y,z', xyz2)
     pdb1_name = os.path.basename(pdb1)
-    fname = pdb2.rstrip('.pdb') + '_superposed_on_' + pdb1_name.rstrip('.pdb') + '.pdb'
+    fname = pdb2.rstrip('.pdb') + '_superposed_on_' + \
+        pdb1_name.rstrip('.pdb') + '.pdb'
     sql2.exportpdb(fname)
 
 # compute the translation vector to center a set of points

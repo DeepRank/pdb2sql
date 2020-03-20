@@ -1,6 +1,7 @@
-import os 
+import os
 import unittest
 from pdb2sql.superpose import superpose
+
 
 class TestSuperpose(unittest.TestCase):
     """Test the superpose functionality"""
@@ -14,6 +15,6 @@ class TestSuperpose(unittest.TestCase):
         """test the routine."""
         superpose(self.pdb1, self.pdb2, chainID='A')
 
-    @unittest.expectedFailure    
+    @unittest.expectedFailure
     def test_fails(self):
         superpose(self.pdb1, self.pdb2, name='CA')

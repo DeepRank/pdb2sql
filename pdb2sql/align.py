@@ -5,10 +5,10 @@ from .transform import rot_xyz_around_axis
 
 def align(pdb, axis='z', export=True, **kwargs):
     """Align the max principal component of a structure along one of the cartesian axis
-    
+
     Arguments:
         pdb {str, pdb2sql} -- the pdbfile or the sql database of the complex
-    
+
     Keyword Arguments:
         axis {str} -- cartesian axis for alignement (default: {'z'})
         export {bool} -- export the aligned structure to file
@@ -22,14 +22,14 @@ def align(pdb, axis='z', export=True, **kwargs):
         >>> sql = align(pdb,chainID='A')
     """
 
-    if not isinstance(pdb,pdb2sql):
+    if not isinstance(pdb, pdb2sql):
         sql = pdb2sql(pdb)
     else:
         sql = pdb
 
     # extract coordinate
     xyz = np.array(sql.get('x,y,z', **kwargs))
-    
+
     # perform pca
     u, v = pca(xyz)
 
@@ -46,17 +46,17 @@ def align(pdb, axis='z', export=True, **kwargs):
     xyz = np.array(sql.get('x,y,z'))
 
     # align along preferred axis
-    if axis == 'x':    
-        xyz = rot_xyz_around_axis(xyz, np.array([0,0,1]), -phi)
-        xyz = rot_xyz_around_axis(xyz, np.array([0,1,0]), np.pi/2 -theta)    
+    if axis == 'x':
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), -phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
 
     if axis == 'y':
-        xyz = rot_xyz_around_axis(xyz, np.array([0,0,1]), np.pi/2-phi)
-        xyz = rot_xyz_around_axis(xyz, np.array([0,1,0]), np.pi/2 -theta)    
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), np.pi/2-phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
 
-    if axis == 'z': 
-        xyz = rot_xyz_around_axis(xyz, np.array([0,0,1]), -phi)
-        xyz = rot_xyz_around_axis(xyz, np.array([0,1,0]), -theta)    
+    if axis == 'z':
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), -phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), -theta)
 
     # update the sql
     sql.update('x,y,z', xyz)
@@ -74,7 +74,7 @@ def pca(A):
 
     Arguments:
         A {numpy.ndarray} -- matrix of points [npoints x ndim]
-    
+
     Returns:
         tuple -- eigenvalues, eigenvectors, score
     """
