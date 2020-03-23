@@ -2,7 +2,6 @@ import numpy as np
 import itertools
 import warnings
 from .pdb2sqlcore import pdb2sql
-from .pdb2sql.align import 
 
 class interface(pdb2sql):
 

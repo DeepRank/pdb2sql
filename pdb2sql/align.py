@@ -36,7 +36,7 @@ def align(pdb, axis=None, plane=None, export=True, **kwargs):
     vect = get_pca_vect(xyz, axis, plane)
 
     # rotation angles
-    phi, theta = get_rotation_angle(u, v)
+    phi, theta = get_rotation_angle(vect)
 
     # complete coordinate
     xyz = np.array(sql.get('x,y,z'))
@@ -58,7 +58,7 @@ def align(pdb, axis=None, plane=None, export=True, **kwargs):
     return sql
 
 
-def get_rotation_angle(u, v):
+def get_rotation_angle(vmax):
     """Extracts the rotation angles from the PCA
     
     Arguments:

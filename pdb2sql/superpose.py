@@ -50,7 +50,7 @@ def superpose(mobile, target, method='svd', only_backbone=True, export = True, *
     xyz_mobile = np.array(sql_mobile.get("x,y,z"))
 
     # transform the xyz mobile
-    xyz_mobile = transform_xyz_from_selection_superpositionxyz_mobile, 
+    xyz_mobile = transform_xyz_from_selection_superposition(xyz_mobile, 
         selection_mobile, selection_target, method)
 
     # update the sql
@@ -58,8 +58,8 @@ def superpose(mobile, target, method='svd', only_backbone=True, export = True, *
 
     # export a pdb file
     if export:
-        target_name = os.path.basename(sql_target.pdbfile).rstip('pdb')
-        mobile_name = os.path.basename(sql_mobile.pdbfile).rstip('pdb')
+        target_name = os.path.basename(sql_target.pdbfile).rstrip('.pdb')
+        mobile_name = os.path.basename(sql_mobile.pdbfile).rstrip('.pdb')
         fname = mobile_name + '_superposed_on_' + \
             target_name + '.pdb'
         sql_mobile.exportpdb(fname)
@@ -85,7 +85,7 @@ def transform_xyz_from_selection_superposition(xyz_mobile,
 
     # translation vector
     tr_mobile = get_trans_vect(sel_mob)
-    tr_target = get_trans_vect(ssel_target)
+    tr_target = get_trans_vect(sel_tar)
 
     # rotation matrix
     sel_tar += tr_target
@@ -96,7 +96,7 @@ def transform_xyz_from_selection_superposition(xyz_mobile,
     # transform the coordinate of second pdb
     xyz_mobile += tr_mobile
     origin = np.array([0,0,0])
-    xyz_mobile = rotate(xyz_mobil, rmat, center=origin)
+    xyz_mobile = rotate(xyz_mobile, rmat, center=origin)
     xyz_mobile -= tr_target
 
     return xyz_mobile

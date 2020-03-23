@@ -2,7 +2,7 @@ import warnings
 import numpy as np
 from .pdb2sqlcore import pdb2sql
 from .interface import interface
-from .superpose import get_trans_vect, get_rotation_matrix, superpose_selection
+from .superpose import get_trans_vect, get_rotation_matrix, transform_xyz_from_selection_superposition
 
 from . import transform
 import os
@@ -137,7 +137,7 @@ class StructureSimilarity(object):
                 self.ref, resData, return_not_in_zone=True)
 
         xyz_decoy_short = transform_xyz_from_selection_superposition(
-                xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method):
+                xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method)
 
         # compute the RMSD
         return self.get_rmsd(xyz_decoy_short, xyz_ref_short)
