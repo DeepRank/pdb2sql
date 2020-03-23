@@ -74,7 +74,7 @@ def transform_xyz_from_selection_superposition(xyz_mobile,
     Arguments:
         xyz_mobile {np.ndarray} -- xyz to be aligned
         selection_mobile {np.ndarray} -- xyz of the mobile used for the superposition
-        selection_target {np.ndarray} -- xyz of the mobile used for the superposition
+        selection_target {np.ndarray} -- xyz of the target used for the superposition
         method {str} -- svd or quaternion
 
     Returns:
@@ -113,11 +113,22 @@ def get_trans_vect(P):
     """
     return -np.mean(P, 0)
 
-# main switch for the rotation matrix
-# add new methods here if necessary
-
-
 def get_rotation_matrix(p, q, method='svd'):
+    """Get the rotation matrix
+    
+    Arguments:
+        p {np.ndarray} -- coordinate
+        q {np.ndarray} -- coordinate
+    
+    Keyword Arguments:
+        method {str} -- method to use svd or quaternion (default: {'svd'})
+    
+    Raises:
+        ValueError: if method is incorect
+    
+    Returns:
+        np.ndarray -- rotation matrix
+    """
 
     # get the matrix with Kabsh method
     if method.lower() == 'svd':
@@ -133,10 +144,6 @@ def get_rotation_matrix(p, q, method='svd'):
             f'Options are svd or quaternions')
 
     return mat
-
-# get the rotation matrix via a SVD
-# decomposition of the correlation matrix
-
 
 def get_rotation_matrix_Kabsh(P, Q):
     """Get the rotation matrix to aligh two point clouds.
@@ -190,10 +197,6 @@ def get_rotation_matrix_Kabsh(P, Q):
     U = np.dot(W, np.dot(Id, V.T))
 
     return U
-
-# get the rotation amtrix via the quaternion approach
-# doesn't work great so far
-
 
 def get_rotation_matrix_quaternion(P, Q):
     """Get the rotation matrix to aligh two point clouds.

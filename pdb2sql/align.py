@@ -3,7 +3,7 @@ from .pdb2sqlcore import pdb2sql
 from .transform import rot_xyz_around_axis
 
 
-def align(pdb, axis=None, plane=None, export=True, **kwargs):
+def align(pdb, axis=None, export=True, **kwargs):
     """Align the max principal component of a structure along one of the cartesian axis
 
     Arguments:
@@ -27,13 +27,65 @@ def align(pdb, axis=None, plane=None, export=True, **kwargs):
     else:
         sql = pdb
 
-    dict_plane = {'xy':'z', 'xz':'y', 'yz':'x'}
-
     # extract coordinate
     xyz = np.array(sql.get('x,y,z', **kwargs))
 
     # get the pca eigenvect we want to align
-    vect = get_pca_vect(xyz, axis, plane)
+    vect = get_max_pca_vect(xyz)
+
+    # align the sql
+    sql = align_pca_vect(sql, vect, axis)
+
+    # export the pdbfile
+    if export:
+        export_aligned(sql)
+
+    return sql
+
+def align_interface(ppi, plane='xy', export=True, **kwargs):
+    """align the interface of a complex in a given plane
+    
+    Arguments:
+        ppi {interface} -- sql interface or pdb file
+        plane {str} -- plane for alignement
+    
+    Keyword Arguments:
+        export {bool} -- write a pdb file (default: {True})
+        kwargs {dict} -- keywaord argument from interface.get_contact_atoms method
+    """
+
+    if not isinstance(ppi, interface):
+        sql = interface(ppi)
+    else:
+        sql = ppi
+    
+    index_contact = sql.get_contact_atoms(**kwargs)
+    xyz = sql.get('x,y,z',rowI=index_contact)
+
+    # get the pca eigenvect we want to align
+    vect = get_min_pca_vect(xyz)
+
+    # align the sql database
+    dict_plane = {'xy':'z', 'xz':'y', 'yz':'x'}
+    sql = align_pca_vect(sql, vect, dict_plane[plane])
+
+    # export the pdbfile
+    if export:
+        export_aligned(sql)
+
+    return sql
+
+def align_pca_vect(sql, vect, axis):
+    """Align the pca vect of the sql along th axis
+    
+    Arguments:
+        sql {pdb2sql} -- sqldb of the complex
+        vect {np.ndarray} -- pca eigenvect
+        axis {str} -- axis along which to align vect
+    
+    Returns:
+        pdb2sql -- aligned sqldb
+    """
 
     # rotation angles
     phi, theta = get_rotation_angle(vect)
@@ -42,21 +94,21 @@ def align(pdb, axis=None, plane=None, export=True, **kwargs):
     xyz = np.array(sql.get('x,y,z'))
 
     # align them
-    if axis is not None:
-        xyz = _align_along_axis(xyz, axis, phi, theta)
-    elif plane is not None:
-        xyz = _align_along_axis(xyz, dict_plane[axis], phi, theta)
+    xyz = _align_along_axis(xyz, axis, phi, theta)
 
     # update the sql
     sql.update('x,y,z', xyz)
 
-    # export the pdbfile
-    if export:
-        fname = sql.pdbfile.rstrip('.pdb') + '_aligned.pdb'
-        sql.exportpdb(fname)
-
     return sql
 
+def export_aligned(sql):
+    """export a pdb file of the aligned pdb
+    
+    Arguments:
+        sql {pdb2sql} -- aligned sqldb
+    """
+    fname = sql.pdbfile.rstrip('.pdb') + '_aligned.pdb'
+    sql.exportpdb(fname)
 
 def get_rotation_angle(vmax):
     """Extracts the rotation angles from the PCA
@@ -78,21 +130,23 @@ def get_rotation_angle(vmax):
     return phi, theta
 
 
-def get_pca_vect(xyz,axis,plane):
-    """Ge the eigenvector we want to align
+def get_max_pca_vect(xyz):
+    """Get the max eigenvector of th pca
     
     Arguments:
         xyz {numpy.ndarray} -- matrix of the atoms coordinates
-        axis {str, None} -- axis  for alignement
-        plane {str, None} -- plane for  alignement
     """
     u, v = pca(xyz)
-    if axis is not None:
-        return v[:, np.argmax(u)]
-    elif plane is not None:
-        return v[:,np.argmin(u)]
-    else:
-        raise ValueError('axis of plane should be defined for alignement')
+    return v[:, np.argmax(u)]
+
+def get_min_pca_vect(xyz):
+    """Get the min eigenvector of th pca
+    
+    Arguments:
+        xyz {numpy.ndarray} -- matrix of the atoms coordinates
+    """
+    u, v = pca(xyz)
+    return v[:, np.argmin(u)]
 
 
 def pca(A):
@@ -141,3 +195,4 @@ def _align_along_axis(xyz, axis, phi, theta):
         raise ValueError('axis should be x, y ,or z')
 
     return xyz
+
