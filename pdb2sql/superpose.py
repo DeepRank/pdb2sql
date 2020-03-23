@@ -5,12 +5,12 @@ from .pdb2sqlcore import pdb2sql
 from .transform import rotate
 
 
-def superpose(pdb1, pdb2, method='svd', only_backbone=True, **kwargs):
+def superpose(mobile, target, method='svd', only_backbone=True, export = True, **kwargs):
     """superpose two complexes
 
     Arguments:
-        pdb1 {str or pdb2sql} -- name or sqldb of the first pdb
-        pdb2 {str or pdb2sql} -- name or sqldb of the second pdb
+        mobile {str or pdb2sql} -- name or sqldb of the mobile pdb
+        target {str or pdb2sql} -- name or sqldb of the target pdb
 
     Keyword Arguments:
         method {str} -- method used to superpose the complex (default: {'svd'})
@@ -26,15 +26,15 @@ def superpose(pdb1, pdb2, method='svd', only_backbone=True, **kwargs):
 
     backbone_atoms = ['CA', 'C', 'N', 'O']
 
-    if not isinstance(pdb1, pdb2sql):
-        sql1 = pdb2sql(pdb1)
+    if not isinstance(mobile, pdb2sql):
+        sql_mobile = pdb2sql(mobile)
     else:
-        sql1 = pdb1
+        sql_mobile = mobile
 
-    if not isinstance(pdb2, pdb2sql):
-        sql2 = pdb2sql(pdb2)
+    if not isinstance(target, pdb2sql):
+        sql_target = pdb2sql(target)
     else:
-        sql2 = pdb2
+        sql_target = target
 
     if only_backbone:
         if 'name' not in kwargs:
@@ -42,32 +42,64 @@ def superpose(pdb1, pdb2, method='svd', only_backbone=True, **kwargs):
         else:
             raise ValueError('Atom type specified but only_backbone == True')
 
-    # xyz of the chains selected
-    chain_xyz1 = np.array(sql1.get("x,y,z", **kwargs))
-    chain_xyz2 = np.array(sql2.get("x,y,z", **kwargs))
+    # selections of some atoms
+    selection_mobile = np.array(sql_mobile.get("x,y,z", **kwargs))
+    selection_target = np.array(sql_target.get("x,y,z", **kwargs))
+
+    # superpose the complexes
+    sql_mobile = superpose_selection(sql_mobile,sql_target,
+                                     selection_mobile,selection_target,
+                                     method)
+    # export a pdb file
+    if export:
+        target_name = os.path.basename(sql_target.pdbfile).rstip('pdb')
+        mobile_name = os.path.basename(sql_mobile.pdbfile).rstip('pdb')
+        fname = mobile_name + '_superposed_on_' + \
+            target_name + '.pdb'
+        sql_mobile.exportpdb(fname)
+
+    return sql_mobile
+
+def superpose_selection(sql_mobile, sql_target, 
+                        selection_mobile, selection_target,
+                        method):
+    """superpose mobile on target using the selected atoms in the selection
+    
+    Arguments:
+        sql_mobile {pdb2sql} -- sqldb of the mobile pdb
+        sql_target {pdb2sql} -- sqldb of the target pdb
+        selection_mobile {np.ndarray} -- coordinates of the atoms 
+                                         in the mobile used to define 
+                                         the rotation
+        selection_target {np.ndarray} -- coordinates of the atoms 
+                                         in the target used to define 
+                                         the rotation
+    
+    Keyword Arguments:
+        method {str} -- method used to define the rotation svd or quaternion 
+                        (default: {'svd'})
+    """
 
     # translation vector
-    tr1 = get_trans_vect(chain_xyz1)
-    tr2 = get_trans_vect(chain_xyz2)
+    tr_mobile = get_trans_vect(selection_mobile)
+    tr_target = get_trans_vect(selection_target)
 
     # rotation matrix
-    chain_xyz1 += tr1
-    chain_xyz2 += tr2
-    center = np.mean(chain_xyz2, 0)
-    rmat = get_rotation_matrix(chain_xyz2, chain_xyz1, method=method)
+    selection_target += tr_target
+    selection_mobile += tr_mobile
+    center = np.mean(selection_mobile, 0)
+    rmat = get_rotation_matrix(selection_mobile, selection_target, method=method)
 
     # transform the coordinate of second pdb
-    xyz2 = np.array(sql2.get("x,y,z"))
-    xyz2 += tr2
-    xyz2 = rotate(xyz2, rmat, center=center)
-    xyz2 -= tr1
+    xyz_mobile = np.array(sql_mobile.get("x,y,z"))
+    xyz_mobile += tr_mobile
+    xyz_mobile = rotate(xyz_mobile, rmat, center=center)
+    xyz_mobile -= tr_target
 
     # update the second sql
-    sql2.update('x,y,z', xyz2)
-    pdb1_name = os.path.basename(pdb1)
-    fname = pdb2.rstrip('.pdb') + '_superposed_on_' + \
-        pdb1_name.rstrip('.pdb') + '.pdb'
-    sql2.exportpdb(fname)
+    sql_mobile.update('x,y,z', xyz_mobile)
+
+    return sql_mobile
 
 # compute the translation vector to center a set of points
 

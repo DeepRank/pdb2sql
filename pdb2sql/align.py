@@ -3,7 +3,7 @@ from .pdb2sqlcore import pdb2sql
 from .transform import rot_xyz_around_axis
 
 
-def align(pdb, axis='z', export=True, **kwargs):
+def align(pdb, axis=None, plane=None, export=True, **kwargs):
     """Align the max principal component of a structure along one of the cartesian axis
 
     Arguments:
@@ -27,11 +27,13 @@ def align(pdb, axis='z', export=True, **kwargs):
     else:
         sql = pdb
 
+    dict_plane = {'xy':'z', 'xz':'y', 'yz':'x'}
+
     # extract coordinate
     xyz = np.array(sql.get('x,y,z', **kwargs))
 
-    # perform pca
-    u, v = pca(xyz)
+    # get the pca eigenvect we want to align
+    vect = get_pca_vect(xyz, axis, plane)
 
     # rotation angles
     phi, theta = get_rotation_angle(u, v)
@@ -39,18 +41,11 @@ def align(pdb, axis='z', export=True, **kwargs):
     # complete coordinate
     xyz = np.array(sql.get('x,y,z'))
 
-    # align along preferred axis
-    if axis == 'x':
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), -phi)
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
-
-    if axis == 'y':
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), np.pi/2 - phi)
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
-
-    if axis == 'z':
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), -phi)
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), -theta)
+    # align them
+    if axis is not None:
+        xyz = _align_along_axis(xyz, axis, phi, theta)
+    elif plane is not None:
+        xyz = _align_along_axis(xyz, dict_plane[axis], phi, theta)
 
     # update the sql
     sql.update('x,y,z', xyz)
@@ -62,6 +57,7 @@ def align(pdb, axis='z', export=True, **kwargs):
 
     return sql
 
+
 def get_rotation_angle(u, v):
     """Extracts the rotation angles from the PCA
     
@@ -71,7 +67,7 @@ def get_rotation_angle(u, v):
     """
 
     # extract max eigenvector
-    vmax = v[:, np.argmax(u)]
+    
     x, y, z = vmax
     r = np.linalg.norm(vmax)
 
@@ -80,6 +76,24 @@ def get_rotation_angle(u, v):
     theta = np.arccos(z/r)
 
     return phi, theta
+
+
+def get_pca_vect(xyz,axis,plane):
+    """Ge the eigenvector we want to align
+    
+    Arguments:
+        xyz {numpy.ndarray} -- matrix of the atoms coordinates
+        axis {str, None} -- axis  for alignement
+        plane {str, None} -- plane for  alignement
+    """
+    u, v = pca(xyz)
+    if axis is not None:
+        return v[:, np.argmax(u)]
+    elif plane is not None:
+        return v[:,np.argmin(u)]
+    else:
+        raise ValueError('axis of plane should be defined for alignement')
+
 
 def pca(A):
     """computes the principal component analysis of the points A
@@ -93,3 +107,37 @@ def pca(A):
     scat = (A-np.mean(A.T, axis=1)).T
     u, v = np.linalg.eig(np.cov(scat))
     return u, v
+
+
+def _align_along_axis(xyz, axis, phi, theta):
+    """align the xyz coordinates along the given axi
+    
+    Arguments:
+        xyz {numpy.ndarray} -- coordinates of the atoms
+        axis {str} -- axis to align
+        phi {float} -- azimuthal angle
+        theta {float} -- the other angles
+    
+    Raises:
+        ValueError: axis should be x y or z
+    
+    Returns:
+        nd.array -- rotated coordinates
+    """
+
+    # align along preferred axis
+    if axis == 'x':
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), -phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
+
+    elif axis == 'y':
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), np.pi/2 - phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
+
+    elif axis == 'z':
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), -phi)
+        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), -theta)
+    else:
+        raise ValueError('axis should be x, y ,or z')
+
+    return xyz
