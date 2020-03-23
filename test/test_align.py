@@ -34,6 +34,3 @@ class TestAlign(unittest.TestCase):
             vmax = np.abs(v[:, np.argmin(u)])
             assert np.argmax(vmax) == idir
 
-    
-
-

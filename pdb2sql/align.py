@@ -43,13 +43,14 @@ def align(pdb, axis=None, export=True, **kwargs):
 
     return sql
 
+
 def align_interface(ppi, plane='xy', export=True, **kwargs):
     """align the interface of a complex in a given plane
-    
+
     Arguments:
         ppi {interface} -- sql interface or pdb file
         plane {str} -- plane for alignement
-    
+
     Keyword Arguments:
         export {bool} -- write a pdb file (default: {True})
         kwargs {dict} -- keywaord argument from interface.get_contact_atoms method
@@ -59,18 +60,18 @@ def align_interface(ppi, plane='xy', export=True, **kwargs):
         sql = interface(ppi)
     else:
         sql = ppi
-    
+
     index_contact = sql.get_contact_atoms(**kwargs)
     rowID = []
-    for k,v in index_contact.items():
+    for k, v in index_contact.items():
         rowID += v
-    xyz = np.array(sql.get('x,y,z',rowID=rowID))
+    xyz = np.array(sql.get('x,y,z', rowID=rowID))
 
     # get the pca eigenvect we want to align
     vect = get_min_pca_vect(xyz)
 
     # align the sql database
-    dict_plane = {'xy':'z', 'xz':'y', 'yz':'x'}
+    dict_plane = {'xy': 'z', 'xz': 'y', 'yz': 'x'}
     sql = align_pca_vect(sql, vect, dict_plane[plane])
 
     # export the pdbfile
@@ -79,14 +80,15 @@ def align_interface(ppi, plane='xy', export=True, **kwargs):
 
     return sql
 
+
 def align_pca_vect(sql, vect, axis):
     """Align the pca vect of the sql along th axis
-    
+
     Arguments:
         sql {pdb2sql} -- sqldb of the complex
         vect {np.ndarray} -- pca eigenvect
         axis {str} -- axis along which to align vect
-    
+
     Returns:
         pdb2sql -- aligned sqldb
     """
@@ -105,25 +107,27 @@ def align_pca_vect(sql, vect, axis):
 
     return sql
 
+
 def export_aligned(sql):
     """export a pdb file of the aligned pdb
-    
+
     Arguments:
         sql {pdb2sql} -- aligned sqldb
     """
     fname = sql.pdbfile.rstrip('.pdb') + '_aligned.pdb'
     sql.exportpdb(fname)
 
+
 def get_rotation_angle(vmax):
     """Extracts the rotation angles from the PCA
-    
+
     Arguments:
         u {np.array} -- eigenvalues of the PCA
         V {np.array} -- eigenvectors of the PCA
     """
 
     # extract max eigenvector
-    
+
     x, y, z = vmax
     r = np.linalg.norm(vmax)
 
@@ -136,16 +140,17 @@ def get_rotation_angle(vmax):
 
 def get_max_pca_vect(xyz):
     """Get the max eigenvector of th pca
-    
+
     Arguments:
         xyz {numpy.ndarray} -- matrix of the atoms coordinates
     """
     u, v = pca(xyz)
     return v[:, np.argmax(u)]
 
+
 def get_min_pca_vect(xyz):
     """Get the min eigenvector of th pca
-    
+
     Arguments:
         xyz {numpy.ndarray} -- matrix of the atoms coordinates
     """
@@ -169,16 +174,16 @@ def pca(A):
 
 def _align_along_axis(xyz, axis, phi, theta):
     """align the xyz coordinates along the given axi
-    
+
     Arguments:
         xyz {numpy.ndarray} -- coordinates of the atoms
         axis {str} -- axis to align
         phi {float} -- azimuthal angle
         theta {float} -- the other angles
-    
+
     Raises:
         ValueError: axis should be x y or z
-    
+
     Returns:
         nd.array -- rotated coordinates
     """
@@ -199,4 +204,3 @@ def _align_along_axis(xyz, axis, phi, theta):
         raise ValueError('axis should be x, y ,or z')
 
     return xyz
-

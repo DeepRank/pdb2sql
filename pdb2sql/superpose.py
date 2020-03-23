@@ -5,7 +5,7 @@ from .pdb2sqlcore import pdb2sql
 from .transform import rotate
 
 
-def superpose(mobile, target, method='svd', only_backbone=True, export = True, **kwargs):
+def superpose(mobile, target, method='svd', only_backbone=True, export=True, **kwargs):
     """superpose two complexes
 
     Arguments:
@@ -50,8 +50,8 @@ def superpose(mobile, target, method='svd', only_backbone=True, export = True, *
     xyz_mobile = np.array(sql_mobile.get("x,y,z"))
 
     # transform the xyz mobile
-    xyz_mobile = transform_xyz_from_selection_superposition(xyz_mobile, 
-        selection_mobile, selection_target, method)
+    xyz_mobile = transform_xyz_from_selection_superposition(xyz_mobile,
+                                                            selection_mobile, selection_target, method)
 
     # update the sql
     sql_mobile.update('x,y,z', xyz_mobile)
@@ -67,10 +67,11 @@ def superpose(mobile, target, method='svd', only_backbone=True, export = True, *
     return sql_mobile
 
 
-def transform_xyz_from_selection_superposition(xyz_mobile, 
-        selection_mobile, selection_target, method):
+def transform_xyz_from_selection_superposition(xyz_mobile,
+                                               selection_mobile, 
+                                               selection_target, method):
     """superpose the xyz using the selection
-    
+
     Arguments:
         xyz_mobile {np.ndarray} -- xyz to be aligned
         selection_mobile {np.ndarray} -- xyz of the mobile used for the superposition
@@ -95,7 +96,7 @@ def transform_xyz_from_selection_superposition(xyz_mobile,
 
     # transform the coordinate of second pdb
     xyz_mobile += tr_mobile
-    origin = np.array([0,0,0])
+    origin = np.array([0, 0, 0])
     xyz_mobile = rotate(xyz_mobile, rmat, center=origin)
     xyz_mobile -= tr_target
 
@@ -113,19 +114,20 @@ def get_trans_vect(P):
     """
     return -np.mean(P, 0)
 
+
 def get_rotation_matrix(p, q, method='svd'):
     """Get the rotation matrix
-    
+
     Arguments:
         p {np.ndarray} -- coordinate
         q {np.ndarray} -- coordinate
-    
+
     Keyword Arguments:
         method {str} -- method to use svd or quaternion (default: {'svd'})
-    
+
     Raises:
         ValueError: if method is incorect
-    
+
     Returns:
         np.ndarray -- rotation matrix
     """
@@ -145,6 +147,7 @@ def get_rotation_matrix(p, q, method='svd'):
 
     return mat
 
+
 def get_rotation_matrix_Kabsh(P, Q):
     """Get the rotation matrix to aligh two point clouds.
 
@@ -162,7 +165,7 @@ def get_rotation_matrix_Kabsh(P, Q):
         ValueError: matrix have different sizes
     """
     pshape = P.shape
-    qshape = Q.shape
+    qshape =Q.shape
 
     if pshape[0] == qshape[0]:
         npts = pshape[0]
@@ -197,6 +200,7 @@ def get_rotation_matrix_Kabsh(P, Q):
     U = np.dot(W, np.dot(Id, V.T))
 
     return U
+
 
 def get_rotation_matrix_quaternion(P, Q):
     """Get the rotation matrix to aligh two point clouds.
