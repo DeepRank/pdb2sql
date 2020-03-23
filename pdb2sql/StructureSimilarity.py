@@ -2,7 +2,7 @@ import warnings
 import numpy as np
 from .pdb2sqlcore import pdb2sql
 from .interface import interface
-from .superpose import get_trans_vect, get_rotation_matrix
+from .superpose import get_trans_vect, get_rotation_matrix, superpose_selection
 
 from . import transform
 import os
@@ -136,27 +136,8 @@ class StructureSimilarity(object):
             xyz_ref_long, xyz_ref_short = self.get_xyz_zone_backbone(
                 self.ref, resData, return_not_in_zone=True)
 
-        # get the translation so that both A chains are centered
-        tr_decoy = get_trans_vect(xyz_decoy_long)
-        tr_ref = get_trans_vect(xyz_ref_long)
-
-        # translate everything for 1
-        xyz_decoy_short += tr_decoy
-        xyz_decoy_long += tr_decoy
-
-        # translate everuthing for 2
-        xyz_ref_short += tr_ref
-        xyz_ref_long += tr_ref
-
-        # get the ideal rotation matrix
-        # to superimpose the A chains
-        U = get_rotation_matrix(
-            xyz_decoy_long, xyz_ref_long, method=method)
-
-        # rotate the entire fragment
-
-        xyz_decoy_short = transform.rotate(
-            xyz_decoy_short, U, center=self.origin)
+        xyz_decoy_short = transform_xyz_from_selection_superposition(
+                xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method):
 
         # compute the RMSD
         return self.get_rmsd(xyz_decoy_short, xyz_ref_short)
@@ -283,25 +264,10 @@ class StructureSimilarity(object):
             xyz_contact_decoy = self.get_xyz_zone_backbone(self.decoy, resData)
             xyz_contact_ref = self.get_xyz_zone_backbone(self.ref, resData)
 
-        # get the translation so that both A chains are centered
-        tr_decoy = get_trans_vect(xyz_contact_decoy)
-        tr_ref = get_trans_vect(xyz_contact_ref)
-
-        # translate everything
-        xyz_contact_decoy += tr_decoy
-        xyz_contact_ref += tr_ref
-
-        # get the ideal rotation matrix
-        # to superimpose the A chains
-        U = get_rotation_matrix(
-            xyz_contact_decoy,
-            xyz_contact_ref,
-            method=method)
-
-        # rotate the entire fragment
-        xyz_contact_decoy = transform.rotate(
-            xyz_contact_decoy, U, center=self.origin)
-
+        # superpose the fragments
+        xyz_contact_decoy = transform_xyz_from_selection_superposition(xyz_contact_decoy, 
+            xyz_contact_decoy, xyz_contact_ref, method)
+        
         # return the RMSD
         return self.get_rmsd(xyz_contact_decoy, xyz_contact_ref)
 

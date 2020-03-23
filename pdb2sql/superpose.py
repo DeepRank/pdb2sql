@@ -46,10 +46,16 @@ def superpose(mobile, target, method='svd', only_backbone=True, export = True, *
     selection_mobile = np.array(sql_mobile.get("x,y,z", **kwargs))
     selection_target = np.array(sql_target.get("x,y,z", **kwargs))
 
-    # superpose the complexes
-    sql_mobile = superpose_selection(sql_mobile,sql_target,
-                                     selection_mobile,selection_target,
-                                     method)
+    # the molbile original coordinates
+    xyz_mobile = np.array(sql_mobile.get("x,y,z"))
+
+    # transform the xyz mobile
+    xyz_mobile = transform_xyz_from_selection_superpositionxyz_mobile, 
+        selection_mobile, selection_target, method)
+
+    # update the sql
+    sql_mobile.update('x,y,z', xyz_mobile)
+
     # export a pdb file
     if export:
         target_name = os.path.basename(sql_target.pdbfile).rstip('pdb')
@@ -60,48 +66,40 @@ def superpose(mobile, target, method='svd', only_backbone=True, export = True, *
 
     return sql_mobile
 
-def superpose_selection(sql_mobile, sql_target, 
-                        selection_mobile, selection_target,
-                        method):
-    """superpose mobile on target using the selected atoms in the selection
+
+def transform_xyz_from_selection_superposition(xyz_mobile, 
+        selection_mobile, selection_target, method):
+    """superpose the xyz using the selection
     
     Arguments:
-        sql_mobile {pdb2sql} -- sqldb of the mobile pdb
-        sql_target {pdb2sql} -- sqldb of the target pdb
-        selection_mobile {np.ndarray} -- coordinates of the atoms 
-                                         in the mobile used to define 
-                                         the rotation
-        selection_target {np.ndarray} -- coordinates of the atoms 
-                                         in the target used to define 
-                                         the rotation
-    
-    Keyword Arguments:
-        method {str} -- method used to define the rotation svd or quaternion 
-                        (default: {'svd'})
+        xyz_mobile {np.ndarray} -- xyz to be aligned
+        selection_mobile {np.ndarray} -- xyz of the mobile used for the superposition
+        selection_target {np.ndarray} -- xyz of the mobile used for the superposition
+        method {str} -- svd or quaternion
+
+    Returns:
+        np.ndarray -- xyz of the xyz_mobile
     """
+    sel_mob = np.copy(selection_mobile)
+    sel_tar = np.copy(selection_target)
 
     # translation vector
-    tr_mobile = get_trans_vect(selection_mobile)
-    tr_target = get_trans_vect(selection_target)
+    tr_mobile = get_trans_vect(sel_mob)
+    tr_target = get_trans_vect(ssel_target)
 
     # rotation matrix
-    selection_target += tr_target
-    selection_mobile += tr_mobile
-    center = np.mean(selection_mobile, 0)
-    rmat = get_rotation_matrix(selection_mobile, selection_target, method=method)
+    sel_tar += tr_target
+    sel_mob += tr_mobile
+    center = np.mean(sel_mob, 0)
+    rmat = get_rotation_matrix(sel_mob, sel_tar, method=method)
 
     # transform the coordinate of second pdb
-    xyz_mobile = np.array(sql_mobile.get("x,y,z"))
     xyz_mobile += tr_mobile
-    xyz_mobile = rotate(xyz_mobile, rmat, center=center)
+    origin = np.array([0,0,0])
+    xyz_mobile = rotate(xyz_mobil, rmat, center=origin)
     xyz_mobile -= tr_target
 
-    # update the second sql
-    sql_mobile.update('x,y,z', xyz_mobile)
-
-    return sql_mobile
-
-# compute the translation vector to center a set of points
+    return xyz_mobile
 
 
 def get_trans_vect(P):
@@ -119,15 +117,15 @@ def get_trans_vect(P):
 # add new methods here if necessary
 
 
-def get_rotation_matrix(P, Q, method='svd'):
+def get_rotation_matrix(p, q, method='svd'):
 
     # get the matrix with Kabsh method
     if method.lower() == 'svd':
-        mat = get_rotation_matrix_Kabsh(P, Q)
+        mat = get_rotation_matrix_Kabsh(p, q)
 
     # or with the quaternion method
     elif method.lower() == 'quaternion':
-        mat = get_rotation_matrix_quaternion(P, Q)
+        mat = get_rotation_matrix_quaternion(p, q)
 
     else:
         raise ValueError(
