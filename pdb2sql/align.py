@@ -1,5 +1,6 @@
 import numpy as np
 from .pdb2sqlcore import pdb2sql
+from .interface import interface
 from .transform import rot_xyz_around_axis
 
 
@@ -60,7 +61,10 @@ def align_interface(ppi, plane='xy', export=True, **kwargs):
         sql = ppi
     
     index_contact = sql.get_contact_atoms(**kwargs)
-    xyz = sql.get('x,y,z',rowI=index_contact)
+    rowID = []
+    for k,v in index_contact.items():
+        rowID += v
+    xyz = np.array(sql.get('x,y,z',rowID=rowID))
 
     # get the pca eigenvect we want to align
     vect = get_min_pca_vect(xyz)
