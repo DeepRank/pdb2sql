@@ -299,4 +299,3 @@ class interface(pdb2sql):
                     set([tuple(resData) for resData in data[chain]]))
 
             return residue_contact
-

@@ -68,7 +68,7 @@ def superpose(mobile, target, method='svd', only_backbone=True, export=True, **k
 
 
 def transform_xyz_from_selection_superposition(xyz_mobile,
-                                               selection_mobile, 
+                                               selection_mobile,
                                                selection_target, method):
     """superpose the xyz using the selection
 
@@ -91,7 +91,6 @@ def transform_xyz_from_selection_superposition(xyz_mobile,
     # rotation matrix
     sel_tar += tr_target
     sel_mob += tr_mobile
-    center = np.mean(sel_mob, 0)
     rmat = get_rotation_matrix(sel_mob, sel_tar, method=method)
 
     # transform the coordinate of second pdb
@@ -103,16 +102,16 @@ def transform_xyz_from_selection_superposition(xyz_mobile,
     return xyz_mobile
 
 
-def get_trans_vect(P):
+def get_trans_vect(pts):
     """Get the translationv vector to the origin.
 
     Args:
-        P (np.array(nx3)): position of the points in the molecule
+        pts (np.array(nx3)): position of the points in the molecule
 
     Returns:
         float: minus mean value of the xyz columns
     """
-    return -np.mean(P, 0)
+    return -np.mean(pts, 0)
 
 
 def get_rotation_matrix(p, q, method='svd'):
@@ -165,7 +164,7 @@ def get_rotation_matrix_Kabsh(P, Q):
         ValueError: matrix have different sizes
     """
     pshape = P.shape
-    qshape =Q.shape
+    qshape = Q.shape
 
     if pshape[0] == qshape[0]:
         npts = pshape[0]

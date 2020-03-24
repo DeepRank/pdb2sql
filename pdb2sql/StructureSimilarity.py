@@ -265,9 +265,9 @@ class StructureSimilarity(object):
             xyz_contact_ref = self.get_xyz_zone_backbone(self.ref, resData)
 
         # superpose the fragments
-        xyz_contact_decoy = transform_xyz_from_selection_superposition(xyz_contact_decoy, 
+        xyz_contact_decoy = transform_xyz_from_selection_superposition(xyz_contact_decoy,
             xyz_contact_decoy, xyz_contact_ref, method)
-        
+
         # return the RMSD
         return self.get_rmsd(xyz_contact_decoy, xyz_contact_ref)
 
@@ -733,14 +733,14 @@ class StructureSimilarity(object):
 
         # get the ideql rotation matrix
         # to superimpose the A chains
-        U = get_rotation_matrix(
-            xyz_contact_decoy,
-            xyz_contact_ref,
-            method=method)
+        rot_mat = get_rotation_matrix(
+                    xyz_contact_decoy,
+                    xyz_contact_ref,
+                    method=method)
 
         # rotate the entire fragment
         xyz_contact_decoy = transform.rotate(
-            xyz_contact_decoy, U, center=self.origin)
+            xyz_contact_decoy, rot_mat, center=self.origin)
 
         # compute the RMSD
         irmsd = self.get_rmsd(xyz_contact_decoy, xyz_contact_ref)

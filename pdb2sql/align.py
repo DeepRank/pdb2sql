@@ -62,10 +62,10 @@ def align_interface(ppi, plane='xy', export=True, **kwargs):
         sql = ppi
 
     index_contact = sql.get_contact_atoms(**kwargs)
-    rowID = []
-    for k, v in index_contact.items():
-        rowID += v
-    xyz = np.array(sql.get('x,y,z', rowID=rowID))
+    row_id = []
+    for _, v in index_contact.items():
+        row_id += v
+    xyz = np.array(sql.get('x,y,z', rowID=row_id))
 
     # get the pca eigenvect we want to align
     vect = get_min_pca_vect(xyz)
@@ -157,8 +157,7 @@ def get_min_pca_vect(xyz):
     u, v = pca(xyz)
     return v[:, np.argmin(u)]
 
-
-def pca(A):
+def pca(mat):
     """computes the principal component analysis of the points A
 
     Arguments:
@@ -167,7 +166,7 @@ def pca(A):
     Returns:
         tuple -- eigenvalues, eigenvectors, score
     """
-    scat = (A-np.mean(A.T, axis=1)).T
+    scat = (mat-np.mean(mat.T, axis=1)).T
     u, v = np.linalg.eig(np.cov(scat))
     return u, v
 
