@@ -11,7 +11,7 @@ def align(pdb, axis='x', export=True, **kwargs):
         pdb {str, pdb2sql} -- the pdbfile or the sql database of the complex
 
     Keyword Arguments:
-        axis {str} -- cartesian axis for alignement (default: {'z'})
+        axis {str} -- cartesian axis for alignement (default: {'x'})
         export {bool} -- export the aligned structure to file
         **kwargs {dict} -- option to select subpart of the structure for alignement
 
