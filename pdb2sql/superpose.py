@@ -67,9 +67,9 @@ def superpose(mobile, target, method='svd', only_backbone=True, export=True, **k
     return sql_mobile
 
 
-def transform_xyz_from_selection_superposition(xyz_mobile,
-                                               selection_mobile,
-                                               selection_target, method):
+def superpose_selection(xyz_mobile,
+                        selection_mobile,
+                        selection_target, method):
     """superpose the xyz using the selection
 
     Arguments:
