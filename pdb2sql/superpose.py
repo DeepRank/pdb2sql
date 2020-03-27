@@ -50,8 +50,8 @@ def superpose(mobile, target, method='svd', only_backbone=True, export=True, **k
     xyz_mobile = np.array(sql_mobile.get("x,y,z"))
 
     # transform the xyz mobile
-    xyz_mobile = transform_xyz_from_selection_superposition(xyz_mobile,
-                                                            selection_mobile, selection_target, method)
+    xyz_mobile = superpose_selection(xyz_mobile,
+                                    selection_mobile, selection_target, method)
 
     # update the sql
     sql_mobile.update('x,y,z', xyz_mobile)
