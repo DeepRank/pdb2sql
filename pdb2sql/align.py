@@ -4,7 +4,7 @@ from .interface import interface
 from .transform import rot_xyz_around_axis
 
 
-def align(pdb, axis=None, export=True, **kwargs):
+def align(pdb, axis='x', export=True, **kwargs):
     """Align the max principal component of a structure along one of the cartesian axis
 
     Arguments:
