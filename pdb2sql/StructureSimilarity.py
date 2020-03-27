@@ -2,7 +2,7 @@ import warnings
 import numpy as np
 from .pdb2sqlcore import pdb2sql
 from .interface import interface
-from .superpose import get_trans_vect, get_rotation_matrix, superpose_selection, 
+from .superpose import get_trans_vect, get_rotation_matrix, superpose_selection
 
 from . import transform
 import os
