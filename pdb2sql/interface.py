@@ -3,7 +3,6 @@ import itertools
 import warnings
 from .pdb2sqlcore import pdb2sql
 
-
 class interface(pdb2sql):
 
     def __init__(self, pdb, **kwargs):
