@@ -227,7 +227,7 @@ class pdb2sql(pdb2sql_base):
                 elem = pdb_line[12:14]
         else:
             elem = pdb_line[13]
-        warnings.warn(f'Element is missing and guessed using atom type for line\n {pdb_line}')
+        # warnings.warn(f'Element is missing and guessed using atom type for line\n {pdb_line}')
         return elem
 
     # replace the chain ID by A,B,C,D, ..... in that order

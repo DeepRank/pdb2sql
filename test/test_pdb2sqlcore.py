@@ -145,11 +145,7 @@ class TestCreateSQL(unittest.TestCase):
 
     def test_blank_element(self):
         """Verify blank element."""
-        with self.assertWarns(UserWarning) as ex:
-            db = pdb2sql(self.pdb_noelement)
-        self.assertEqual(len(ex.warnings), 26)
-        self.assertRegex(ex.warning.args[0],
-                        "Element is missing and guessed using atom type")
+        db = pdb2sql(self.pdb_noelement)
         db.c.execute('SELECT element FROM ATOM')
         elements = db.c.fetchall()
         result = []
