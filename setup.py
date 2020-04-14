@@ -47,7 +47,7 @@ setup(
             'autopep8',
             'isort',
             'twine'],
-        'doc': [
+        'docs': [
             'sphinx',
             'ipython',],
         'test': [
