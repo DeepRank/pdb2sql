@@ -26,5 +26,4 @@ script:
   - cd ../
 
 after_script:
-- python-codacy-coverage -r coverage.xml
-- coveralls
+  - coveralls

@@ -51,11 +51,7 @@ setup(
             'sphinx',
             'ipython',],
         'test': [
-            'coverage',
-            'codacy-coverage',
             'coveralls',
-            'pycodestyle',
             'pytest',
-            'pytest-cov',
-            'pytest-runner'],
+            'pytest-cov',],
     })
