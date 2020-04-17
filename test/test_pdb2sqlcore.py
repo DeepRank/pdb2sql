@@ -1,6 +1,7 @@
 import unittest
 import os
 import numpy as np
+from pathlib import Path
 from pdb2sql import pdb2sql
 from utils import CaptureOutErr
 
@@ -21,6 +22,44 @@ class TestCreateSQL(unittest.TestCase):
     def test_init(self):
         """Verify default init."""
         db = pdb2sql(self.pdbfile)
+        db.c.execute('SELECT * FROM ATOM')
+        result = db.c.fetchall()
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 1856)
+        last_line = (1859, "O", "", "GLY", "R", 62, "",
+                     -32.180, -32.765, 46.907, 1.00, 38.84, "O", 0)
+        self.assertEqual(result[-1], last_line)
+
+    def test_pdbfile_Path(self):
+        """Verify input as Path instance"""
+        p = Path(self.pdbfile)
+        db = pdb2sql(p)
+        db.c.execute('SELECT * FROM ATOM')
+        result = db.c.fetchall()
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 1856)
+        last_line = (1859, "O", "", "GLY", "R", 62, "",
+                     -32.180, -32.765, 46.907, 1.00, 38.84, "O", 0)
+        self.assertEqual(result[-1], last_line)
+
+    def test_pdbfile_strings(self):
+        """Verify input with a string of pdb content"""
+        with open(self.pdbfile) as f:
+            pdb = f.read()
+        db = pdb2sql(pdb)
+        db.c.execute('SELECT * FROM ATOM')
+        result = db.c.fetchall()
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 1856)
+        last_line = (1859, "O", "", "GLY", "R", 62, "",
+                     -32.180, -32.765, 46.907, 1.00, 38.84, "O", 0)
+        self.assertEqual(result[-1], last_line)
+
+    def test_pdbfile_bytes(self):
+        """Verify input with bytes of pdb content"""
+        with open(self.pdbfile, 'rb') as f:
+            pdb = f.read()
+        db = pdb2sql(pdb)
         db.c.execute('SELECT * FROM ATOM')
         result = db.c.fetchall()
         self.assertIsInstance(result, list)
