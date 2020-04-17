@@ -19,10 +19,17 @@ class TestTools(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Invalid PDB ID'):
                     fetch(pdbid)
 
-    def test_fetch_nonexist_pdb(self):
-        """Verfify fetch with non-exist pdb"""
+    def test_fetch_nonexist_pdbid(self):
+        """Verfify fetch with non-exist PDB ID"""
         pdbid = '1000'
-        with self.assertRaisesRegex(ValueError, 'PDB not exist'):
+        with self.assertRaisesRegex(ValueError, 'PDB ID not exist'):
+            fetch(pdbid)
+
+    def test_fetch_nonexist_pdbfmt(self):
+        """Verfify fetch PDB ID that has no pdb format but cif format"""
+        pdbid = '6SL9'
+        with self.assertRaisesRegex(ValueError,
+            'The PDB ID given is only represented in mmCIF format'):
             fetch(pdbid)
 
 

@@ -20,23 +20,29 @@ def fetch(pdbid, outdir='.'):
     """
     # defaults
     hosturl = 'http://files.rcsb.org/download'
-    pdbfmt = '.pdb'
 
     # check pdbid
     p = re.compile('[0-9a-z]{4,4}$', re.IGNORECASE)
     if not p.match(pdbid):
         raise ValueError(f'Invalid PDB ID: {pdbid}.')
-    pdb = pdbid + pdbfmt
+    pdb = pdbid + '.pdb'
+    cif = pdbid + '.cif'
 
     # build downloading url
-    url = os.path.join(hosturl, pdb)
+    url_pdb = os.path.join(hosturl, pdb)
+    url_cif = os.path.join(hosturl, cif)
     fout = os.path.join(outdir, pdb)
 
     # get url content
     try:
-        pdbdata = urllib.request.urlopen(url)
+        pdbdata = urllib.request.urlopen(url_pdb)
     except HTTPError:
-        raise ValueError(f'PDB not exist: {pdbid}')
+        try:
+            cifdata = urllib.request.urlopen(url_cif)
+            raise ValueError(f'The PDB ID given is only represented in '
+                f'mmCIF format and pdb2sql does not handle mmCIF format.')
+        except HTTPError:
+            raise ValueError(f'PDB ID not exist: {pdbid}')
 
     # write to file
     with open(fout, 'wb') as f:
