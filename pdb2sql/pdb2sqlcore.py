@@ -4,6 +4,7 @@ import subprocess as sp
 import os
 import sys
 import numpy as np
+from pathlib import Path
 
 from .pdb2sql_base import pdb2sql_base
 
@@ -151,19 +152,38 @@ class pdb2sql(pdb2sql_base):
         # RMK we go through the data twice here. Once to read the ATOM line and once to parse the data ...
         # we could do better than that. But the most time consuming step seems
         # to be the CREATE TABLE query
+        if isinstance(pdbfile, bytes):
+            pdbfile = pdbfile.decode()
+
         if isinstance(pdbfile, str):
-            if os.path.isfile(pdbfile):
-                with open(pdbfile, 'r') as fi:
+            if os.path.exists(pdbfile):
+                if os.path.isfile(pdbfile):
+                    with open(pdbfile, 'r') as fi:
+                        pdbdata = fi.readlines()
+                else:
+                    raise FileNotFoundError(f'{pdbfile} is not a file')
+            else:
+                # input is pdb content
+                if pdbfile.count('\nATOM ') > 3:
+                    pdbdata = pdbfile.split('\n')
+                # invalid path
+                else:
+                    raise FileNotFoundError(f'File not found: {pdbfile}')
+        elif isinstance(pdbfile, Path):
+            if not pdbfile.exists():
+                raise FileNotFoundError(f'File not found: {pdbfile}')
+            elif pdbfile.is_file():
+                with pdbfile.open() as fi:
                     pdbdata = fi.readlines()
             else:
-                raise FileNotFoundError(f'PDB file {pdbfile} not found')
+                raise FileNotFoundError(f'{pdbfile} is not a file')
         elif isinstance(pdbfile, list):
             if isinstance(pdbfile[0], str):
                 pdbdata = pdbfile
             elif isinstance(pdbfile[0], bytes):
                 pdbdata = [line.decode() for line in pdbfile]
             else:
-                raise ValueError(f'Invalid pdb input {pdbfile}')
+                raise ValueError(f'Invalid pdb input: {pdbfile}')
         elif isinstance(pdbfile, np.ndarray):
             pdbfile = pdbfile.tolist()
             if isinstance(pdbfile[0], str):
@@ -171,7 +191,7 @@ class pdb2sql(pdb2sql_base):
             elif isinstance(pdbfile[0], bytes):
                 pdbdata = [line.decode() for line in pdbfile]
             else:
-                raise ValueError(f'Invalid pdb input {pdbfile}')
+                raise ValueError(f'Invalid pdb input: {pdbfile}')
         else:
             raise ValueError(f'Invalid pdb input: {pdbfile}')
 
@@ -596,5 +616,5 @@ class pdb2sql(pdb2sql_base):
         self.c.execute(query)
 
     def commit(self):
-        """Cpmmit to the database."""
+        """Commit to the database."""
         self.conn.commit()
