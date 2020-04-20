@@ -168,10 +168,10 @@ class pdb2sql(pdb2sql_base):
                     pdbdata = pdbfile.split('\n')
                 # invalid path
                 else:
-                    raise FileNotFoundError(f'Not found {pdbfile}')
+                    raise FileNotFoundError(f'File not found: {pdbfile}')
         elif isinstance(pdbfile, Path):
             if not pdbfile.exists():
-                raise FileNotFoundError(f'Not found {pdbfile}')
+                raise FileNotFoundError(f'File not found: {pdbfile}')
             elif pdbfile.is_file():
                 with pdbfile.open() as fi:
                     pdbdata = fi.readlines()
@@ -183,7 +183,7 @@ class pdb2sql(pdb2sql_base):
             elif isinstance(pdbfile[0], bytes):
                 pdbdata = [line.decode() for line in pdbfile]
             else:
-                raise ValueError(f'Invalid pdb input {pdbfile}')
+                raise ValueError(f'Invalid pdb input: {pdbfile}')
         elif isinstance(pdbfile, np.ndarray):
             pdbfile = pdbfile.tolist()
             if isinstance(pdbfile[0], str):
@@ -191,7 +191,7 @@ class pdb2sql(pdb2sql_base):
             elif isinstance(pdbfile[0], bytes):
                 pdbdata = [line.decode() for line in pdbfile]
             else:
-                raise ValueError(f'Invalid pdb input {pdbfile}')
+                raise ValueError(f'Invalid pdb input: {pdbfile}')
         else:
             raise ValueError(f'Invalid pdb input: {pdbfile}')
 
