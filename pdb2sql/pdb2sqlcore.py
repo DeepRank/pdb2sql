@@ -20,7 +20,6 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db = pdb2sql.pdb2sql('3CRO.pdb')
         """
-
         super().__init__(pdbfile, **kwargs)
 
         # create the database
@@ -29,6 +28,9 @@ class pdb2sql(pdb2sql_base):
         # fix the chain ID
         if self.fix_chainID:
             self._fix_chainID()
+
+    def __repr__(self):
+        return f'{self.__module__}.{self.__class__.__name__} object'
 
     def _create_sql(self):
         """Create a sql database containg a model PDB."""

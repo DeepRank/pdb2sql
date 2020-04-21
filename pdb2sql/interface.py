@@ -29,6 +29,8 @@ class interface(pdb2sql):
             pdb = pdb.sql2pdb()
         super().__init__(pdb, **kwargs)
 
+    def __repr__(self):
+        return f'{self.__module__}.{self.__class__.__name__} object'
     ##########################################################################
     #
     # get the contact atoms

@@ -59,6 +59,9 @@ class StructureSimilarity(object):
         self.verbose = verbose
         self.origin = [0., 0., 0.]
 
+    def __repr__(self):
+        return f'{self.__module__}.{self.__class__.__name__}({self.decoy}, {self.ref}, {self.verbose})'
+
     ##########################################################################
     #
     #   FAST ROUTINE TO COMPUTE THE L-RMSD
