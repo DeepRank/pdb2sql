@@ -234,11 +234,6 @@ class TestPrintGetUpdate(unittest.TestCase):
         self.assertEqual(chainID, {'L'})
         self.assertEqual(cm.stderr, [])
 
-    def test_pprint(self):
-        with CaptureOutErr() as cm:
-            self.db.pprint()
-        self.assertIn(len(cm.stdout), [25, 27])
-
     def test_get_colnames(self):
         result = self.db.get_colnames()
         self.assertEqual(len(result), 15)

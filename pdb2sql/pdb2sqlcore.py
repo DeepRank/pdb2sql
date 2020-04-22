@@ -307,16 +307,7 @@ class pdb2sql(pdb2sql_base):
         for n in names:
             print('\t' + n)
 
-    # print the database
-    def pprint(self):
-        """Fancy print of SQL ATOM table.
 
-        Examples:
-            >>> db.pprint()
-        """
-        import pandas.io.sql as psql
-        df = psql.read_sql("SELECT * FROM ATOM", self.conn)
-        print(df)
 
     def print(self):
         """Print out SQL ATOM table.
