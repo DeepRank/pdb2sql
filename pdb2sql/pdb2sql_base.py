@@ -227,7 +227,7 @@ class pdb2sql_base(object):
             Thus the value should be in the range of (-1e7, 1e8).
 
         Args:
-            i(float): PDB coordinations x, y or z.
+            (float): PDB coordinations x, y or z.
 
         Raises:
             ValueError: Exceed the range of (-1e7, 1e8)
