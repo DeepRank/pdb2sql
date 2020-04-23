@@ -49,7 +49,6 @@ Print SQL data
 .. autosummary::
     :toctree: api/
 
-    pprint
     print
     print_colnames
 

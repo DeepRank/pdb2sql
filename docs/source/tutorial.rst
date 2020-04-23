@@ -48,7 +48,7 @@ In this table, each row represents one atom, and columns are atom properties:
 
 .. ipython:: python
 
-    db.pprint()
+    db.print()
 
 
 Get data
@@ -140,7 +140,7 @@ Update x,y,z coordinates for structure translatation of [10,10,10]
 .. ipython:: python
 
     xyz_old = db.get_xyz()
-    xyz = np.array(xyz_old) + 10
+    xyz = np.array(xyz_old) + 10.0
     db.update('x,y,z', xyz)
     xyz_new = db.get_xyz()
     print("old:\n", xyz_old)
@@ -153,14 +153,14 @@ Update a column using index, e.g. change the x coordinates of the first
 
     x = np.ones(10) + 1
     db.update_column('x', values=x, index=list(range(10)))
-    db.pprint()
+    db.print('serial, name, x')
 
 Add a new column *type* with value *high*:
 
 .. ipython:: python
 
     db.add_column('type', value = 'high', coltype = 'str')
-    db.pprint()
+    db.print('serial, name, type')
 
 
 PDB I/O
