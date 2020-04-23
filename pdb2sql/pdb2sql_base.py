@@ -126,9 +126,19 @@ class pdb2sql_base(object):
         """Add a new column to the ATOM table."""
         raise NotImplementedError()
 
-    def exportpdb(self, fname, append=False, periodic=False, **kwargs):
-        """Export a PDB file with kwargs selection."""
+    def exportpdb(self, fname, append=False, **kwargs):
+        """Export a PDB file.
 
+        Args:
+            fname(str): output filename
+            append(bool): append expored data to file or not
+            kwargs: argument to select atoms, dict value must be list,
+                e.g.:
+                    - name = ['CA', 'O']
+                    - no_name = ['CA', 'C']
+                    - chainID = ['A']
+                    - no_chainID = ['A']
+        """
         if append:
             f = open(fname, 'a')
         else:
@@ -143,6 +153,13 @@ class pdb2sql_base(object):
     def sql2pdb(self, **kwargs):
         """Convert SQL data to PDB formatted lines.
 
+        Args:
+            kwargs: argument to select atoms, dict value must be list,
+                e.g.:
+                    - name = ['CA', 'O']
+                    - no_name = ['CA', 'C']
+                    - chainID = ['A']
+                    - no_chainID = ['A']
         Returns:
             list: pdb-format lines
         """

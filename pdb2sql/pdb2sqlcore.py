@@ -318,11 +318,12 @@ class pdb2sql(pdb2sql_base):
         Args:
             columns (str): columns to retreive, eg: "x,y,z".
                 if "*" all the columns are returned.
-                Check all available columns by :py:meth:`print_colnames`.
+                Avaiable columns:
+                    serial, name, altLoc, resName, chainID, resSeq,
+                    iCode, x, y, z, occ, temp, element, model
 
             kwargs: argument to select atoms, dict value must be list,
                 e.g.:
-
                     - name = ['CA', 'O']
                     - no_name = ['CA', 'C']
                     - chainID = ['A']
@@ -354,11 +355,12 @@ class pdb2sql(pdb2sql_base):
         Args:
             columns (str): columns to retreive, eg: "x,y,z".
                 if "*" all the columns are returned.
-                Check all available columns by :py:meth:`print_colnames`.
+                Avaiable columns:
+                    serial, name, altLoc, resName, chainID, resSeq,
+                    iCode, x, y, z, occ, temp, element, model
 
             kwargs: argument to select atoms, dict value must be list,
                 e.g.:
-
                     - name = ['CA', 'O']
                     - no_name = ['CA', 'C']
                     - chainID = ['A']
@@ -526,6 +528,9 @@ class pdb2sql(pdb2sql_base):
 
         Args:
             columns (str): names of column to update, e.g. "x,y,z".
+                Avaiable columns:
+                    serial, name, altLoc, resName, chainID, resSeq,
+                    iCode, x, y, z, occ, temp, element, model
             values (np.ndarray): an array of values that corresponds
                         to the number of columns and atoms selected.
             kwargs: selection arguments,
@@ -605,6 +610,9 @@ class pdb2sql(pdb2sql_base):
 
         Args:
             colname (str): name of the column to update
+                Avaiable columns:
+                    serial, name, altLoc, resName, chainID, resSeq,
+                    iCode, x, y, z, occ, temp, element, model
             values (list): new values of the column
             index (None, optional): index of the column to update (default all)
 
