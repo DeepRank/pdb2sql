@@ -15,6 +15,10 @@ class pdb2sql(pdb2sql_base):
     def __init__(self, pdbfile, **kwargs):
         """Create a SQL database with PDB data.
 
+        Notes:
+            Only "ATOM" data of PDB is parsed, other items e.g. HETATM
+            are not ignored.
+
         Args:
             pdbfile(str, list, ndarray): pdb file or data
 
