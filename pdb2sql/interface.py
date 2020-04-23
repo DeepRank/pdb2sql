@@ -25,10 +25,12 @@ class interface(pdb2sql):
             >>> interface_db2 = interface('3CRO.pdb')
         """
         if isinstance(pdb, pdb2sql):
-            pdb.commit()
+            pdb._commit()
             pdb = pdb.sql2pdb()
         super().__init__(pdb, **kwargs)
 
+    def __repr__(self):
+        return f'{self.__module__}.{self.__class__.__name__} object'
     ##########################################################################
     #
     # get the contact atoms

@@ -4,6 +4,7 @@ import subprocess as sp
 import os
 import sys
 import numpy as np
+import pandas as pd
 from pathlib import Path
 
 from .pdb2sql_base import pdb2sql_base
@@ -14,13 +15,16 @@ class pdb2sql(pdb2sql_base):
     def __init__(self, pdbfile, **kwargs):
         """Create a SQL database with PDB data.
 
+        Notes:
+            Only "ATOM" data of PDB is parsed, other items e.g. HETATM
+            are not ignored.
+
         Args:
             pdbfile(str, list, ndarray): pdb file or data
 
         Examples:
             >>> db = pdb2sql.pdb2sql('3CRO.pdb')
         """
-
         super().__init__(pdbfile, **kwargs)
 
         # create the database
@@ -34,6 +38,9 @@ class pdb2sql(pdb2sql_base):
         """Returns an pdb2sql instance of the selected parts."""
         pdb_data = self.sql2pdb(**kwargs)
         return pdb2sql(pdb_data)
+
+    def __repr__(self):
+        return f'{self.__module__}.{self.__class__.__name__} object'
 
     def _create_sql(self):
         """Create a sql database containg a model PDB."""
@@ -313,26 +320,48 @@ class pdb2sql(pdb2sql_base):
         for n in names:
             print('\t' + n)
 
-    # print the database
-    def pprint(self):
-        """Fancy print of SQL ATOM table.
-
-        Examples:
-            >>> db.pprint()
-        """
-        import pandas.io.sql as psql
-        df = psql.read_sql("SELECT * FROM ATOM", self.conn)
-        print(df)
-
-    def print(self):
+    def print(self, columns='*', **kwargs):
         """Print out SQL ATOM table.
+
+        Notes:
+            Float number is stored in original precision.
+            It will be formatted properly when output pdb with
+            `exportpdb` method.
+
+        Args:
+            columns (str): columns to retreive, eg: "x,y,z".
+                if "*" all the columns are returned.
+                Avaiable columns:
+                    serial, name, altLoc, resName, chainID, resSeq,
+                    iCode, x, y, z, occ, temp, element, model
+
+            kwargs: argument to select atoms, dict value must be list,
+                e.g.:
+                    - name = ['CA', 'O']
+                    - no_name = ['CA', 'C']
+                    - chainID = ['A']
+                    - no_chainID = ['A']
 
         Examples:
             >>> db.print()
         """
-        ctmp = self.conn.cursor()
-        ctmp.execute("SELECT * FROM ATOM")
-        print(ctmp.fetchall())
+        data = self.get(columns, **kwargs)
+        arr = np.array(data)
+
+        if len(arr.shape) == 2:
+            df = pd.DataFrame(arr)
+        elif len(arr.shape) == 3:
+            arr = arr.reshape((-1, arr.shape[2]))
+            df = pd.DataFrame(arr)
+
+        if columns == '*':
+            cd = self.conn.execute('select * from atom')
+            names = list(map(lambda x: x[0], cd.description))
+            df.columns = names
+        else:
+            df.columns = columns.split(',')
+
+        print(df.to_csv(sep='\t', index=False))
 
     # get the properties
     def get(self, columns, **kwargs):
@@ -341,11 +370,12 @@ class pdb2sql(pdb2sql_base):
         Args:
             columns (str): columns to retreive, eg: "x,y,z".
                 if "*" all the columns are returned.
-                Check all available columns by :py:meth:`print_colnames`.
+                Avaiable columns:
+                    serial, name, altLoc, resName, chainID, resSeq,
+                    iCode, x, y, z, occ, temp, element, model
 
             kwargs: argument to select atoms, dict value must be list,
                 e.g.:
-
                     - name = ['CA', 'O']
                     - no_name = ['CA', 'C']
                     - chainID = ['A']
@@ -521,6 +551,9 @@ class pdb2sql(pdb2sql_base):
 
         Args:
             columns (str): names of column to update, e.g. "x,y,z".
+                Avaiable columns:
+                    serial, name, altLoc, resName, chainID, resSeq,
+                    iCode, x, y, z, occ, temp, element, model
             values (np.ndarray): an array of values that corresponds
                         to the number of columns and atoms selected.
             kwargs: selection arguments,
@@ -600,6 +633,9 @@ class pdb2sql(pdb2sql_base):
 
         Args:
             colname (str): name of the column to update
+                Avaiable columns:
+                    serial, name, altLoc, resName, chainID, resSeq,
+                    iCode, x, y, z, occ, temp, element, model
             values (list): new values of the column
             index (None, optional): index of the column to update (default all)
 
@@ -632,6 +668,6 @@ class pdb2sql(pdb2sql_base):
             colname, coltype, str(value))
         self.c.execute(query)
 
-    def commit(self):
+    def _commit(self):
         """Commit to the database."""
         self.conn.commit()

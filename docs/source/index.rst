@@ -3,6 +3,7 @@ pdb2sql: Processing PDB data with SQL
 *************************************
 
 `pdb2sql`_ is a Python package that allows to use SQL queries to handle `PDB`_ files.
+Currently, only 'ATOM' data is parsed, and other items of PDB, e.g. HETATM, are ignored.
 
 Installation:
     ``pip install pdb2sql``
