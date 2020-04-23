@@ -136,6 +136,15 @@ class TestCreateSQL(unittest.TestCase):
         self.assertTrue(os.path.isfile(self.sqlfile))
         os.remove(self.sqlfile)
 
+    def test_call(self):
+        sqldb = pdb2sql(self.pdbfile)
+        cpy = sqldb(chainID='A')
+        cpy.c.execute('SELECT * FROM ATOM')
+        result = cpy.c.fetchall()
+        last_line = (405, 'C6', '', 'DT', 'A', 20, '', -
+                     52.817, -4.887, 21.878, 1.0, 2.0, 'C', 0)
+        self.assertEqual(result[-1], last_line)
+
     ####################
     # verify pdb format
     ####################
@@ -251,7 +260,8 @@ class TestPrintGetUpdate(unittest.TestCase):
         chainID = set([i[4] for i in result])
         self.assertEqual(chainID, {"L"})
 
-        result = self.db.get("chainID,resSeq,resName,name,x,y,z,model")
+        result = self.db.get(
+            "chainID,resSeq,resName,name,x,y,z,model")
         self.assertEqual(len(result), 24)
         chainID = set([i[0] for i in result])
         self.assertEqual(chainID, {"L"})
@@ -335,7 +345,8 @@ class TestPrintGetUpdate(unittest.TestCase):
             name=[
                 'CA',
                 'CB'])
-        target = [['MET', 'CA', 1.0, 2.0, 3.0], ['MET', 'CB', 4.0, 5.0, 6.0]]
+        target = [['MET', 'CA', 1.0, 2.0, 3.0],
+                  ['MET', 'CB', 4.0, 5.0, 6.0]]
         self.assertEqual(result, target)
 
     def test_2_update_column_wrongtype(self):
@@ -389,8 +400,10 @@ class TestPrintGetUpdate(unittest.TestCase):
     def test_3_update_cloumn_index(self):
         """Verfity update_column() default."""
         values = [1., 2., 3.]
-        self.db.update_column("x", values=values, index=list(range(3)))
-        result = self.db.get("x", resName='MET', name=['N', 'CA', 'C'])
+        self.db.update_column(
+            "x", values=values, index=list(range(3)))
+        result = self.db.get("x", resName='MET',
+                             name=['N', 'CA', 'C'])
         target = values
         self.assertEqual(result, target)
 

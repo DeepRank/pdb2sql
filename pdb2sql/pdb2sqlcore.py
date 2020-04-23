@@ -34,6 +34,28 @@ class pdb2sql(pdb2sql_base):
         if self.fix_chainID:
             self._fix_chainID()
 
+    def __call__(self, **kwargs):
+        """Returns an pdb2sql instance of the selected parts
+
+         Args:
+
+            kwargs: argument to select atoms, dict value must be list,
+                e.g.:
+                    - name = ['CA', 'O']
+                    - no_name = ['CA', 'C']
+                    - chainID = ['A']
+                    - no_chainID = ['A']
+
+        Returns:
+            pdb2sql: an pb2sql instance 
+
+        Examples:
+            >>> sqldb pdb2sql('1AK4.pdb')
+            >>> dbA = pdb2sql(chainID='A')
+        """
+        pdb_data = self.sql2pdb(**kwargs)
+        return pdb2sql(pdb_data)
+
     def __repr__(self):
         return f'{self.__module__}.{self.__class__.__name__} object'
 
@@ -168,14 +190,16 @@ class pdb2sql(pdb2sql_base):
                     with open(pdbfile, 'r') as fi:
                         pdbdata = fi.readlines()
                 else:
-                    raise FileNotFoundError(f'{pdbfile} is not a file')
+                    raise FileNotFoundError(
+                        f'{pdbfile} is not a file')
             else:
                 # input is pdb content
                 if pdbfile.count('\nATOM ') > 3:
                     pdbdata = pdbfile.split('\n')
                 # invalid path
                 else:
-                    raise FileNotFoundError(f'File not found: {pdbfile}')
+                    raise FileNotFoundError(
+                        f'File not found: {pdbfile}')
         elif isinstance(pdbfile, Path):
             if not pdbfile.exists():
                 raise FileNotFoundError(f'File not found: {pdbfile}')
@@ -210,7 +234,8 @@ class pdb2sql(pdb2sql_base):
         if linelen < 80:
             pdb_line = pdb_line + ' ' * (80 - linelen)
         elif linelen > 80:
-            raise ValueError(f'pdb line is longer than 80:\n{pdb_line}')
+            raise ValueError(
+                f'pdb line is longer than 80:\n{pdb_line}')
         return pdb_line
 
     @staticmethod
@@ -475,7 +500,8 @@ class pdb2sql(pdb2sql_base):
                     # otherwise we just go on
                     else:
                         if k == 'rowID':
-                            vals = vals + tuple([int(iv + 1) for iv in v])
+                            vals = vals + \
+                                tuple([int(iv + 1) for iv in v])
                         else:
                             vals = vals + tuple(v)
                 else:
@@ -486,26 +512,33 @@ class pdb2sql(pdb2sql_base):
                         vals = vals + (v,)
 
                 # create the condition for that key
-                conditions.append(k + neg + ' in (' + ','.join('?' * nv) + ')')
+                conditions.append(
+                    k + neg + ' in (' + ','.join('?' * nv) + ')')
 
             # stitch the conditions and append to the query
             query += ' AND '.join(conditions)
 
             # error if vals is too long
             if len(vals) > self.SQLITE_LIMIT_VARIABLE_NUMBER:
-                print('\nError : SQL Queries can only handle a total of 999 values')
-                print('      : The current query has %d values' % len(vals))
+                print(
+                    '\nError : SQL Queries can only handle a total of 999 values')
+                print('      : The current query has %d values' %
+                      len(vals))
                 print('      : Hence it will fails.')
                 print(
                     '      : You are in a rare situation where MULTIPLE conditions have')
-                print('      : have a combined number of values that are too large')
+                print(
+                    '      : have a combined number of values that are too large')
                 print('      : These conditions are:')
                 ntot = 0
                 for k, v in kwargs.items():
-                    print('      : --> %10s : %d values' % (k, len(v)))
+                    print('      : --> %10s : %d values' %
+                          (k, len(v)))
                     ntot += len(v)
-                print('      : --> %10s : %d values' % ('Total', ntot))
-                print('      : Try to decrease max_sql_values in pdb2sql.py\n')
+                print('      : --> %10s : %d values' %
+                      ('Total', ntot))
+                print(
+                    '      : Try to decrease max_sql_values in pdb2sql.py\n')
                 raise ValueError('Too many SQL variables')
 
             # query the sql database and return the answer in a list
@@ -631,7 +664,8 @@ class pdb2sql(pdb2sql_base):
         else:
             data = [[v, ind + 1] for v, ind in zip(values, index)]
 
-        query = 'UPDATE ATOM SET {cn}=? WHERE rowID=?'.format(cn=colname)
+        query = 'UPDATE ATOM SET {cn}=? WHERE rowID=?'.format(
+            cn=colname)
         self.c.executemany(query, data)
 
     def add_column(self, colname, coltype='FLOAT', value=0):
