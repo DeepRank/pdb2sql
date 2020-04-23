@@ -48,7 +48,7 @@ In this table, each row represents one atom, and columns are atom properties:
 
 .. ipython:: python
 
-    db.pprint()
+    db.print()
 
 
 Get data
@@ -153,14 +153,14 @@ Update a column using index, e.g. change the x coordinates of the first
 
     x = np.ones(10) + 1
     db.update_column('x', values=x, index=list(range(10)))
-    db.pprint()
+    db.print()
 
 Add a new column *type* with value *high*:
 
 .. ipython:: python
 
     db.add_column('type', value = 'high', coltype = 'str')
-    db.pprint()
+    db.print()
 
 
 PDB I/O
