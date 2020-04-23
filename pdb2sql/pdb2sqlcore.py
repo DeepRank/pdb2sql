@@ -315,6 +315,11 @@ class pdb2sql(pdb2sql_base):
     def print(self, columns='*', **kwargs):
         """Print out SQL ATOM table.
 
+        Notes:
+            Float number is stored in original precision.
+            It will be formatted properly when output pdb with
+            `exportpdb` method.
+
         Args:
             columns (str): columns to retreive, eg: "x,y,z".
                 if "*" all the columns are returned.
@@ -342,7 +347,9 @@ class pdb2sql(pdb2sql_base):
             df = pd.DataFrame(arr)
 
         if columns == '*':
-            df.columns = list(self.col.keys())
+            cd = self.conn.execute('select * from atom')
+            names = list(map(lambda x: x[0], cd.description))
+            df.columns = names
         else:
             df.columns = columns.split(',')
 
