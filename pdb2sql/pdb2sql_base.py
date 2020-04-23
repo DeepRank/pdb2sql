@@ -163,7 +163,8 @@ class pdb2sql_base(object):
         Returns:
             list: pdb-format lines
         """
-        data = self.get('*', **kwargs)
+        cols = ','.join(self.col.keys())
+        data = self.get(cols, **kwargs)
         pdb = []
         # the PDB format is pretty strict
         # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
