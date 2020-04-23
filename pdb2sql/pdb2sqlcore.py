@@ -51,7 +51,7 @@ class pdb2sql(pdb2sql_base):
 
         Examples:
             >>> sqldb pdb2sql('1AK4.pdb')
-            >>> dbA = pdb2sql(chainiD='A')
+            >>> dbA = pdb2sql(chainID='A')
         """
         pdb_data = self.sql2pdb(**kwargs)
         return pdb2sql(pdb_data)
