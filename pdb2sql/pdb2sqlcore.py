@@ -4,6 +4,7 @@ import subprocess as sp
 import os
 import sys
 import numpy as np
+import pandas as pd
 from pathlib import Path
 
 from .pdb2sql_base import pdb2sql_base
@@ -307,17 +308,40 @@ class pdb2sql(pdb2sql_base):
         for n in names:
             print('\t' + n)
 
-
-
-    def print(self):
+    def print(self, columns='*', **kwargs):
         """Print out SQL ATOM table.
+
+        Args:
+            columns (str): columns to retreive, eg: "x,y,z".
+                if "*" all the columns are returned.
+                Check all available columns by :py:meth:`print_colnames`.
+
+            kwargs: argument to select atoms, dict value must be list,
+                e.g.:
+
+                    - name = ['CA', 'O']
+                    - no_name = ['CA', 'C']
+                    - chainID = ['A']
+                    - no_chainID = ['A']
 
         Examples:
             >>> db.print()
         """
-        ctmp = self.conn.cursor()
-        ctmp.execute("SELECT * FROM ATOM")
-        print(ctmp.fetchall())
+        data = self.get(columns, **kwargs)
+        arr = np.array(data)
+
+        if len(arr.shape) == 2:
+            df = pd.DataFrame(arr)
+        elif len(arr.shape) == 3:
+            arr = arr.reshape((-1, arr.shape[2]))
+            df = pd.DataFrame(arr)
+
+        if columns == '*':
+            df.columns = list(self.col.keys())
+        else:
+            df.columns = columns.split(',')
+
+        print(df.to_csv(sep='\t', index=False))
 
     # get the properties
     def get(self, columns, **kwargs):
