@@ -644,6 +644,6 @@ class pdb2sql(pdb2sql_base):
             colname, coltype, str(value))
         self.c.execute(query)
 
-    def commit(self):
+    def _commit(self):
         """Commit to the database."""
         self.conn.commit()

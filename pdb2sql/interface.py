@@ -25,7 +25,7 @@ class interface(pdb2sql):
             >>> interface_db2 = interface('3CRO.pdb')
         """
         if isinstance(pdb, pdb2sql):
-            pdb.commit()
+            pdb._commit()
             pdb = pdb.sql2pdb()
         super().__init__(pdb, **kwargs)
 

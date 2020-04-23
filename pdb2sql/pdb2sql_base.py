@@ -257,10 +257,9 @@ class pdb2sql_base(object):
             self.conn.close()
 
         else:
-
             if rmdb:
                 self.conn.close()
                 os.system('rm %s' % (self.sqlfile))
             else:
-                self.commit()
+                self._commit()
                 self.conn.close()
