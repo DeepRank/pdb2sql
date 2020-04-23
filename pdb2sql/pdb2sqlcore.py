@@ -35,7 +35,24 @@ class pdb2sql(pdb2sql_base):
             self._fix_chainID()
 
     def __call__(self, **kwargs):
-        """Returns an pdb2sql instance of the selected parts."""
+        """Returns an pdb2sql instance of the selected parts
+
+         Args:
+
+            kwargs: argument to select atoms, dict value must be list,
+                e.g.:
+                    - name = ['CA', 'O']
+                    - no_name = ['CA', 'C']
+                    - chainID = ['A']
+                    - no_chainID = ['A']
+
+        Returns:
+            pdb2sql: an pb2sql instance 
+
+        Examples:
+            >>> sqldb pdb2sql('1AK4.pdb')
+            >>> dbA = pdb2sql(chainiD='A')
+        """
         pdb_data = self.sql2pdb(**kwargs)
         return pdb2sql(pdb_data)
 
