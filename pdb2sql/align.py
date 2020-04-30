@@ -114,7 +114,10 @@ def export_aligned(sql):
     Arguments:
         sql {pdb2sql} -- aligned sqldb
     """
-    fname = sql.pdbfile.rstrip('.pdb') + '_aligned.pdb'
+    if isinstance(sql.pdbfile, str):
+        fname = sql.pdbfile.rstrip('.pdb') + '_aligned.pdb'
+    else:
+        fname = 'aligned_structure.pdb'
     sql.exportpdb(fname)
 
 

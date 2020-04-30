@@ -40,7 +40,8 @@ def superpose(mobile, target, method='svd', only_backbone=True, export=True, **k
         if 'name' not in kwargs:
             kwargs['name'] = backbone_atoms
         else:
-            raise ValueError('Atom type specified but only_backbone == True')
+            raise ValueError(
+                'Atom type specified but only_backbone == True')
 
     # selections of some atoms
     selection_mobile = np.array(sql_mobile.get("x,y,z", **kwargs))
@@ -51,15 +52,17 @@ def superpose(mobile, target, method='svd', only_backbone=True, export=True, **k
 
     # transform the xyz mobile
     xyz_mobile = superpose_selection(xyz_mobile,
-                                    selection_mobile, selection_target, method)
+                                     selection_mobile, selection_target, method)
 
     # update the sql
     sql_mobile.update('x,y,z', xyz_mobile)
 
     # export a pdb file
     if export:
-        target_name = os.path.basename(sql_target.pdbfile).rstrip('.pdb')
-        mobile_name = os.path.basename(sql_mobile.pdbfile).rstrip('.pdb')
+        target_name = os.path.basename(
+            sql_target.pdbfile).rstrip('.pdb')
+        mobile_name = os.path.basename(
+            sql_mobile.pdbfile).rstrip('.pdb')
         fname = mobile_name + '_superposed_on_' + \
             target_name + '.pdb'
         sql_mobile.exportpdb(fname)

@@ -246,30 +246,17 @@ Interface residues
 Structure superposition  
 --------------------------
 
-pdb2sql allows to superpose two structure on top of each other
+pdb2sql allows to superpose two structure on top of each other either using the full structure or with selection keywords.
+For example to superpose the chain A of two PDB one can use :
 
 .. ipython:: python 
 
     from pdb2sql import superpose
     ref = pdb2sql('./pdb/1AK4_5w.pdb')
     decoy = pdb2sql('./pdb/1AK4_10w.pdb')
-    superposed_decoy = superpose(decoy, ref, export=True)
+    superposed_decoy = superpose(decoy, ref, chainID='A', export=True)
 
 This will export a new PDB file containining the structure of the decoy superposed onto the reference.
-
-It is also possible to try to align part of two structures.
-
-.. ipython:: python
-
-    from pdb2sql import superpose_selection
-    ref = pdb2sql('./pdb/1AK4.pdb')
-    decoy = pdb2sql('./pdb/1AK4_10w.pdb')
-    refA = ref.get('x,y,z', chainID='A')
-    decoyA = decoy.get('x,y,z', chainID='A')
-    decoy_xyz = decoy.get('x,y,z', chainID='A')
-    decoy_xyz_superposed = superpose_selection(decoy_xyz, decoyA, refA)
-    decoy.update('x,y,z', decoy_xyz_superposed)
-
 
 Structure alignement
 ---------------------------
@@ -279,7 +266,7 @@ pdb2sql allows to align structure along a specific axis
 .. ipython:: python
 
     from pdb2sql import align
-    db = pdb2sql('./pdb/3CRO.pdb')
+    db = pdb2sql('./pdb/1AK4_10w.pdb')
     aligned_db = align(db, axis='z', export=True)
 
 The alignement can  also consider only a subpart of the complex using the selection keywords:
