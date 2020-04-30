@@ -50,7 +50,6 @@ In this table, each row represents one atom, and columns are atom properties:
 
     db.print()
 
-
 Get data
 ^^^^^^^^
 
@@ -120,6 +119,20 @@ Get residue list:
     p = db.get_residues()
     p
 
+
+Filter the data base
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+pdb2sql allows to create a new database by filtering the one we jut created
+
+.. ipython:: python
+
+    dp_chainA = db(chainID='A')
+    db_chainA.print()
+
+In that example `dp_chainA` is a sql database that only includes the atoms from chain A.
+All the selection keywords (chainID, resSeq, resName, name) and their negations 
+(no_chainID, no_resSeq, no_resName, no_name) can be used and combined to obtain the new database.
 
 Set data
 ^^^^^^^^
@@ -228,6 +241,74 @@ Interface residues
     itf_residue_pair = db.get_contact_residues(cutoff = 3, return_contact_pairs=True)
     itf_residue
     itf_residue_pair
+
+
+Structure superposition  
+--------------------------
+
+pdb2sql allows to superpose two structure on top of each other
+
+.. ipython:: python 
+
+    from pdb2sql import superpose
+    ref = pdb2sql('./pdb/1AK4_5w.pdb')
+    decoy = pdb2sql('./pdb/1AK4_10w.pdb')
+    superposed_decoy = superpose(decoy, ref, export=True)
+
+This will export a new PDB file containining the structure of the decoy superposed onto the reference.
+
+It is also possible to try to align part of two structures.
+
+.. ipython:: python
+
+    from pdb2sql import superpose_selection
+    ref = pdb2sql('./pdb/1AK4.pdb')
+    decoy = pdb2sql('./pdb/1AK4_10w.pdb')
+    refA = ref.get('x,y,z', chainID='A')
+    decoyA = decoy.get('x,y,z', chainID='A')
+    decoy_xyz = decoy.get('x,y,z', chainID='A')
+    decoy_xyz_superposed = superpose_selection(decoy_xyz, decoyA, refA)
+    decoy.update('x,y,z', decoy_xyz_superposed)
+
+
+Structure alignement
+---------------------------
+
+pdb2sql allows to align structure along a specific axis
+
+.. ipython:: python
+
+    from pdb2sql import align
+    db = pdb2sql('./pdb/3CRO.pdb')
+    aligned_db = align(db, axis='z', export=True)
+
+The alignement can  also consider only a subpart of the complex using the selection keywords:
+
+.. ipython:: python
+
+    aligned_db = align(db, axis='z', chainID='A')
+
+There the chain A will be aligned along the z-axis
+
+This will create a new PDB file containing the structure aligned along the z-axis. It is 
+also possible aligning an interface in a given plane
+
+.. ipython:: python
+
+    from pdb2sql import align_interface
+    db = pdb2sql('./pdb/3CRO.pdb')
+    aligned_db = align_interface(db, plane='xy', export=True)
+
+By default the interface formed by chain A and B will be considered. In case multiple chains are present
+in the structure it is possible to specify wich interface to consider:
+
+.. ipython:: python
+
+    aligned_db = align_interface(db, plane='xy', chainID=['C','D'])
+
+
+There the interface between chain C and D will be considered. Note that any other selection
+keyword can be used to specify which interface to account for.
 
 Structure similarity calculation
 --------------------------------
