@@ -53,7 +53,7 @@ def align_interface(ppi, plane='xy', export=True, **kwargs):
 
     Keyword Arguments:
         export {bool} -- write a pdb file (default: {True})
-        kwargs {dict} -- keywaord argument from interface.get_contact_atoms method
+        kwargs {dict} -- keyword argument from interface.get_contact_atoms method
     """
 
     if not isinstance(ppi, interface):
@@ -157,6 +157,7 @@ def get_min_pca_vect(xyz):
     u, v = pca(xyz)
     return v[:, np.argmin(u)]
 
+
 def pca(mat):
     """computes the principal component analysis of the points A
 
@@ -190,11 +191,14 @@ def _align_along_axis(xyz, axis, phi, theta):
     # align along preferred axis
     if axis == 'x':
         xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), -phi)
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
+        xyz = rot_xyz_around_axis(
+            xyz, np.array([0, 1, 0]), np.pi/2 - theta)
 
     elif axis == 'y':
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), np.pi/2 - phi)
-        xyz = rot_xyz_around_axis(xyz, np.array([0, 1, 0]), np.pi/2 - theta)
+        xyz = rot_xyz_around_axis(
+            xyz, np.array([0, 0, 1]), np.pi/2 - phi)
+        xyz = rot_xyz_around_axis(
+            xyz, np.array([0, 1, 0]), np.pi/2 - theta)
 
     elif axis == 'z':
         xyz = rot_xyz_around_axis(xyz, np.array([0, 0, 1]), -phi)
