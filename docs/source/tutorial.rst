@@ -127,7 +127,7 @@ pdb2sql allows to create a new database by filtering the one we jut created
 
 .. ipython:: python
 
-    dp_chainA = db(chainID='A')
+    db_chainA = db(chainID='A')
     db_chainA.print()
 
 In that example `dp_chainA` is a sql database that only includes the atoms from chain A.
