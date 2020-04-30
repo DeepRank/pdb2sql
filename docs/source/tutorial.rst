@@ -291,10 +291,10 @@ in the structure it is possible to specify wich interface to consider:
 
 .. ipython:: python
 
-    aligned_db = align_interface(db, plane='xy', chainID=['C','D'])
+    aligned_db = align_interface(db, plane='xy', chain1='L', chain2='R')
 
 
-There the interface between chain C and D will be considered. Note that any other selection
+There the interface between chain L and R will be considered. Note that any other selection
 keyword can be used to specify which interface to account for.
 
 Structure similarity calculation
