@@ -33,10 +33,12 @@ Example:
 Available modules:
     pdb2sql
         Core `pdb2sql` object
+    many2sql
+        Core `many2sql` object
     interface
         Core `interface` object
     StructureSimilarity
-        Tools tp compute structure similarities between two structures.
+        Tools to compute structure similarities between two structures.
     transform
         Tools to do structure transformation
     align
@@ -50,6 +52,7 @@ Utilities:
 """
 
 from .pdb2sqlcore import pdb2sql
+from .many2sql import many2sql
 from .interface import interface
 from .StructureSimilarity import StructureSimilarity
 from . import transform

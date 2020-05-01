@@ -56,13 +56,13 @@ class pdb2sql(pdb2sql_base):
         """
 
         names = self._get_table_names()
+        if len(names) > 1:
+            warnings.warn('pdbsql is meant for single structure. \
+                          To use multiple structure use many2sql')
 
-        for iN, n in enumerate(names):
-            pdb_data = self.sql2pdb(tablename=n, **kwargs)
-            if iN == 0:
-                new_db = pdb2sql(pdb_data, tablename=n)
-            else:
-                new_db._create_table(pdb_data, tablename=n)
+        pdb_data = self.sql2pdb(tablename=names[0], **kwargs)
+        new_db = pdb2sql(pdb_data, tablename=names[0])
+
         return new_db
 
     def __repr__(self):

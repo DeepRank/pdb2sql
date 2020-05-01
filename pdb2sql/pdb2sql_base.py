@@ -172,6 +172,17 @@ class pdb2sql_base(object):
         """
         cols = ','.join(self.col.keys())
         data = self.get(cols, tablename=tablename, **kwargs)
+        return self.data2pdb(data)
+
+    def data2pdb(self, data):
+        """converts data from a get method to a pdb
+
+        Args:
+            data (list): data from a get statement
+
+        Returns:
+            list: the formatted pdb data
+        """
         pdb = []
         # the PDB format is pretty strict
         # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
