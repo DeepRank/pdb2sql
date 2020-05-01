@@ -33,6 +33,11 @@ class many2sql(pdb2sql):
                 pdbfiles[i], tablename=self.tablenames[i])
 
     def __call__(self, **kwargs):
+        """Return a class instance containing the selection of each structure
+
+        Returns:
+            many2sql: class instance containing the selection of each structure
+        """
 
         names = self._get_table_names()
 
@@ -48,6 +53,15 @@ class many2sql(pdb2sql):
         return new_db
 
     def intersect(self, match=['name', 'resname', 'resSeq', 'chainID']):
+        """Returns a many2sql instance containing the common part of all the structures.
+
+        Args:
+            match (list, optional): column name that must match in the intersection.
+                                    Defaults to ['name', 'resname', 'resSeq', 'chainID'].
+
+        Returns:
+            many2sql: a class instance containing the tables of the matchin structure
+        """
 
         all_data = self.get_intersection('*', match=match)
         all_names = self._get_table_names()
@@ -65,6 +79,14 @@ class many2sql(pdb2sql):
         return new_db
 
     def get_all(self, columns, **kwargs):
+        """Returns the data from the selection of all table in the instance
+
+        Args:
+            columns (str): column tame to return
+
+        Returns:
+            list: data per structure
+        """
 
         names = self._get_table_names()
         data = []
@@ -73,7 +95,16 @@ class many2sql(pdb2sql):
         return data
 
     def get_intersection(self, column, match=['name', 'resname', 'resSeq', 'chainID']):
+        """Return the data of the interection
 
+        Args:
+            column (str): column table to return
+            match (list, optional): column name that must match in the intersection.
+                                    Defaults to ['name', 'resname', 'resSeq', 'chainID'].
+
+        Returns:
+            list: data per structure
+        """
         names = self._get_table_names()
         ntable = len(names)
         select = "select "
@@ -116,6 +147,3 @@ class many2sql(pdb2sql):
                 s, e = it*ncol, (it+1)*ncol
                 data[it].append(list(x[s:e]))
         return data
-
-#    [x for x in new.conn.execute("select ATOM.*, ATOM2.* from ATOM INNER JOIN ATOM2 on
-#    ATOM2.name=ATOM.name and ATOM2.resname=ATOM.resname and ATOM2.resSeq=ATOM.resSeq")]

@@ -2,6 +2,7 @@
 import os
 import numpy as np
 from .pdb2sqlcore import pdb2sql
+from .many2sql import many2sql
 from .transform import rotate
 
 
@@ -40,26 +41,36 @@ def superpose(mobile, target, method='svd', only_backbone=True, export=True, **k
         if 'name' not in kwargs:
             kwargs['name'] = backbone_atoms
         else:
-            raise ValueError('Atom type specified but only_backbone == True')
+            raise ValueError(
+                'Atom type specified but only_backbone == True')
 
     # selections of some atoms
     selection_mobile = np.array(sql_mobile.get("x,y,z", **kwargs))
     selection_target = np.array(sql_target.get("x,y,z", **kwargs))
+
+    # deal with the cases where some res are missing/added
+    if len(selection_mobile) != len(selection_target):
+        warnings.warn(
+            'selection have different size, getting intersection')
+        selection_mobile, selection_target = get_intersection(
+            sql_mobile, sql_target, **kwargs)
 
     # the molbile original coordinates
     xyz_mobile = np.array(sql_mobile.get("x,y,z"))
 
     # transform the xyz mobile
     xyz_mobile = superpose_selection(xyz_mobile,
-                                    selection_mobile, selection_target, method)
+                                     selection_mobile, selection_target, method)
 
     # update the sql
     sql_mobile.update('x,y,z', xyz_mobile)
 
     # export a pdb file
     if export:
-        target_name = os.path.basename(sql_target.pdbfile).rstrip('.pdb')
-        mobile_name = os.path.basename(sql_mobile.pdbfile).rstrip('.pdb')
+        target_name = os.path.basename(
+            sql_target.pdbfile).rstrip('.pdb')
+        mobile_name = os.path.basename(
+            sql_mobile.pdbfile).rstrip('.pdb')
         fname = mobile_name + '_superposed_on_' + \
             target_name + '.pdb'
         sql_mobile.exportpdb(fname)
@@ -276,3 +287,17 @@ def get_rotation_matrix_quaternion(P, Q):
     U[2, 2] = q0**2 - q1**2 - q2**2 + q3**2
 
     return U
+
+
+def get_intersection(db1, db2, **kwargs):
+    """Get the xyz of the intersection between db1 and db2
+
+    Args:
+        db1 (pdb2sql): pdbsql of the first complex
+        db2 (pdb2sql): pdb2sql of the second complex
+    """
+    pdbdata = [db1.sql2pdb(), db2.sql2pdb()]
+    manydb = many2sql(pdbdata)
+
+    data = manydb(**kwargs).get_intersection('x,y,z')
+    return np.array(data[0]), np.array(data[1])
