@@ -1,5 +1,6 @@
 import os
 
+
 class pdb2sql_base(object):
 
     def __init__(
@@ -78,15 +79,20 @@ class pdb2sql_base(object):
     def _create_sql(self):
         raise NotImplementedError()
 
+    def _get_table_names(self):
+        names = self.conn.execute(
+            "SELECT name from sqlite_master WHERE type='table';")
+        return [n[0] for n in names]
+
     # get the properties
     def get(self, atnames, **kwargs):
         raise NotImplementedError()
 
-    def get_xyz(self, **kwargs):
+    def get_xyz(self, tablename='atom', **kwargs):
         """Shortcut to get the xyz coordinates."""
-        return self.get('x,y,z', **kwargs)
+        return self.get('x,y,z', tablename=tablename, **kwargs)
 
-    def get_residues(self, **kwargs):
+    def get_residues(self, tablename='atom', **kwargs):
         """Get the residue sequence.
 
         Returns:
@@ -96,10 +102,11 @@ class pdb2sql_base(object):
             >>> db.get_residues()
         """
 
-        res = [tuple(x) for x in self.get('chainID,resName,resSeq', **kwargs)]
+        res = [tuple(x) for x in self.get(
+            'chainID,resName,resSeq', tablename=tablename, **kwargs)]
         return sorted(set(res), key=res.index)
 
-    def get_chains(self, **kwargs):
+    def get_chains(self, tablename='atom', **kwargs):
         """Get the chain IDs.
 
         Returns:
@@ -108,13 +115,13 @@ class pdb2sql_base(object):
         Examples:
             >>> db.get_chains()
         """
-        chains = self.get('chainID', **kwargs)
+        chains = self.get('chainID', tablename=tablename, **kwargs)
         return sorted(set(chains))
 
     def update(self, attribute, values, **kwargs):
         raise NotImplementedError()
 
-    def update_xyz(self, xyz, **kwargs):
+    def update_xyz(self, xyz, tablename='atom',  **kwargs):
         """Update the xyz coordinates."""
         self.update('x,y,z', xyz, **kwargs)
 
@@ -126,7 +133,7 @@ class pdb2sql_base(object):
         """Add a new column to the ATOM table."""
         raise NotImplementedError()
 
-    def exportpdb(self, fname, append=False, **kwargs):
+    def exportpdb(self, fname, append=False, tablename='atom', **kwargs):
         """Export a PDB file.
 
         Args:
@@ -144,13 +151,13 @@ class pdb2sql_base(object):
         else:
             f = open(fname, 'w')
 
-        lines = self.sql2pdb(**kwargs)
+        lines = self.sql2pdb(tablename=tablename, **kwargs)
         for i in lines:
             f.write(i + '\n')
 
         f.close()
 
-    def sql2pdb(self, **kwargs):
+    def sql2pdb(self, tablename='atom', **kwargs):
         """Convert SQL data to PDB formatted lines.
 
         Args:
@@ -164,7 +171,18 @@ class pdb2sql_base(object):
             list: pdb-format lines
         """
         cols = ','.join(self.col.keys())
-        data = self.get(cols, **kwargs)
+        data = self.get(cols, tablename=tablename, **kwargs)
+        return self.data2pdb(data)
+
+    def data2pdb(self, data):
+        """converts data from a get method to a pdb
+
+        Args:
+            data (list): data from a get statement
+
+        Returns:
+            list: the formatted pdb data
+        """
         pdb = []
         # the PDB format is pretty strict
         # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM

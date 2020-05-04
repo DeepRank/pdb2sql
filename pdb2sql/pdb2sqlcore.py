@@ -12,7 +12,7 @@ from .pdb2sql_base import pdb2sql_base
 
 class pdb2sql(pdb2sql_base):
 
-    def __init__(self, pdbfile, **kwargs):
+    def __init__(self, pdbfile, tablename='atom', **kwargs):
         """Create a SQL database with PDB data.
 
         Notes:
@@ -29,6 +29,7 @@ class pdb2sql(pdb2sql_base):
 
         # create the database
         self._create_sql()
+        self._create_table(pdbfile, tablename=tablename)
 
         # fix the chain ID
         if self.fix_chainID:
@@ -47,28 +48,34 @@ class pdb2sql(pdb2sql_base):
                     - no_chainID = ['A']
 
         Returns:
-            pdb2sql: an pb2sql instance 
+            pdb2sql: an pb2sql instance
 
         Examples:
-            >>> sqldb pdb2sql('1AK4.pdb')
+            >>> sqldb = pdb2sql('1AK4.pdb')
             >>> dbA = sqldb(chainID='A')
         """
-        pdb_data = self.sql2pdb(**kwargs)
-        return pdb2sql(pdb_data)
+
+        names = self._get_table_names()
+        if len(names) > 1:
+            warnings.warn('pdbsql is meant for single structure. \
+                          To use multiple structures use many2sql. \
+                          This call will only return the data of \
+                          the first table : ', names[0])
+
+        pdb_data = self.sql2pdb(tablename=names[0], **kwargs)
+        new_db = pdb2sql(pdb_data, tablename=names[0])
+
+        return new_db
 
     def __repr__(self):
         return f'{self.__module__}.{self.__class__.__name__} object'
 
-    def _create_sql(self):
+    def _create_sql(self, tablename='ATOM'):
         """Create a sql database containg a model PDB."""
-        pdbfile = self.pdbfile
         sqlfile = self.sqlfile
 
         if self.verbose:
             print('-- Create SQLite3 database')
-
-        # size of the things
-        ncol = len(self.col)
 
         # open the data base
         # if we do not specify a db name
@@ -83,6 +90,15 @@ class pdb2sql(pdb2sql_base):
             self.conn = sqlite3.connect(sqlfile)
         self.c = self.conn.cursor()
 
+    def _create_table(self, pdbfile, tablename='ATOM'):
+
+        # size of the things
+        ncol = len(self.col)
+
+        # clean up tablename
+        for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+":
+            tablename = tablename.replace(c, '_')
+
         # intialize the header/placeholder
         header, qm = '', ''
         for ic, (colname, coltype) in enumerate(self.col.items()):
@@ -93,7 +109,8 @@ class pdb2sql(pdb2sql_base):
                 qm += ','
 
         # create the table
-        query = 'CREATE TABLE ATOM ({hd})'.format(hd=header)
+        query = 'CREATE TABLE {tablename} ({hd})'.format(tablename=tablename,
+                                                         hd=header)
         self.c.execute(query)
 
         # get pdb data
@@ -157,8 +174,8 @@ class pdb2sql(pdb2sql_base):
 
         # push in the database
         self.c.executemany(
-            'INSERT INTO ATOM VALUES ({qm})'.format(
-                qm=qm), data_atom)
+            'INSERT INTO {tablename} VALUES ({qm})'.format(tablename=tablename,
+                                                           qm=qm), data_atom)
 
     @staticmethod
     def read_pdb(pdbfile):
@@ -320,8 +337,9 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db.get_colnames()
         """
-
-        cd = self.conn.execute('select * from atom')
+        tablename = self._get_table_names()[0]
+        cd = self.conn.execute(
+            'select * from {tablename}'.format(tablename=tablename))
         names = list(map(lambda x: x[0], cd.description))
         names = ['rowID'] + names
         return names
@@ -332,12 +350,13 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db.print_colnames()
         """
+        tablenames = self._get_table_names()
         names = self.get_colnames()
         print('Possible column names are:')
         for n in names:
             print('\t' + n)
 
-    def print(self, columns='*', **kwargs):
+    def print(self, columns='*', tablename='atom', **kwargs):
         """Print out SQL ATOM table.
 
         Notes:
@@ -362,7 +381,7 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db.print()
         """
-        data = self.get(columns, **kwargs)
+        data = self.get(columns, tablename=tablename, **kwargs)
         arr = np.array(data)
 
         if len(arr.shape) == 2:
@@ -372,7 +391,8 @@ class pdb2sql(pdb2sql_base):
             df = pd.DataFrame(arr)
 
         if columns == '*':
-            cd = self.conn.execute('select * from atom')
+            cd = self.conn.execute(
+                'select * from {tablename}'.format(tablename=tablename))
             names = list(map(lambda x: x[0], cd.description))
             df.columns = names
         else:
@@ -381,7 +401,7 @@ class pdb2sql(pdb2sql_base):
         print(df.to_csv(sep='\t', index=False))
 
     # get the properties
-    def get(self, columns, **kwargs):
+    def get(self, columns, tablename='ATOM', **kwargs):
         """Exectute simple SQL query to extract values.
 
         Args:
@@ -404,6 +424,7 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db.get('x,y,z', chainID=['A'], no_resName=['ALA', 'TRP'])
         """
+
         # check arguments format
         valid_colnames = self.get_colnames()
 
@@ -429,7 +450,8 @@ class pdb2sql(pdb2sql_base):
 
         # if we have 0 key we take the entire db
         if len(kwargs) == 0:
-            query = 'SELECT {an} FROM ATOM'.format(an=columns)
+            query = 'SELECT {an} FROM {tablename}'.format(
+                an=columns, tablename=tablename)
             data = [list(row) for row in self.c.execute(query)]
 
         #######################################################################
@@ -450,15 +472,16 @@ class pdb2sql(pdb2sql_base):
 
                 try:
                     self.c.execute(
-                        "SELECT EXISTS(SELECT {an} FROM ATOM)".format(
-                            an=k))
+                        "SELECT EXISTS(SELECT {an} FROM {tablename})".format(
+                            an=k, tablename=tablename))
                 except BaseException:
                     raise ValueError(
                         f'Invalid column name {k}. Possible names are\n'
                         f'{self.get_colnames()}')
 
             # form the query and the tuple value
-            query = 'SELECT {an} FROM ATOM WHERE '.format(an=columns)
+            query = 'SELECT {an} FROM {tablename} WHERE '.format(
+                an=columns, tablename=tablename)
             conditions = []
             vals = ()
 
@@ -563,7 +586,7 @@ class pdb2sql(pdb2sql_base):
 
         return data
 
-    def update(self, columns, values, **kwargs):
+    def update(self, columns, values, tablename='ATOM', **kwargs):
         """Update the database with given values.
 
         Args:
@@ -628,7 +651,7 @@ class pdb2sql(pdb2sql_base):
                 'Number of data values incompatible with the given conditions')
 
         # prepare the query
-        query = 'UPDATE ATOM SET '
+        query = 'UPDATE {tablename} SET '.format(tablename=tablename)
         query = query + ', '.join(map(lambda x: x + '=?', columns))
         query = query + ' WHERE rowID=?'
 
@@ -645,7 +668,7 @@ class pdb2sql(pdb2sql_base):
 
         self.c.executemany(query, data)
 
-    def update_column(self, colname, values, index=None):
+    def update_column(self, colname, values, index=None, tablename='ATOM'):
         """Update a single column.
 
         Args:
@@ -664,11 +687,11 @@ class pdb2sql(pdb2sql_base):
         else:
             data = [[v, ind + 1] for v, ind in zip(values, index)]
 
-        query = 'UPDATE ATOM SET {cn}=? WHERE rowID=?'.format(
-            cn=colname)
+        query = 'UPDATE {tablename} SET {cn}=? WHERE rowID=?'.format(tablename=tablename,
+                                                                     cn=colname)
         self.c.executemany(query, data)
 
-    def add_column(self, colname, coltype='FLOAT', value=0):
+    def add_column(self, colname, coltype='FLOAT', value=0, tablename='ATOM'):
         """Add an new column to the ATOM table with same value for each row.
 
         Args:
@@ -681,8 +704,8 @@ class pdb2sql(pdb2sql_base):
             >>> db.add_column('id', coltype='str', value='positive')
         """
 
-        query = "ALTER TABLE ATOM ADD COLUMN '%s' %s DEFAULT %s" % (
-            colname, coltype, str(value))
+        query = "ALTER TABLE %s ADD COLUMN '%s' %s DEFAULT %s" % (tablename,
+                                                                  colname, coltype, str(value))
         self.c.execute(query)
 
     def _commit(self):
