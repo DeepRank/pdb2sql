@@ -351,7 +351,7 @@ class pdb2sql(pdb2sql_base):
             >>> db.print_colnames()
         """
         tablenames = self._get_table_names()
-        names = self.get_colnames(tablename=tablenames[0])
+        names = self.get_colnames()
         print('Possible column names are:')
         for n in names:
             print('\t' + n)
