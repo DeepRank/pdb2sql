@@ -58,7 +58,9 @@ class pdb2sql(pdb2sql_base):
         names = self._get_table_names()
         if len(names) > 1:
             warnings.warn('pdbsql is meant for single structure. \
-                          To use multiple structure use many2sql')
+                          To use multiple structures use many2sql. \
+                          This call will only return the data of \
+                          the first table : ', names[0])
 
         pdb_data = self.sql2pdb(tablename=names[0], **kwargs)
         new_db = pdb2sql(pdb_data, tablename=names[0])
@@ -335,7 +337,6 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db.get_colnames()
         """
-
         tablename = self._get_table_names()[0]
         cd = self.conn.execute(
             'select * from {tablename}'.format(tablename=tablename))
