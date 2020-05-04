@@ -51,7 +51,7 @@ class pdb2sql(pdb2sql_base):
             pdb2sql: an pb2sql instance
 
         Examples:
-            >>> sqldb pdb2sql('1AK4.pdb')
+            >>> sqldb = pdb2sql('1AK4.pdb')
             >>> dbA = sqldb(chainID='A')
         """
 
@@ -374,7 +374,7 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db.print()
         """
-        data = self.get(columns, tablename=tablename, ** kwargs)
+        data = self.get(columns, tablename=tablename, **kwargs)
         arr = np.array(data)
 
         if len(arr.shape) == 2:

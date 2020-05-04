@@ -13,7 +13,7 @@ from .pdb2sqlcore import pdb2sql
 class many2sql(pdb2sql):
 
     def __init__(self, pdbfiles, tablenames=None):
-        """Create a sql dabase containing multiple pdbs."""
+        """Create a sql database containing multiple pdbs."""
 
         if not isinstance(pdbfiles, list):
             raise ValueError('pdbfiles must be a list')
@@ -82,7 +82,7 @@ class many2sql(pdb2sql):
         """Returns the data from the selection of all table in the instance
 
         Args:
-            columns (str): column tame to return
+            columns (str): column name(s) to return
 
         Returns:
             list: data per structure
