@@ -26,11 +26,12 @@ class many2sql(pdb2sql):
             for i in range(1, self.npdb):
                 self.tablenames.append('ATOM'+str(i))
 
-        super().__init__(pdbfiles[0], tablename=self.tablenames[0])
+        super().__init__(self.convert_input(
+            pdbfiles[0]), tablename=self.tablenames[0])
 
         for i in range(1, self.npdb):
             self._create_table(
-                pdbfiles[i], tablename=self.tablenames[i])
+                self.convert_input(pdbfiles[i]), tablename=self.tablenames[i])
 
     def __call__(self, **kwargs):
         """Return a class instance containing the selection of each structure
@@ -51,6 +52,21 @@ class many2sql(pdb2sql):
                 new_db._create_table(pdb_data, tablename=n)
 
         return new_db
+
+    def convert_input(self, pdb):
+        """Converts the input in a format that pdb2sql accepts
+
+        Args:
+            pdb (str, list, pdb2sql): input data
+
+        Returns:
+            str, list: correct input
+        """
+
+        if isinstance(pdb, pdb2sql):
+            return pdb.sql2pdb()
+
+        return pdb
 
     def intersect(self, match=['name', 'resname', 'resSeq', 'chainID']):
         """Returns a many2sql instance containing the common part of all the structures.

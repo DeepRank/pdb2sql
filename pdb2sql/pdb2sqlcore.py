@@ -93,6 +93,10 @@ class pdb2sql(pdb2sql_base):
         # size of the things
         ncol = len(self.col)
 
+        # clean up tablename
+        for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+":
+            tablename = tablename.replace(c, '_')
+
         # intialize the header/placeholder
         header, qm = '', ''
         for ic, (colname, coltype) in enumerate(self.col.items()):
@@ -322,7 +326,7 @@ class pdb2sql(pdb2sql_base):
 
     # get the names of the columns
 
-    def get_colnames(self, tablename='atom'):
+    def get_colnames(self):
         """Get SQL column names.
 
         Returns:
@@ -332,6 +336,7 @@ class pdb2sql(pdb2sql_base):
             >>> db.get_colnames()
         """
 
+        tablename = self._get_table_names()[0]
         cd = self.conn.execute(
             'select * from {tablename}'.format(tablename=tablename))
         names = list(map(lambda x: x[0], cd.description))
@@ -344,7 +349,8 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db.print_colnames()
         """
-        names = self.get_colnames()
+        tablenames = self._get_table_names()
+        names = self.get_colnames(tablename=tablenames[0])
         print('Possible column names are:')
         for n in names:
             print('\t' + n)
@@ -417,6 +423,7 @@ class pdb2sql(pdb2sql_base):
         Examples:
             >>> db.get('x,y,z', chainID=['A'], no_resName=['ALA', 'TRP'])
         """
+
         # check arguments format
         valid_colnames = self.get_colnames()
 
