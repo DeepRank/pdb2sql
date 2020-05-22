@@ -104,7 +104,8 @@ class StructureSimilarity(object):
         if lzone is None:
             resData = self.compute_lzone(save_file=False)
         elif not os.path.isfile(lzone):
-            resData = self.compute_lzone(save_file=True, filename=lzone)
+            resData = self.compute_lzone(
+                save_file=True, filename=lzone)
         else:
             resData = self.read_zone(lzone)
 
@@ -138,9 +139,13 @@ class StructureSimilarity(object):
                 self.decoy, resData, return_not_in_zone=True)
             xyz_ref_long, xyz_ref_short = self.get_xyz_zone_backbone(
                 self.ref, resData, return_not_in_zone=True)
-
+        print(resData)
+        print(data_ref_long)
+        print(data_decoy_long)
+        print(atom_long)
+        print(xyz_ref_long)
         xyz_decoy_short = superpose_selection(
-                xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method)
+            xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method)
 
         # compute the RMSD
         return self.get_rmsd(xyz_decoy_short, xyz_ref_short)
@@ -161,9 +166,10 @@ class StructureSimilarity(object):
         Returns:
             dict: definition of the zone.
         """
-        sql_ref = pdb2sql(self.ref)
+        sql_ref = pdb2sql(self.ref, fix_chainID=True)
         nA = len(sql_ref.get('x,y,z', chainID='A'))
         nB = len(sql_ref.get('x,y,z', chainID='B'))
+        print(nA, nB)
 
         # detect which chain is the longest
         long_chain = 'A'
@@ -264,12 +270,14 @@ class StructureSimilarity(object):
 
         # extract the xyz
         else:
-            xyz_contact_decoy = self.get_xyz_zone_backbone(self.decoy, resData)
-            xyz_contact_ref = self.get_xyz_zone_backbone(self.ref, resData)
+            xyz_contact_decoy = self.get_xyz_zone_backbone(
+                self.decoy, resData)
+            xyz_contact_ref = self.get_xyz_zone_backbone(
+                self.ref, resData)
 
         # superpose the fragments
         xyz_contact_decoy = superpose_selection(xyz_contact_decoy,
-            xyz_contact_decoy, xyz_contact_ref, method)
+                                                xyz_contact_decoy, xyz_contact_ref, method)
 
         # return the RMSD
         return self.get_rmsd(xyz_contact_decoy, xyz_contact_ref)
@@ -285,7 +293,7 @@ class StructureSimilarity(object):
         Returns:
             dict: i-zone definition
         """
-        sql_ref = interface(self.ref)
+        sql_ref = interface(self.ref, fix_chainID=True)
         contact_ref = sql_ref.get_contact_atoms(
             cutoff=cutoff, extend_to_residue=True)
 
@@ -485,8 +493,10 @@ class StructureSimilarity(object):
         backbone = ['CA', 'C', 'N', 'O']
 
         # create the sql
-        sql_decoy = pdb2sql(self.decoy, sqlfile='decoy.db')
-        sql_ref = pdb2sql(self.ref, sqlfile='ref.db')
+        sql_decoy = pdb2sql(
+            self.decoy, sqlfile='decoy.db', fix_chainID=True)
+        sql_ref = pdb2sql(
+            self.ref, sqlfile='ref.db', fix_chainID=True)
 
         # extract the pos of chains A
         xyz_decoy_A = np.array(
@@ -494,7 +504,8 @@ class StructureSimilarity(object):
                 'x,y,z',
                 chainID='A',
                 name=backbone))
-        xyz_ref_A = np.array(sql_ref.get('x,y,z', chainID='A', name=backbone))
+        xyz_ref_A = np.array(sql_ref.get(
+            'x,y,z', chainID='A', name=backbone))
 
         # extract the pos of chains B
         xyz_decoy_B = np.array(
@@ -502,7 +513,8 @@ class StructureSimilarity(object):
                 'x,y,z',
                 chainID='B',
                 name=backbone))
-        xyz_ref_B = np.array(sql_ref.get('x,y,z', chainID='B', name=backbone))
+        xyz_ref_B = np.array(sql_ref.get(
+            'x,y,z', chainID='B', name=backbone))
 
         # check the lengthes
         if len(xyz_decoy_A) != len(xyz_ref_A):
@@ -565,7 +577,8 @@ class StructureSimilarity(object):
             xyz_decoy += tr_decoy
 
             # rotate decoy
-            xyz_decoy = transform.rotate(xyz_decoy, U, center=self.origin)
+            xyz_decoy = transform.rotate(
+                xyz_decoy, U, center=self.origin)
 
             # update the sql database
             sql_decoy.update_column('x', xyz_decoy[:, 0])
@@ -602,8 +615,10 @@ class StructureSimilarity(object):
         """
         backbone = ['CA', 'C', 'N', 'O']
         # get data
-        data1 = db1.get('chainID,resSeq,name', chainID=chain, name=backbone)
-        data2 = db2.get('chainID,resSeq,name', chainID=chain, name=backbone)
+        data1 = db1.get('chainID,resSeq,name',
+                        chainID=chain, name=backbone)
+        data2 = db2.get('chainID,resSeq,name',
+                        chainID=chain, name=backbone)
 
         # tuplify
         data1 = [tuple(d1) for d1 in data1]
@@ -665,8 +680,8 @@ class StructureSimilarity(object):
         """
 
         # create thes sql
-        sql_decoy = interface(self.decoy)
-        sql_ref = interface(self.ref)
+        sql_decoy = interface(self.decoy, fix_chainID=True)
+        sql_ref = interface(self.ref, fix_chainID=True)
 
         # get the contact atoms
         if izone is None:
@@ -683,7 +698,8 @@ class StructureSimilarity(object):
                 sql_ref, izone, return_only_backbone_atoms=True)
 
         # get the xyz and atom identifier of the decoy contact atoms
-        xyz_contact_ref = sql_ref.get('x,y,z', rowID=index_contact_ref)
+        xyz_contact_ref = sql_ref.get(
+            'x,y,z', rowID=index_contact_ref)
         data_contact_ref = sql_ref.get(
             'chainID,resSeq,resName,name',
             rowID=index_contact_ref)
@@ -720,7 +736,8 @@ class StructureSimilarity(object):
         # check that we still have atoms in both chains
         chain_decoy = list(
             set(sql_decoy.get('chainID', rowID=index_contact_decoy)))
-        chain_ref = list(set(sql_ref.get('chainID', rowID=index_contact_ref)))
+        chain_ref = list(
+            set(sql_ref.get('chainID', rowID=index_contact_ref)))
 
         if len(chain_decoy) < 1 or len(chain_ref) < 1:
             raise ValueError(
@@ -737,9 +754,9 @@ class StructureSimilarity(object):
         # get the ideql rotation matrix
         # to superimpose the A chains
         rot_mat = get_rotation_matrix(
-                    xyz_contact_decoy,
-                    xyz_contact_ref,
-                    method=method)
+            xyz_contact_decoy,
+            xyz_contact_ref,
+            method=method)
 
         # rotate the entire fragment
         xyz_contact_decoy = transform.rotate(
@@ -752,8 +769,10 @@ class StructureSimilarity(object):
         if exportpath is not None:
 
             # update the sql database
-            sql_decoy.update_xyz(xyz_contact_decoy, rowID=index_contact_decoy)
-            sql_ref.update_xyz(xyz_contact_ref, rowID=index_contact_ref)
+            sql_decoy.update_xyz(
+                xyz_contact_decoy, rowID=index_contact_decoy)
+            sql_ref.update_xyz(
+                xyz_contact_ref, rowID=index_contact_ref)
 
             sql_decoy.exportpdb(
                 exportpath + '/irmsd_decoy.pdb',
@@ -845,8 +864,8 @@ class StructureSimilarity(object):
         """
 
         # create the sql
-        sql_decoy = interface(self.decoy)
-        sql_ref = interface(self.ref)
+        sql_decoy = interface(self.decoy, fix_chainID=True)
+        sql_ref = interface(self.ref, fix_chainID=True)
 
         # get the contact atoms
         residue_pairs_decoy = sql_decoy.get_contact_residues(
@@ -865,7 +884,8 @@ class StructureSimilarity(object):
             data_pair_ref += [(resA, resB) for resB in resB_list]
 
         # find the umber of residue that ref and decoys hace in common
-        nCommon = len(set(data_pair_ref).intersection(data_pair_decoy))
+        nCommon = len(
+            set(data_pair_ref).intersection(data_pair_decoy))
 
         # normalize
         fnat = nCommon / len(data_pair_ref)
@@ -968,11 +988,13 @@ class StructureSimilarity(object):
                         data_in_zone.append((chainID, resSeq, name))
 
                     elif resSeq not in resData[chainID] and name in backbone:
-                        data_not_in_zone.append((chainID, resSeq, name))
+                        data_not_in_zone.append(
+                            (chainID, resSeq, name))
 
                 else:
                     if name in backbone:
-                        data_not_in_zone.append((chainID, resSeq, name))
+                        data_not_in_zone.append(
+                            (chainID, resSeq, name))
 
         if return_not_in_zone:
             return set(data_in_zone), set(data_not_in_zone)
@@ -1119,7 +1141,8 @@ class StructureSimilarity(object):
         def scale_rms(rms, d):
             return(1. / (1 + (rms / d)**2))
 
-        dockq = 1. / 3 * (fnat + scale_rms(lrmsd, d1) + scale_rms(irmsd, d2))
+        dockq = 1. / 3 * \
+            (fnat + scale_rms(lrmsd, d1) + scale_rms(irmsd, d2))
         return round(dockq, 6)
 
     ##########################################################################
