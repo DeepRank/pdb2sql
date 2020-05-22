@@ -1,16 +1,18 @@
 import os
+from pathlib import Path
 from pdb2sql.StructureSimilarity import StructureSimilarity
 import unittest
 
+from . import pdb_folder
 
 class TestSim(unittest.TestCase):
     """Test Similarity calculation."""
 
     def setUp(self):
-        self.decoy = 'pdb/1AK4/1AK4_5w.pdb'
-        self.ref = 'pdb/1AK4/target.pdb'
-        self.izone = 'pdb/1AK4/target.izone'
-        self.lzone = 'pdb/1AK4/target.lzone'
+        self.decoy = Path(pdb_folder, '1AK4', '1AK4_5w.pdb')
+        self.ref = Path(pdb_folder, '1AK4', 'target.pdb')
+        self.izone = Path(pdb_folder, '1AK4', 'target.izone')
+        self.lzone = Path(pdb_folder, '1AK4', 'target.lzone')
         self.sim = StructureSimilarity(self.decoy, self.ref)
         # target values are calcualted using scripts from
         # https://github.com/haddocking/BM5-clean

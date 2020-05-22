@@ -1,13 +1,16 @@
 import unittest
+from pathlib import Path
 from pdb2sql import interface
 from pdb2sql import pdb2sql
+
+from . import pdb_folder
 
 
 class Test_1_ContactAtoms(unittest.TestCase):
     """Test function get_contact_atoms."""
 
     def setUp(self):
-        self.pdb = 'pdb/3CRO.pdb'
+        self.pdb = Path(pdb_folder, '3CRO.pdb')
         self.db = interface(self.pdb)
 
     def test_get_contact_atoms_default(self):
@@ -93,7 +96,7 @@ class Test_1_ContactAtoms(unittest.TestCase):
 
     def test_get_contact_atoms_exludeH(self):
         """"verify get_contact_atoms(excludeH=True)"""
-        pdb = 'pdb/3CRO_H.pdb'
+        pdb = Path(pdb_folder, '3CRO_H.pdb')
         db = interface(pdb)
         contact_atoms = db.get_contact_atoms(excludeH=True)
         self.assertIsInstance(contact_atoms, dict)
@@ -119,7 +122,7 @@ class Test_1_ContactAtoms(unittest.TestCase):
 
     def test_get_contact_atoms_alltrue(self):
         """"verify get_contact_atoms(True)"""
-        pdb = 'pdb/3CRO_H.pdb'
+        pdb = Path(pdb_folder, '3CRO_H.pdb')
         db = interface(pdb)
         with self.assertWarns(UserWarning) as ex:
             contact_atoms = db.get_contact_atoms(
@@ -144,7 +147,7 @@ class Test_2_ContactResidues(unittest.TestCase):
     """test get_contact_residues function."""
 
     def setUp(self):
-        self.pdb = 'pdb/3CRO.pdb'
+        self.pdb = Path(pdb_folder, '3CRO.pdb')
         self.db = interface(self.pdb)
 
     def test_get_contact_residues_default(self):
@@ -193,7 +196,7 @@ class Test_2_ContactResidues(unittest.TestCase):
 
     def test_get_contact_residues_exludeH(self):
         """"verify get_contact_residues(excludeH=True)"""
-        pdb = 'pdb/3CRO_H.pdb'
+        pdb = Path(pdb_folder, '3CRO_H.pdb')
         db = interface(pdb)
         contact_residues = db.get_contact_residues(
             allchains=True, excludeH=True)
@@ -253,7 +256,7 @@ class Test_2_ContactResidues(unittest.TestCase):
 
     def test_get_contact_residues_alltrue(self):
         """"verify get_contact_residues(True)"""
-        pdb = 'pdb/3CRO_H.pdb'
+        pdb = Path(pdb_folder, '3CRO_H.pdb')
         db = interface(pdb)
         with self.assertWarns(UserWarning) as ex:
             contact_residues = db.get_contact_residues(
@@ -273,7 +276,7 @@ class Test_3_PDB2SQLInstanceInput(unittest.TestCase):
     """test using pdb2sql instance as input"""
 
     def setUp(self):
-        self.pdb = 'pdb/3CRO.pdb'
+        self.pdb = Path(pdb_folder, '3CRO.pdb')
 
     def test_get_contact_residues_default(self):
         """"verify get_contact_residues default."""

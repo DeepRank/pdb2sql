@@ -3,21 +3,23 @@ import os
 import numpy as np
 from pathlib import Path
 from pdb2sql import pdb2sql
-from utils import CaptureOutErr
+
+from .utils import CaptureOutErr
+from . import pdb_folder, test_folder
 
 
 class TestCreateSQL(unittest.TestCase):
 
     def setUp(self):
-        self.pdbfile = "./pdb/3CRO.pdb"
-        self.sqlfile = "./sql_3CRO.db"
+        self.pdbfile = Path(pdb_folder, "3CRO.pdb")
+        self.sqlfile = Path(test_folder, "sql_3CRO.db")
 
-        self.pdb_longline = "./pdb/dummy_longline.pdb"
-        self.pdb_nochainID_segID = "./pdb/dummy_blank_chainID_with_segID.pdb"
-        self.pdb_nochainID_nosegID = "./pdb/dummy_blank_chainID_without_segID.pdb"
-        self.pdb_noocc = "./pdb/dummy_blank_occupancy.pdb"
-        self.pdb_notemp = "./pdb/dummy_blank_temperature.pdb"
-        self.pdb_noelement = "./pdb/dummy_blank_element.pdb"
+        self.pdb_longline = Path(pdb_folder, "dummy_longline.pdb")
+        self.pdb_nochainID_segID = Path(pdb_folder, "dummy_blank_chainID_with_segID.pdb")
+        self.pdb_nochainID_nosegID = Path(pdb_folder, "dummy_blank_chainID_without_segID.pdb")
+        self.pdb_noocc = Path(pdb_folder, "dummy_blank_occupancy.pdb")
+        self.pdb_notemp = Path(pdb_folder, "dummy_blank_temperature.pdb")
+        self.pdb_noelement = Path(pdb_folder, "dummy_blank_element.pdb")
 
     def test_init(self):
         """Verify default init."""
@@ -231,7 +233,7 @@ class TestCreateSQL(unittest.TestCase):
 
 class TestPrintGetUpdate(unittest.TestCase):
     def setUp(self):
-        pdbfile = "./pdb/dummy_template.pdb"
+        pdbfile = Path(pdb_folder, "dummy_template.pdb")
         self.db = pdb2sql(pdbfile)
 
     def test_print(self):

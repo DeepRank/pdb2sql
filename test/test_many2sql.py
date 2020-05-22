@@ -4,14 +4,16 @@ import numpy as np
 from pathlib import Path
 from pdb2sql import many2sql
 from pdb2sql import pdb2sql
-from utils import CaptureOutErr
+
+from .utils import CaptureOutErr
+from . import pdb_folder
 
 
 class TestMany2SQL(unittest.TestCase):
 
     def setUp(self):
-        self.pdb1 = 'pdb/1AK4/1AK4_5w.pdb'
-        self.pdb2 = 'pdb/1AK4/1AK4_10w.pdb'
+        self.pdb1 = os.fspath(Path(pdb_folder, '1AK4', '1AK4_5w.pdb'))
+        self.pdb2 = os.fspath(Path(pdb_folder, '1AK4', '1AK4_10w.pdb'))
 
     def test_init_from_files(self):
         """Verify init from path."""

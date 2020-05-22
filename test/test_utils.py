@@ -1,5 +1,6 @@
 import os
 import unittest
+from pathlib import Path
 from pdb2sql import fetch
 
 class TestTools(unittest.TestCase):

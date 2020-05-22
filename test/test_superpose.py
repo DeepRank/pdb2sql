@@ -1,14 +1,16 @@
 import os
 import unittest
+from pathlib import Path
 from pdb2sql.superpose import superpose
 
+from . import pdb_folder
 
 class TestSuperpose(unittest.TestCase):
     """Test the superpose functionality"""
 
     def setUp(self):
-        self.pdb1 = 'pdb/1AK4/1AK4_5w.pdb'
-        self.pdb2 = 'pdb/1AK4/1AK4_10w.pdb'
+        self.pdb1 = Path(pdb_folder, '1AK4', '1AK4_5w.pdb')
+        self.pdb2 = Path(pdb_folder, '1AK4', '1AK4_10w.pdb')
 
     def test_superpose(self):
         """Test superpose()"""

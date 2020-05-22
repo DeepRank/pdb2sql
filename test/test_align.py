@@ -1,13 +1,17 @@
 import unittest
+from pathlib import Path
 from pdb2sql.align import align, pca, align_interface
 import numpy as np
+
+
+from . import pdb_folder
 
 
 class TestAlign(unittest.TestCase):
     """Test the superpose functionality"""
 
     def setUp(self):
-        self.pdb = 'pdb/1AK4/1AK4_10w.pdb'
+        self.pdb = Path(pdb_folder, '1AK4', '1AK4_10w.pdb')
 
     def test_align(self):
         """Test align()"""

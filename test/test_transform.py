@@ -1,13 +1,15 @@
 import unittest
 import numpy as np
+from pathlib import Path
 from pdb2sql import pdb2sql
 from pdb2sql import transform
 
+from . import pdb_folder
 
 class TestTools(unittest.TestCase):
 
     def setUp(self):
-        self.db = pdb2sql('./pdb/dummy_transform.pdb')
+        self.db = pdb2sql(Path(pdb_folder, 'dummy_transform.pdb'))
         self.xyz = self.db.get('x,y,z')
 
     def test_get_xyz(self):
