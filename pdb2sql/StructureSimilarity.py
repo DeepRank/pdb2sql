@@ -295,9 +295,11 @@ class StructureSimilarity(object):
         Returns:
             dict: i-zone definition
         """
-        sql_ref = interface(self.ref, fix_chainID=True)
+
+        sql_ref = interface(self.ref)
+        chains = list(sql_ref.get_chains())
         contact_ref = sql_ref.get_contact_atoms(
-            cutoff=cutoff, extend_to_residue=True)
+            cutoff=cutoff, extend_to_residue=True, chain1=chains[0], chain2=chains[1])
 
         index_contact_ref = []
         for _, v in contact_ref.items():
