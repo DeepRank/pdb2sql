@@ -139,11 +139,7 @@ class StructureSimilarity(object):
                 self.decoy, resData, return_not_in_zone=True)
             xyz_ref_long, xyz_ref_short = self.get_xyz_zone_backbone(
                 self.ref, resData, return_not_in_zone=True)
-        print(resData)
-        print(data_ref_long)
-        print(data_decoy_long)
-        print(atom_long)
-        print(xyz_ref_long)
+
         xyz_decoy_short = superpose_selection(
             xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method)
 
@@ -166,21 +162,26 @@ class StructureSimilarity(object):
         Returns:
             dict: definition of the zone.
         """
-        sql_ref = pdb2sql(self.ref, fix_chainID=True)
-        nA = len(sql_ref.get('x,y,z', chainID='A'))
-        nB = len(sql_ref.get('x,y,z', chainID='B'))
-        print(nA, nB)
+        sql_ref = pdb2sql(self.ref)
+        chains = list(sql_ref.get_chains())
+        if len(chains) != 2:
+            raise ValueError(
+                'exactly two chains are needed for lrmsd calculation but we found %d' % len(chains), chains)
+
+        nA = len(sql_ref.get('x,y,z', chainID=chains[0]))
+        nB = len(sql_ref.get('x,y,z', chainID=chains[1]))
 
         # detect which chain is the longest
-        long_chain = 'A'
+        long_chain = chains[0]
         if nA < nB:
-            long_chain = 'B'
+            long_chain = chains[1]
 
         # extract data about the residue
         data_test = [
             tuple(data) for data in sql_ref.get(
                 'chainID,resSeq',
                 chainID=long_chain)]
+
         data_test = sorted(set(data_test))
 
         # close the sql
@@ -205,6 +206,7 @@ class StructureSimilarity(object):
             if chain not in resData.keys():
                 resData[chain] = []
             resData[chain].append(num)
+
         return resData
 
     ##########################################################################
@@ -982,6 +984,7 @@ class StructureSimilarity(object):
                 name = line[12:16].strip()
 
                 backbone = ['C', 'CA', 'N', 'O']
+
                 if chainID in resData.keys():
 
                     if resSeq in resData[chainID] and name in backbone:
