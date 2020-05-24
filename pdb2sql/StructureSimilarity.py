@@ -298,6 +298,10 @@ class StructureSimilarity(object):
 
         sql_ref = interface(self.ref)
         chains = list(sql_ref.get_chains())
+        if len(chains) != 2:
+            raise ValueError(
+                'exactly two chains are needed for irmsd calculation but we found %d' % len(chains), chains)
+
         contact_ref = sql_ref.get_contact_atoms(
             cutoff=cutoff, extend_to_residue=True, chain1=chains[0], chain2=chains[1])
 
