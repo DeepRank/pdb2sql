@@ -254,8 +254,6 @@ class StructureSimilarity(object):
         # read the izone file
         if izone is None:
             resData = self.compute_izone(cutoff, save_file=False)
-        # elif not os.path.isfile(izone):
-        #     resData = self.compute_izone(cutoff,save_file=True,filename=izone)
         else:
             resData = self.read_zone(izone)
 
@@ -501,37 +499,40 @@ class StructureSimilarity(object):
         backbone = ['CA', 'C', 'N', 'O']
 
         # create the sql
-        sql_decoy = pdb2sql(
-            self.decoy, sqlfile='decoy.db', fix_chainID=True)
-        sql_ref = pdb2sql(
-            self.ref, sqlfile='ref.db', fix_chainID=True)
+        sql_decoy = pdb2sql(self.decoy, sqlfile='decoy.db')
+        sql_ref = pdb2sql(self.ref, sqlfile='ref.db')
+
+        # get the chains
+        chains_decoy = sql_decoy.get_chains()
+        chains_ref = sql_ref.get_chains()
+
+        if chains_decoy != chains_ref:
+            raise ValueError(
+                'Chains are different in decoy and reference structure')
+
+        chain1 = chains_decoy[0]
+        chain2 = chains_decoy[1]
 
         # extract the pos of chains A
         xyz_decoy_A = np.array(
-            sql_decoy.get(
-                'x,y,z',
-                chainID='A',
-                name=backbone))
+            sql_decoy.get('x,y,z', chainID=chain1, name=backbone))
         xyz_ref_A = np.array(sql_ref.get(
-            'x,y,z', chainID='A', name=backbone))
+            'x,y,z', chainID=chain1, name=backbone))
 
         # extract the pos of chains B
         xyz_decoy_B = np.array(
-            sql_decoy.get(
-                'x,y,z',
-                chainID='B',
-                name=backbone))
+            sql_decoy.get('x,y,z', chainID=chain2, name=backbone))
         xyz_ref_B = np.array(sql_ref.get(
-            'x,y,z', chainID='B', name=backbone))
+            'x,y,z', chainID=chain2, name=backbone))
 
         # check the lengthes
         if len(xyz_decoy_A) != len(xyz_ref_A):
             xyz_decoy_A, xyz_ref_A = self.get_identical_atoms(
-                sql_decoy, sql_ref, 'A')
+                sql_decoy, sql_ref, chain1)
 
         if len(xyz_decoy_B) != len(xyz_ref_B):
             xyz_decoy_B, xyz_ref_B = self.get_identical_atoms(
-                sql_decoy, sql_ref, 'B')
+                sql_decoy, sql_ref, chain2)
 
         # detect which chain is the longest
         nA, nB = len(xyz_decoy_A), len(xyz_decoy_B)
@@ -688,14 +689,26 @@ class StructureSimilarity(object):
         """
 
         # create thes sql
-        sql_decoy = interface(self.decoy, fix_chainID=True)
-        sql_ref = interface(self.ref, fix_chainID=True)
+        sql_decoy = interface(self.decoy)
+        sql_ref = interface(self.ref)
+
+        # get the chains
+        chains_decoy = sql_decoy.get_chains()
+        chains_ref = sql_ref.get_chains()
+
+        if chains_decoy != chains_ref:
+            raise ValueError(
+                'Chains are different in decoy and reference structure')
 
         # get the contact atoms
         if izone is None:
+
             contact_ref = sql_ref.get_contact_atoms(
                 cutoff=cutoff,
-                extend_to_residue=True)
+                extend_to_residue=True,
+                chain1=chains_ref[0],
+                chain2=chains_decoy[1])
+
             index_contact_ref = []
             for v in contact_ref.values():
                 index_contact_ref += v
