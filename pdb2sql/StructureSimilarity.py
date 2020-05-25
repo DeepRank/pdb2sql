@@ -707,7 +707,7 @@ class StructureSimilarity(object):
                 cutoff=cutoff,
                 extend_to_residue=True,
                 chain1=chains_ref[0],
-                chain2=chains_decoy[1])
+                chain2=chains_ref[1])
 
             index_contact_ref = []
             for v in contact_ref.values():
