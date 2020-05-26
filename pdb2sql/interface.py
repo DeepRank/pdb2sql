@@ -3,6 +3,7 @@ import itertools
 import warnings
 from .pdb2sqlcore import pdb2sql
 
+
 class interface(pdb2sql):
 
     def __init__(self, pdb, **kwargs):
@@ -72,6 +73,12 @@ class interface(pdb2sql):
             chainIDs = self.get_chains()
         else:
             chainIDs = [chain1, chain2]
+
+        chains = self.get_chains()
+        for c in chainIDs:
+            if c not in chains:
+                raise ValueError(
+                    'chain %s not found in the structure' % c)
 
         xyz = dict()
         index = dict()
@@ -265,7 +272,8 @@ class interface(pdb2sql):
                     residue_contact_pairs[data1] = set()
 
                 # get the res info of the atom in the other chain
-                data2 = self.get('chainID,resSeq,resName', rowID=atoms2)
+                data2 = self.get(
+                    'chainID,resSeq,resName', rowID=atoms2)
 
                 # store that in the dict without double
                 for resData in data2:
