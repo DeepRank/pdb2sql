@@ -22,5 +22,5 @@
    "license": {
       "id": "Apache-2.0"
    },
-   "title": "pdb2sql"
+   "title": "The pdb2sql Python Package: Parsing, Manipulation and Analysis of PDB Files Using SQL Queries"
 }
