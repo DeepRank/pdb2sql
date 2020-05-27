@@ -13,10 +13,30 @@ from .pdb2sqlcore import pdb2sql
 class many2sql(pdb2sql):
 
     def __init__(self, pdbfiles, tablenames=None):
-        """Create a sql database containing multiple pdbs."""
+        """Create a sql database containing multiple pdbs.
+
+        Args:
+            pdbfiles(list): list of pdb files or data.
+            tablenames (list): list of table names in string
+                Defaults to None.
+
+        Raises:
+            TypeError: pdbfiles must be a list
+            TypeError: tablenames must be a list
+            TypeError: tablenames must be a list of strings
+        """
 
         if not isinstance(pdbfiles, list):
-            raise ValueError('pdbfiles must be a list')
+            raise TypeError('pdbfiles must be a list')
+
+        if tablenames is not None:
+            if not isinstance(tablenames, list):
+                raise TypeError('tablenames must be a list')
+            else:
+                for i in tablenames:
+                    if not isinstance(i, str):
+                        raise TypeError(f'tablenames must be a list of strings,'
+                            f' {i} is a type of {type(i)}')
 
         self.npdb = len(pdbfiles)
 
