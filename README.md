@@ -7,6 +7,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/DeepRank/pdb2sql/badge.svg)](https://coveralls.io/github/DeepRank/pdb2sql)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7cce335b21cc49d6bb3ff9878d6ac904)](https://www.codacy.com/manual/CunliangGeng/pdb2sql?utm_source=github.com&utm_medium=referral&utm_content=DeepRank/pdb2sql&utm_campaign=Badge_Grade)
 [![Documentation Status](https://readthedocs.org/projects/pdb2sql/badge/?version=latest)](https://pdb2sql.readthedocs.io/en/latest/?badge=latest)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.02077/status.svg)](https://doi.org/10.21105/joss.02077)
 
 `pdb2sql` is a Python package that leverage SQL queries to parse, manipulate and process PDB files. It provides:
 
