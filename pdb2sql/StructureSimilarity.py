@@ -254,6 +254,9 @@ class StructureSimilarity(object):
         # read the izone file
         if izone is None:
             resData = self.compute_izone(cutoff, save_file=False)
+        elif not os.path.isfile(izone):
+            resData = self.compute_izone(
+                cutoff, save_file=True, filename=izone)
         else:
             resData = self.read_zone(izone)
 
