@@ -92,6 +92,8 @@ class StructureSimilarity(object):
                 'svd' or 'quaternion'.
             check (bool, optional): Check if the sequences are aligned
                 and fix it if not. Defaults to True.
+            name (list, optional): atom name to include in the zone.
+                                   Defaults to ['C', 'CA', 'N', 'O']
 
         Returns:
             float: L-RMSD value of the conformation
@@ -218,12 +220,8 @@ class StructureSimilarity(object):
     #
     ##########################################################################
 
-    def compute_irmsd_fast(
-            self,
-            izone=None,
-            method='svd',
-            cutoff=10,
-            check=True):
+    def compute_irmsd_fast(self, izone=None, method='svd',
+                           cutoff=10, check=True):
         """Fast method to compute the i-rmsd.
 
         i-RMSD is computed by selecting the backbone atoms of reference
@@ -493,6 +491,12 @@ class StructureSimilarity(object):
             method (str, optional): Method to align the fragments,
             'svd' or 'quaternion'.
 
+        Kwargs: selection keywords used in the pdb2sql.get() method :
+                'rowID', 'serial', 'name', 'altLoc', 
+                'resName', 'chainID', 'resSeq', 'iCode', 
+                'x', 'y', 'z', 'occ', 'temp', 'element', 'model'
+
+
         Returns:
             float: L-RMSD value of the conformation
 
@@ -627,6 +631,11 @@ class StructureSimilarity(object):
             db1 (TYPE): pdb2sql database of the first conformation
             db2 (TYPE): pdb2sql database of the 2nd conformation
             chain (str): chain name
+
+        Kwargs: selection keywords used in the pdb2sql.get() method :
+                'rowID', 'serial', 'name', 'altLoc', 
+                'resName', 'chainID', 'resSeq', 'iCode', 
+                'x', 'y', 'z', 'occ', 'temp', 'element', 'model'
 
         Returns:
             list, list: list of xyz for both database
