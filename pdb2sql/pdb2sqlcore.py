@@ -569,7 +569,7 @@ class pdb2sql(pdb2sql_base):
 
         # empty data
         if len(data) == 0:
-            warnings.warn('SQL query get an empty')
+            # warnings.warn('SQL query get an empty')
             return data
 
         # fix the python <--> sql indexes
