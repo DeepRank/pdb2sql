@@ -288,10 +288,16 @@ class StructureSimilarity(object):
 
         if check:
 
+            self.check_residues()
+
             data_decoy = self.get_data_zone_backbone(
                 self.decoy, resData, return_not_in_zone=False)
             data_ref = self.get_data_zone_backbone(
                 self.ref, resData, return_not_in_zone=False)
+
+            if data_ref.symmetric_difference(data_decoy) != set():
+                raise ValueError(
+                    'Issue in the calculation of the i-rmsd')
 
             atom_common = data_ref.intersection(data_decoy)
             xyz_contact_decoy = self._get_xyz(self.decoy, atom_common)
@@ -306,7 +312,8 @@ class StructureSimilarity(object):
 
         # superpose the fragments
         xyz_contact_decoy = superpose_selection(xyz_contact_decoy,
-                                                xyz_contact_decoy, xyz_contact_ref, method)
+                                                xyz_contact_decoy,
+                                                xyz_contact_ref, method)
 
         # return the RMSD
         return self.get_rmsd(xyz_contact_decoy, xyz_contact_ref)
