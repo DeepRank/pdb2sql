@@ -62,6 +62,23 @@ class StructureSimilarity(object):
     def __repr__(self):
         return f'{self.__module__}.{self.__class__.__name__}({self.decoy}, {self.ref}, {self.verbose})'
 
+    def check_residues(self):
+        """Check if the residue numbering matches."""
+
+        res_ref = pdb2sql(self.ref).get_residues()
+        res_dec = pdb2sql(self.decoy).get_residues()
+
+        if res_ref != res_dec:
+            print('Residues are different in the reference and decoy')
+            print('Residues found in %s and not in %s' %
+                  (self.ref, self.decoy))
+            print(set(res_ref).difference(set(res_dec)))
+            print('Residues found in %s and not in %s' %
+                  (self.decoy, self.ref))
+            print(set(res_dec).difference(set(res_ref)))
+            raise ValueError(
+                'Residue numbering not identical in ref and decoy')
+
     ##########################################################################
     #
     #   FAST ROUTINE TO COMPUTE THE L-RMSD
@@ -70,8 +87,6 @@ class StructureSimilarity(object):
     #   if lzone is not given in argument the routine will compute them automatically
     #
     ##########################################################################
-
-    # TODO add output zone files
 
     # compute the L-RMSD
     def compute_lrmsd_fast(self, lzone=None, method='svd', check=True, name=['C', 'CA', 'N', 'O']):
@@ -122,14 +137,25 @@ class StructureSimilarity(object):
             # results which is totally wrong, because the code here does
             # not do sequence alignment.
 
+            self.check_residues()
+
             data_decoy_long, data_decoy_short = self.get_data_zone_backbone(
                 self.decoy, resData, return_not_in_zone=True, name=name)
+
             data_ref_long, data_ref_short = self.get_data_zone_backbone(
                 self.ref, resData, return_not_in_zone=True, name=name)
+
+            if data_decoy_long.symmetric_difference(data_ref_long) != set():
+                raise ValueError(
+                    'Issue in the calculation of the l-rmsd')
 
             atom_long = data_ref_long.intersection(data_decoy_long)
             xyz_decoy_long = self._get_xyz(self.decoy, atom_long)
             xyz_ref_long = self._get_xyz(self.ref, atom_long)
+
+            if data_decoy_short.symmetric_difference(data_ref_short) != set():
+                raise ValueError(
+                    'Issue in the calculation of the l-rmsd')
 
             atom_short = data_ref_short.intersection(data_decoy_short)
             xyz_decoy_short = self._get_xyz(self.decoy, atom_short)
@@ -137,8 +163,10 @@ class StructureSimilarity(object):
 
         # extract the xyz
         else:
+
             xyz_decoy_long, xyz_decoy_short = self.get_xyz_zone_backbone(
                 self.decoy, resData, return_not_in_zone=True, name=name)
+
             xyz_ref_long, xyz_ref_short = self.get_xyz_zone_backbone(
                 self.ref, resData, return_not_in_zone=True, name=name)
 
@@ -959,6 +987,7 @@ class StructureSimilarity(object):
         # get the xyz of the
         xyz_in_zone = []
         xyz_not_in_zone = []
+        print(resData)
 
         for line in data:
             if line.startswith('ATOM'):
@@ -973,14 +1002,17 @@ class StructureSimilarity(object):
                 y = float(line[38:46])
                 z = float(line[46:54])
 
-                if chainID in resData.keys():
-                    if resSeq in resData[chainID] and atname in name:
+                if chainID in resData.keys() and atname in name:
+
+                    if resSeq in resData[chainID]:
                         xyz_in_zone.append([x, y, z])
-                    elif resSeq not in resData[chainID] and atname in name:
+
+                    elif resSeq not in resData[chainID]:
                         xyz_not_in_zone.append([x, y, z])
+
                 else:
-                    if atname in backbone:
-                        xyz_not_in_zone.append([x, y, z])
+                    xyz_not_in_zone.append([x, y, z])
+                    print('not', chainID, resSeq, atname, x, y, z)
 
         if return_not_in_zone:
             return xyz_in_zone, xyz_not_in_zone
@@ -1019,17 +1051,19 @@ class StructureSimilarity(object):
                 resSeq = int(line[22:26])
                 atname = line[12:16].strip()
 
-                if chainID in resData.keys():
+                if atname in name:
 
-                    if resSeq in resData[chainID] and atname in name:
-                        data_in_zone.append((chainID, resSeq, atname))
+                    if chainID in resData.keys():
 
-                    elif resSeq not in resData[chainID] and atname in name:
-                        data_not_in_zone.append(
-                            (chainID, resSeq, atname))
+                        if resSeq in resData[chainID]:
+                            data_in_zone.append(
+                                (chainID, resSeq, atname))
 
-                else:
-                    if atname in name:
+                        elif resSeq not in resData[chainID]:
+                            data_not_in_zone.append(
+                                (chainID, resSeq, atname))
+
+                    else:
                         data_not_in_zone.append(
                             (chainID, resSeq, atname))
 
