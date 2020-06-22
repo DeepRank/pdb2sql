@@ -94,8 +94,8 @@ class StructureSimilarity(object):
 
         L-RMSD is computed by aligning the longest chain of the decoy to
         the one of the reference and computing the RMSD of the shortest
-        chain between decoy and reference. Both fitting and rms calculation
-        use only backbone atoms. See reference:
+        chain between decoy and reference. By default, both fitting and
+         rms calculation use only backbone atoms. See reference:
 
         DockQ: A Quality Measure for Protein-Protein Docking Models
         https://doi.org/10.1371/journal.pone.0161879
@@ -132,10 +132,6 @@ class StructureSimilarity(object):
             # 1. get_data_zone_backbone returns in_zone and not_in_zone
             #  here the in_zone defines the zone for fitting,
             #  and not_in_zone defines the zone for rms calculation.
-            # 2. the decoy and ref pdb must have consistent residue
-            # numbering, otherwise e.g. shifted numbering can also give
-            # results which is totally wrong, because the code here does
-            # not do sequence alignment.
 
             self.check_residues()
 
@@ -527,8 +523,8 @@ class StructureSimilarity(object):
             'svd' or 'quaternion'.
 
         Kwargs: selection keywords used in the pdb2sql.get() method :
-                'rowID', 'serial', 'name', 'altLoc', 
-                'resName', 'chainID', 'resSeq', 'iCode', 
+                'rowID', 'serial', 'name', 'altLoc',
+                'resName', 'resSeq', 'iCode',
                 'x', 'y', 'z', 'occ', 'temp', 'element', 'model'
 
 
@@ -668,8 +664,8 @@ class StructureSimilarity(object):
             chain (str): chain name
 
         Kwargs: selection keywords used in the pdb2sql.get() method :
-                'rowID', 'serial', 'name', 'altLoc', 
-                'resName', 'chainID', 'resSeq', 'iCode', 
+                'rowID', 'serial', 'name', 'altLoc',
+                'resName', 'chainID', 'resSeq', 'iCode',
                 'x', 'y', 'z', 'occ', 'temp', 'element', 'model'
 
         Returns:
@@ -994,7 +990,6 @@ class StructureSimilarity(object):
         # get the xyz of the
         xyz_in_zone = []
         xyz_not_in_zone = []
-        print(resData)
 
         for line in data:
             if line.startswith('ATOM'):
