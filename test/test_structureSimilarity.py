@@ -22,6 +22,15 @@ class TestSim(unittest.TestCase):
         self.dockQ = 0.682191
         self.capriClass = 'medium'
         self.nclashes_ref = 4
+    ####################################################################
+    # test check_residues to see if pdb files match or not
+    ####################################################################
+    def test_check_residues(self):
+        decoy = Path(pdb_folder, '1AK4', '1AK4_5w_nonmatch.pdb')
+        with self.assertRaisesRegex(ValueError,
+                                'Residue numbering not identical'):
+            sim = StructureSimilarity(decoy, self.ref)
+            sim.check_residues()
 
     ####################################################################
     # test i-rmsd
@@ -89,12 +98,6 @@ class TestSim(unittest.TestCase):
         """verify compute_lrmsd_fast(method='quaternion')"""
         result = self.sim.compute_lrmsd_fast(method='quaternion')
         self.assertEqual(result, self.lrmsd)
-
-    def test_lrmsdfast_check(self):
-        """verify compute_lrmsd_fast(check=False)"""
-        with self.assertRaisesRegex(ValueError,
-                                    'operands could not be broadcast'):
-            _ = self.sim.compute_lrmsd_fast(check=False)
 
     def test_lrmsdsql_default(self):
         """verify compute_lrmsd_pdb2sql()"""
