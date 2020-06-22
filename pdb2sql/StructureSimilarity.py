@@ -929,7 +929,8 @@ class StructureSimilarity(object):
             pdb_file (str): filename containing the pdb of the molecule
             resData (dict): information about the zone residues
             return_not_in_zone (bool, optional): Do we return the
-                backbone atoms not in the zone.
+                backbone atoms not in the zone and the chains used
+                in the zone.
 
         Returns:
             list(float): XYZ of of backbone atoms in the zone.
@@ -959,8 +960,6 @@ class StructureSimilarity(object):
                 if chainID in resData.keys():
                     if resSeq in resData[chainID] and name in backbone:
                         xyz_in_zone.append([x, y, z])
-                    elif resSeq not in resData[chainID] and name in backbone:
-                        xyz_not_in_zone.append([x, y, z])
                 else:
                     if name in backbone:
                         xyz_not_in_zone.append([x, y, z])
@@ -979,7 +978,7 @@ class StructureSimilarity(object):
             pdb_file (str): filename containing the pdb of the molecule
             resData (dict): information about the zone residues
             return_not_in_zone (bool, optional): Do we return the atoms
-                not in the zone
+                not in the zone and the chains used in the zone
 
         Returns:
             set(float): data of the backbone atoms in the zone
@@ -1008,10 +1007,6 @@ class StructureSimilarity(object):
 
                     if resSeq in resData[chainID] and name in backbone:
                         data_in_zone.append((chainID, resSeq, name))
-
-                    elif resSeq not in resData[chainID] and name in backbone:
-                        data_not_in_zone.append(
-                            (chainID, resSeq, name))
 
                 else:
                     if name in backbone:
