@@ -124,14 +124,11 @@ class Test_1_ContactAtoms(unittest.TestCase):
         """"verify get_contact_atoms(True)"""
         pdb = Path(pdb_folder, '3CRO_H.pdb')
         db = interface(pdb)
-        with self.assertWarns(UserWarning) as ex:
-            contact_atoms = db.get_contact_atoms(
-                allchains=True,
-                extend_to_residue=True,
-                only_backbone_atoms=True,
-                excludeH=True)
-        self.assertEqual(len(ex.warnings), 2)
-        self.assertEqual(ex.warning.args[0], 'SQL query get an empty')
+        contact_atoms = db.get_contact_atoms(
+            allchains=True,
+            extend_to_residue=True,
+            only_backbone_atoms=True,
+            excludeH=True)
         self.assertIsInstance(contact_atoms, dict)
         self.assertEqual(len(contact_atoms), 4)
         self.assertEqual(list(contact_atoms.keys()), ['A', 'B', 'L', 'R'])
@@ -213,7 +210,7 @@ class Test_2_ContactResidues(unittest.TestCase):
         with self.assertWarns(UserWarning) as ex:
             contact_residues = self.db.get_contact_residues(
                 only_backbone_atoms=True)
-        self.assertEqual(len(ex.warnings), 3)
+        self.assertEqual(len(ex.warnings), 1)
         self.assertEqual(ex.warning.args[0],
                          'No contact atoms detected in pdb2sql')
         self.assertIsInstance(contact_residues, dict)
@@ -258,11 +255,8 @@ class Test_2_ContactResidues(unittest.TestCase):
         """"verify get_contact_residues(True)"""
         pdb = Path(pdb_folder, '3CRO_H.pdb')
         db = interface(pdb)
-        with self.assertWarns(UserWarning) as ex:
-            contact_residues = db.get_contact_residues(
-                allchains=True, only_backbone_atoms=True, excludeH=True)
-        self.assertEqual(len(ex.warnings), 2)
-        self.assertEqual(ex.warning.args[0], 'SQL query get an empty')
+        contact_residues = db.get_contact_residues(
+            allchains=True, only_backbone_atoms=True, excludeH=True)
         self.assertIsInstance(contact_residues, dict)
         self.assertEqual(len(contact_residues), 4)
         self.assertEqual(list(contact_residues.keys()), ['A', 'B', 'L', 'R'])
