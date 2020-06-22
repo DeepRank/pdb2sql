@@ -1009,17 +1009,12 @@ class StructureSimilarity(object):
                 y = float(line[38:46])
                 z = float(line[46:54])
 
-                if chainID in resData.keys() and atname in name:
-
-                    if resSeq in resData[chainID]:
-                        xyz_in_zone.append([x, y, z])
-
-                    elif resSeq not in resData[chainID]:
+                if atname in name:
+                    if chainID in resData.keys():
+                        if resSeq in resData[chainID]:
+                            xyz_in_zone.append([x, y, z])
+                    else:
                         xyz_not_in_zone.append([x, y, z])
-
-                else:
-                    xyz_not_in_zone.append([x, y, z])
-                    print('not', chainID, resSeq, atname, x, y, z)
 
         if return_not_in_zone:
             return xyz_in_zone, xyz_not_in_zone
@@ -1059,20 +1054,11 @@ class StructureSimilarity(object):
                 atname = line[12:16].strip()
 
                 if atname in name:
-
                     if chainID in resData.keys():
-
                         if resSeq in resData[chainID]:
-                            data_in_zone.append(
-                                (chainID, resSeq, atname))
-
-                        elif resSeq not in resData[chainID]:
-                            data_not_in_zone.append(
-                                (chainID, resSeq, atname))
-
+                            data_in_zone.append((chainID, resSeq, atname))
                     else:
-                        data_not_in_zone.append(
-                            (chainID, resSeq, atname))
+                        data_not_in_zone.append((chainID, resSeq, atname))
 
         if return_not_in_zone:
             return set(data_in_zone), set(data_not_in_zone)
