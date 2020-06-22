@@ -311,14 +311,6 @@ class TestPrintGetUpdate(unittest.TestCase):
         target = "Invalid column name chain"
         self.assertIn(target, ex_msg)
 
-    def test_1_get_empty(self):
-        """Verfity get() empty."""
-        with self.assertWarns(UserWarning) as ex:
-            result = self.db.get('*', chainID='A')
-        ex_msg = ex.warning.args[0]
-        target = "SQL query get an empty"
-        self.assertIn(target, ex_msg)
-
     def test_1_get_sql_limit(self):
         """Verfity get() sql varibale limit 999."""
         with CaptureOutErr() as cm:
