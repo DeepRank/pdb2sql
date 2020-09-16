@@ -56,7 +56,9 @@ class interface(pdb2sql):
             allchains (bool): calculate contacts for all chains or not.
                  Defaults to False.
             chain1 (str): first chain ID. Defaults to 'A'.
+                Used when 'allchains' is False.
             chain2 (str): second chain ID. Defaults to 'B'.
+                Used when 'allchains' is False.
             extend_to_residue (bool): get all atoms of the residues containing
                 at least one contact atom. Defaults to False.
             only_backbone_atoms (bool): only use backbone atoms to
