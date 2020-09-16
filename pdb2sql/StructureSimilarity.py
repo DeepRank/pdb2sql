@@ -476,8 +476,13 @@ class StructureSimilarity(object):
         """
 
         sql_ref = interface(self.ref)
+        chains = list(sql_ref.get_chains())
+        if len(chains) != 2:
+            raise ValueError(
+                'exactly two chains are needed for fnat calculation but we found %d' % len(chains), chains)
         residue_pairs_ref = sql_ref.get_contact_residues(
-            cutoff=cutoff, return_contact_pairs=True, excludeH=True)
+            cutoff=cutoff, return_contact_pairs=True, excludeH=True,
+            chain1=chains[0], chain2=chains[1])
         sql_ref._close()
 
         if save_file:
@@ -936,12 +941,18 @@ class StructureSimilarity(object):
         # create the sql
         sql_decoy = interface(self.decoy, fix_chainID=True)
         sql_ref = interface(self.ref, fix_chainID=True)
+        chains = list(sql_ref.get_chains())
+        if len(chains) != 2:
+            raise ValueError(
+                'exactly two chains are needed for irmsd calculation but we found %d' % len(chains), chains)
 
         # get the contact atoms
         residue_pairs_decoy = sql_decoy.get_contact_residues(
-            cutoff=cutoff, return_contact_pairs=True, excludeH=True)
+            cutoff=cutoff, return_contact_pairs=True, excludeH=True,
+            chain1=chains[0], chain2=chains[1])
         residue_pairs_ref = sql_ref.get_contact_residues(
-            cutoff=cutoff, return_contact_pairs=True, excludeH=True)
+            cutoff=cutoff, return_contact_pairs=True, excludeH=True,
+            chain1=chains[0], chain2=chains[1])
 
         # form the pair data
         data_pair_decoy = []
@@ -1212,7 +1223,7 @@ class StructureSimilarity(object):
     ##########################################################################
 
     @staticmethod
-    def compute_clashes(pdb):
+    def compute_clashes(pdb, chain1='A', chain2='B'):
         """Compute number of atomic clashes.
 
         Note:
@@ -1223,6 +1234,8 @@ class StructureSimilarity(object):
 
         Args:
             pdb(file): pdb file or data
+            chain1 (str): first chain ID. Defaults to 'A'.
+            chain2 (str): second chain ID. Defaults to 'B'.
 
         Returns:
             int: number of atomic clashes.
@@ -1230,7 +1243,8 @@ class StructureSimilarity(object):
         db = interface(pdb)
         atom_contact_pairs = db.get_contact_atoms(
             cutoff=3.0, excludeH=True,
-            return_contact_pairs=True)
+            return_contact_pairs = True,
+            chain1=chain1, chain2=chain2)
         db._close()
         nclash = 0
         for v in atom_contact_pairs.values():
