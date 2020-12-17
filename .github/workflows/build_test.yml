@@ -5,11 +5,13 @@ on: [push, pull_request]
 jobs:
   build_test:
 
-    runs-on: ${{ matrix.os }}
+    # runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.8, 3.9]
+      # matrix:
+      #   os: [ubuntu-latest, macos-latest, windows-latest]
+        # python-version: [3.8, 3.9]
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -29,8 +31,9 @@ jobs:
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest --junitxml=junit/test-results.xml --cov=pdb2sql --cov-report=xml --cov-report=html
+        pytest --cov=pdb2sql --cov-report=xml
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./coverage.xml
