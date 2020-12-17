@@ -33,7 +33,11 @@ jobs:
       run: |
         pytest --cov=pdb2sql --cov-report=xml
     - name: Coveralls
-      uses: coverallsapp/github-action@master
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: ./coverage.xml
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        coveralls
+      # uses: coverallsapp/github-action@master
+      # with:
+      #   github-token: ${{ secrets.GITHUB_TOKEN }}
+      #   path-to-lcov: ./coverage.xml
