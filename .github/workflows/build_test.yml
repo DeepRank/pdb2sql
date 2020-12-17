@@ -1,4 +1,4 @@
-name: Build and test pdb2sql
+name: Build
 
 on: [push, pull_request]
 
