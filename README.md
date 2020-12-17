@@ -3,9 +3,9 @@
 [![PyPI](https://img.shields.io/pypi/v/pdb2sql)](https://pypi.org/project/pdb2sql/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3232887.svg)](https://doi.org/10.5281/zenodo.3232887)
 [![RSD](https://img.shields.io/badge/RSD-pdb2sql-red)](https://research-software.nl/software/pdb2sql)
-[![Travis](https://secure.travis-ci.org/DeepRank/pdb2sql.svg?branch=master)](https://travis-ci.org/DeepRank/pdb2sql)
+![Build_Test](https://github.com/DeepRank/pdb2sql/workflows/Build_Test/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/DeepRank/pdb2sql/badge.svg)](https://coveralls.io/github/DeepRank/pdb2sql)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/7cce335b21cc49d6bb3ff9878d6ac904)](https://www.codacy.com/manual/CunliangGeng/pdb2sql?utm_source=github.com&utm_medium=referral&utm_content=DeepRank/pdb2sql&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/36ad228df234488ab70ade6b2a80d54b)](https://www.codacy.com/gh/DeepRank/pdb2sql/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=DeepRank/pdb2sql&amp;utm_campaign=Badge_Grade)
 [![Documentation Status](https://readthedocs.org/projects/pdb2sql/badge/?version=latest)](https://pdb2sql.readthedocs.io/en/latest/?badge=latest)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02077/status.svg)](https://doi.org/10.21105/joss.02077)
 
