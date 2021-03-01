@@ -1163,7 +1163,11 @@ class StructureSimilarity(object):
         """Compute CAPRI ranking classes.
 
         Note:
-            Criteira of CAPRI classes https://doi.org/10.1002/prot.10393
+            Criteria of CAPRI classes:
+            https://doi.org/10.1371/journal.pone.0161879
+            https://doi.org/10.1002/prot.21804
+            The protocol for classifying predicted model into the four CAPRI
+            categories should start with those defining incorrect predictions.
 
         Args:
             fnat(float): fnat
@@ -1177,14 +1181,16 @@ class StructureSimilarity(object):
         """
 
         if system == 'protein-protein':
-            if (fnat >= 0.5 and lrmsd <= 1.0) or irmsd <= 1.0:
-                label = 'high'
-            elif (fnat >= 0.3 and 1.0 < lrmsd <= 5.0) or 1.0 < irmsd <= 2.0:
-                label = 'medium'
-            elif (fnat >= 0.1 and 5.0 < lrmsd <= 10.0) or 2.0 < irmsd <= 4.0:
-                label = 'acceptable'
-            else:
+            if fnat < 0.1 or (lrmsd > 10.0 and irmsd > 4.0):
                 label = 'incorrect'
+            elif 0.1 <= fnat < 0.3 and (lrmsd <= 10.0 or irmsd <= 4.0) or \
+                (fnat >= 0.3 and lrmsd > 5.0 and irmsd > 2.0):
+                label = 'acceptable'
+            elif 0.3 <= fnat < 0.5 and (lrmsd <= 5.0 or irmsd <= 2.0) or \
+                (fnat >= 0.5 and lrmsd > 1.0 and irmsd > 1.0):
+                label = 'medium'
+            elif fnat >= 0.5 and (lrmsd <= 1.0 or irmsd <= 1.0):
+                label = 'high'
         else:
             warnings.warn(
                 f'Invalid complex type {system} for CAPRI class calculation')
