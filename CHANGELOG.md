@@ -4,8 +4,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.5.1
+- Updated `compute_CapriClass` conditions
+
 ## 0.5.0
-- Added atom name selelction for lrmsd calculation
+- Added atom name selection for lrmsd calculation
 - Removed hardcoded chainIDs and added chainID selection in `StructureSimilarity`
 
 ## 0.4.0
