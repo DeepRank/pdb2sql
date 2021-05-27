@@ -75,9 +75,7 @@ class StructureSimilarity(object):
             print(set(res_ref).difference(set(res_dec)))
             print('Residues found in %s and not in %s' %
                   (self.decoy, self.ref))
-            print(set(res_dec).difference(set(res_ref)))
-            raise ValueError(
-                'Residue numbering not identical in ref and decoy')
+            print(set(res_dec).difference(set(res_ref)))            
 
     ##########################################################################
     #
@@ -142,16 +140,18 @@ class StructureSimilarity(object):
                 self.ref, resData, return_not_in_zone=True, name=name)
 
             if data_decoy_long.symmetric_difference(data_ref_long) != set():
-                raise ValueError(
-                    'Issue in the calculation of the l-rmsd')
+                res = data_decoy_long.symmetric_difference(data_ref_long)
+                msg = f'\n\t Atom(s) \n {res} \n are omitted in the l-rmsd calculation'
+                warnings.warn(msg)
 
             atom_long = data_ref_long.intersection(data_decoy_long)
             xyz_decoy_long = self._get_xyz(self.decoy, atom_long)
             xyz_ref_long = self._get_xyz(self.ref, atom_long)
 
             if data_decoy_short.symmetric_difference(data_ref_short) != set():
-                raise ValueError(
-                    'Issue in the calculation of the l-rmsd')
+                res = data_decoy_short.symmetric_difference(data_ref_short)
+                msg = f'\n\t Atom(s) \n {res} \n are omitted in the l-rmsd calculation'
+                warnings.warn(msg)
 
             atom_short = data_ref_short.intersection(data_decoy_short)
             xyz_decoy_short = self._get_xyz(self.decoy, atom_short)
@@ -292,8 +292,9 @@ class StructureSimilarity(object):
                 self.ref, resData, return_not_in_zone=False)
 
             if data_ref.symmetric_difference(data_decoy) != set():
-                raise ValueError(
-                    'Issue in the calculation of the i-rmsd')
+                res = data_ref.symmetric_difference(data_decoy)
+                msg = f'\n\t Atom(s) \n {res} \n are omitted in the l-rmsd calculation'
+                warnings.warn(msg)
 
             atom_common = data_ref.intersection(data_decoy)
             xyz_contact_decoy = self._get_xyz(self.decoy, atom_common)
