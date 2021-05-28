@@ -11,7 +11,7 @@ import pickle
 
 class StructureSimilarity(object):
 
-    def __init__(self, decoy, ref, verbose=False):
+    def __init__(self, decoy, ref, verbose=False, enforce_residue_matching=True):
         """Compute structure similarity between two structures.
 
         This class allows to compute the i-RMSD, L-RMSD, Fnat and DockQ
@@ -75,7 +75,10 @@ class StructureSimilarity(object):
             print(set(res_ref).difference(set(res_dec)))
             print('Residues found in %s and not in %s' %
                   (self.decoy, self.ref))
-            print(set(res_dec).difference(set(res_ref)))            
+            print(set(res_dec).difference(set(res_ref)))  
+            if enforce_residue_matching == True:
+                  raise ValueError(
+                'Residue numbering not identical in ref and decoy\n Set enforce_residue_matching=False to bypass this error.')                 
 
     ##########################################################################
     #
