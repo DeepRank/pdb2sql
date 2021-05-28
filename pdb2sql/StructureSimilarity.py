@@ -11,7 +11,7 @@ import pickle
 
 class StructureSimilarity(object):
 
-    def __init__(self, decoy, ref, verbose=False):
+    def __init__(self, decoy, ref, verbose=False, enforce_residue_matching=True):
         """Compute structure similarity between two structures.
 
         This class allows to compute the i-RMSD, L-RMSD, Fnat and DockQ
@@ -58,7 +58,8 @@ class StructureSimilarity(object):
         self.ref = ref
         self.verbose = verbose
         self.origin = [0., 0., 0.]
-
+        self.enforce_residue_matching = enforce_residue_matching
+        
     def __repr__(self):
         return f'{self.__module__}.{self.__class__.__name__}({self.decoy}, {self.ref}, {self.verbose})'
 
@@ -75,9 +76,13 @@ class StructureSimilarity(object):
             print(set(res_ref).difference(set(res_dec)))
             print('Residues found in %s and not in %s' %
                   (self.decoy, self.ref))
-            print(set(res_dec).difference(set(res_ref)))
-            raise ValueError(
-                'Residue numbering not identical in ref and decoy')
+            print(set(res_dec).difference(set(res_ref)))  
+            
+            if self.enforce_residue_matching == True:
+                raise ValueError(
+                    'Residue numbering not identical in ref and decoy\n Set enforce_residue_matching=False to bypass this error.')     
+            else:
+                warns.Warning('Residue numbering not identical in ref and decoy.')
 
     ##########################################################################
     #
@@ -126,7 +131,7 @@ class StructureSimilarity(object):
         else:
             resData = self.read_zone(lzone)
 
-        if check:
+        if check or self.enforce_residue_matching:
 
             # Note:
             # 1. get_data_zone_backbone returns in_zone and not_in_zone
@@ -141,17 +146,9 @@ class StructureSimilarity(object):
             data_ref_long, data_ref_short = self.get_data_zone_backbone(
                 self.ref, resData, return_not_in_zone=True, name=name)
 
-            if data_decoy_long.symmetric_difference(data_ref_long) != set():
-                raise ValueError(
-                    'Issue in the calculation of the l-rmsd')
-
             atom_long = data_ref_long.intersection(data_decoy_long)
             xyz_decoy_long = self._get_xyz(self.decoy, atom_long)
             xyz_ref_long = self._get_xyz(self.ref, atom_long)
-
-            if data_decoy_short.symmetric_difference(data_ref_short) != set():
-                raise ValueError(
-                    'Issue in the calculation of the l-rmsd')
 
             atom_short = data_ref_short.intersection(data_decoy_short)
             xyz_decoy_short = self._get_xyz(self.decoy, atom_short)
@@ -282,7 +279,7 @@ class StructureSimilarity(object):
         else:
             resData = self.read_zone(izone)
 
-        if check:
+        if check or self.enforce_residue_matching:
 
             self.check_residues()
 
@@ -290,10 +287,6 @@ class StructureSimilarity(object):
                 self.decoy, resData, return_not_in_zone=False)
             data_ref = self.get_data_zone_backbone(
                 self.ref, resData, return_not_in_zone=False)
-
-            if data_ref.symmetric_difference(data_decoy) != set():
-                raise ValueError(
-                    'Issue in the calculation of the i-rmsd')
 
             atom_common = data_ref.intersection(data_decoy)
             xyz_contact_decoy = self._get_xyz(self.decoy, atom_common)
