@@ -131,7 +131,7 @@ class StructureSimilarity(object):
         else:
             resData = self.read_zone(lzone)
 
-        if check or if self.enforce_residue_matching:
+        if check or self.enforce_residue_matching:
 
             # Note:
             # 1. get_data_zone_backbone returns in_zone and not_in_zone
@@ -279,7 +279,7 @@ class StructureSimilarity(object):
         else:
             resData = self.read_zone(izone)
 
-        if check or if self.enforce_residue_matching:
+        if check or self.enforce_residue_matching:
 
             self.check_residues()
 
