@@ -77,9 +77,12 @@ class StructureSimilarity(object):
             print('Residues found in %s and not in %s' %
                   (self.decoy, self.ref))
             print(set(res_dec).difference(set(res_ref)))  
+            
             if self.enforce_residue_matching == True:
-                  raise ValueError(
-                'Residue numbering not identical in ref and decoy\n Set enforce_residue_matching=False to bypass this error.')                 
+                raise ValueError(
+                    'Residue numbering not identical in ref and decoy\n Set enforce_residue_matching=False to bypass this error.')     
+            else:
+                warns.Warning('Residue numbering not identical in ref and decoy.')
 
     ##########################################################################
     #
@@ -142,11 +145,6 @@ class StructureSimilarity(object):
 
             data_ref_long, data_ref_short = self.get_data_zone_backbone(
                 self.ref, resData, return_not_in_zone=True, name=name)
-
-            if data_decoy_long.symmetric_difference(data_ref_long) != set():
-                res = data_decoy_long.symmetric_difference(data_ref_long)
-                msg = f'\n\t Atom(s) \n {res} \n are omitted in the l-rmsd calculation'
-                warnings.warn(msg)
 
             atom_long = data_ref_long.intersection(data_decoy_long)
             xyz_decoy_long = self._get_xyz(self.decoy, atom_long)
@@ -294,11 +292,6 @@ class StructureSimilarity(object):
                 self.decoy, resData, return_not_in_zone=False)
             data_ref = self.get_data_zone_backbone(
                 self.ref, resData, return_not_in_zone=False)
-
-            if data_ref.symmetric_difference(data_decoy) != set():
-                res = data_ref.symmetric_difference(data_decoy)
-                msg = f'\n\t Atom(s) \n {res} \n are omitted in the l-rmsd calculation'
-                warnings.warn(msg)
 
             atom_common = data_ref.intersection(data_decoy)
             xyz_contact_decoy = self._get_xyz(self.decoy, atom_common)
