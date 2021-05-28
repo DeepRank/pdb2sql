@@ -58,7 +58,8 @@ class StructureSimilarity(object):
         self.ref = ref
         self.verbose = verbose
         self.origin = [0., 0., 0.]
-
+        self.enforce_residue_matching = enforce_residue_matching
+        
     def __repr__(self):
         return f'{self.__module__}.{self.__class__.__name__}({self.decoy}, {self.ref}, {self.verbose})'
 
@@ -76,7 +77,7 @@ class StructureSimilarity(object):
             print('Residues found in %s and not in %s' %
                   (self.decoy, self.ref))
             print(set(res_dec).difference(set(res_ref)))  
-            if enforce_residue_matching == True:
+            if self.enforce_residue_matching == True:
                   raise ValueError(
                 'Residue numbering not identical in ref and decoy\n Set enforce_residue_matching=False to bypass this error.')                 
 
