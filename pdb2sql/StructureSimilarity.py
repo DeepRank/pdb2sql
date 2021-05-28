@@ -150,11 +150,6 @@ class StructureSimilarity(object):
             xyz_decoy_long = self._get_xyz(self.decoy, atom_long)
             xyz_ref_long = self._get_xyz(self.ref, atom_long)
 
-            if data_decoy_short.symmetric_difference(data_ref_short) != set():
-                res = data_decoy_short.symmetric_difference(data_ref_short)
-                msg = f'\n\t Atom(s) \n {res} \n are omitted in the l-rmsd calculation'
-                warnings.warn(msg)
-
             atom_short = data_ref_short.intersection(data_decoy_short)
             xyz_decoy_short = self._get_xyz(self.decoy, atom_short)
             xyz_ref_short = self._get_xyz(self.ref, atom_short)
