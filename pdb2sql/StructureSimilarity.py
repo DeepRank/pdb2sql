@@ -82,7 +82,7 @@ class StructureSimilarity(object):
                 raise ValueError(
                     'Residue numbering not identical in ref and decoy\n Set enforce_residue_matching=False to bypass this error.')     
             else:
-                warns.Warning('Residue numbering not identical in ref and decoy.')
+                warnings.warn('Residue numbering not identical in ref and decoy.')
 
     ##########################################################################
     #
