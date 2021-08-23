@@ -574,7 +574,7 @@ class StructureSimilarity(object):
 
         if len(xyz_decoy_B) != len(xyz_ref_B):
             xyz_decoy_B, xyz_ref_B = self.get_identical_atoms(
-                sql_decoy, sql_ref, **kwargs)
+                sql_decoy, sql_ref, chain2, **kwargs)
 
         # detect which chain is the longest
         nA, nB = len(xyz_decoy_A), len(xyz_decoy_B)
