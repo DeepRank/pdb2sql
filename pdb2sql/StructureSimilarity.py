@@ -59,7 +59,7 @@ class StructureSimilarity(object):
         self.verbose = verbose
         self.origin = [0., 0., 0.]
         self.enforce_residue_matching = enforce_residue_matching
-        
+
     def __repr__(self):
         return f'{self.__module__}.{self.__class__.__name__}({self.decoy}, {self.ref}, {self.verbose})'
 
@@ -70,17 +70,19 @@ class StructureSimilarity(object):
         res_dec = pdb2sql(self.decoy).get_residues()
 
         if res_ref != res_dec:
-            print('Residues are different in the reference and decoy')
-            print('Residues found in %s and not in %s' %
-                  (self.ref, self.decoy))
-            print(set(res_ref).difference(set(res_dec)))
-            print('Residues found in %s and not in %s' %
-                  (self.decoy, self.ref))
-            print(set(res_dec).difference(set(res_ref)))  
-            
+            print('Residues are different in the reference and decoy.')
+            only_ref = set(res_ref).difference(set(res_dec))
+            only_dec = set(res_dec).difference(set(res_ref))
+            if only_ref:
+                print('Residues found only in %s and not in %s:\n%s' %
+                    (self.ref, self.decoy, only_ref))
+            if only_dec:
+                print('Residues found only in %s and not in %s:\n%s' %
+                    (self.decoy, self.ref, only_dec))
+
             if self.enforce_residue_matching == True:
                 raise ValueError(
-                    'Residue numbering not identical in ref and decoy\n Set enforce_residue_matching=False to bypass this error.')     
+                    'Residue numbering not identical in ref and decoy.\n Set enforce_residue_matching=False to bypass this error.')
             else:
                 warnings.warn('Residue numbering not identical in ref and decoy.')
 
