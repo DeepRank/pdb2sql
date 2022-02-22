@@ -540,6 +540,10 @@ class pdb2sql(pdb2sql_base):
 
             # stitch the conditions and append to the query
             query += ' AND '.join(conditions)
+            
+            # Not all pdbs have the same atom-name order, make sure the order is the same
+            # e.g. when atoms from different pdbs need to be compared with eachother
+            query += ' ORDER BY name DESC;'
 
             # error if vals is too long
             if len(vals) > self.SQLITE_LIMIT_VARIABLE_NUMBER:
