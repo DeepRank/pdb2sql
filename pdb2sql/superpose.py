@@ -4,6 +4,7 @@ import numpy as np
 from .pdb2sqlcore import pdb2sql
 from .many2sql import many2sql
 from .transform import rotate
+import warnings
 
 
 def superpose(mobile, target, method='svd', only_backbone=True, export=True, **kwargs):
