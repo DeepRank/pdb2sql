@@ -1,6 +1,16 @@
 name: Build_Test
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+     - pdb2sql/**
+     - test/**
+     - setup.py
+  pull_request:
+    paths:
+     - pdb2sql/**
+     - test/**
+     - setup.py
 
 jobs:
   smoke_test:
