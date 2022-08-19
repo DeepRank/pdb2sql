@@ -541,10 +541,9 @@ class pdb2sql(pdb2sql_base):
             # stitch the conditions and append to the query
             query += ' AND '.join(conditions)
             
-            # Make sure the returned values are sorted correctly, but only if one does not need specific atom names
+            # Make sure the returned values are sorted correctly
             # e.g. this is important for correctly comparing the atoms between pdbs
-            if sum(['name'==key or 'no_name'==key for key in keys]) == 0:
-                query += ' ORDER BY chainID, resSeq, name ASC;'
+            query += ' ORDER BY chainID, resSeq, name ASC;'
             
             # error if vals is too long
             if len(vals) > self.SQLITE_LIMIT_VARIABLE_NUMBER:
