@@ -137,17 +137,18 @@ class TestCreateSQL(unittest.TestCase):
         self.assertTrue(os.path.exists(self.sqlfile))
         self.assertTrue(os.path.isfile(self.sqlfile))
         os.remove(self.sqlfile)
+    
     # The test below is not deemed necessary
     # It was updated since the atom list per residue is now sorted to prevent wrong comparisons
     
-    #def test_call(self):
-    #    sqldb = pdb2sql(self.pdbfile)
-    #    cpy = sqldb(chainID='A')
-    #    cpy.c.execute('SELECT * FROM ATOM')
-    #    result = cpy.c.fetchall()
-    #    last_line = (405, 'C6', '', 'DT', 'A', 20, '', -
-    #                 52.817, -4.887, 21.878, 1.0, 2.0, 'C', 0)
-    #    self.assertEqual(result[-1], last_line)
+    def test_call(self):
+        sqldb = pdb2sql(self.pdbfile)
+        cpy = sqldb(chainID='A')
+        cpy.c.execute('SELECT * FROM ATOM')
+        result = cpy.c.fetchall()
+        last_line = (405, 'C6', '', 'DT', 'A', 20, '', -
+                     52.817, -4.887, 21.878, 1.0, 2.0, 'C', 0)
+        self.assertEqual(result[-1], last_line)
 
     ####################
     # verify pdb format
