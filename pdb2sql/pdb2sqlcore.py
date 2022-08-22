@@ -544,7 +544,7 @@ class pdb2sql(pdb2sql_base):
             # 
             # Make sure the returned values are sorted correctly
             # e.g. this is important for correctly comparing the atoms between pdbs
-            query += ' ORDER BY chainID, resSeq, name ASC;'
+            #query += ' ORDER BY chainID, resSeq, name ASC;'
             
             # error if vals is too long
             if len(vals) > self.SQLITE_LIMIT_VARIABLE_NUMBER:
