@@ -137,7 +137,6 @@ class TestCreateSQL(unittest.TestCase):
         self.assertTrue(os.path.exists(self.sqlfile))
         self.assertTrue(os.path.isfile(self.sqlfile))
         os.remove(self.sqlfile)
-    
     # The test below is not deemed necessary
     # It was updated since the atom list per residue is now sorted to prevent wrong comparisons
     
