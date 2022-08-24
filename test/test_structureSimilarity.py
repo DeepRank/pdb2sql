@@ -13,7 +13,14 @@ class TestSim(unittest.TestCase):
         self.ref = Path(pdb_folder, '1AK4', 'target.pdb')
         self.izone = Path(pdb_folder, '1AK4', 'target.izone')
         self.lzone = Path(pdb_folder, '1AK4', 'target.lzone')
-        self.sim = StructureSimilarity(self.decoy, self.ref)
+        self.sim = StructureSimilarity(str(self.decoy), str(self.ref))
+
+    #test case for multi-chain pdb files
+        self.decoy2 = Path(pdb_folder, 'multi_chain', 'model.pdb')
+        self.ref2 = Path(pdb_folder, 'multi_chain', 'ref.pdb')
+        self.sim2 = StructureSimilarity(str(self.decoy2), str(self.ref2), enforce_residue_matching = False)
+        self.irmsd_multichn = 1.635 #need to double check with ProFit
+
         # target values are calcualted using scripts from
         # https://github.com/haddocking/BM5-clean
         self.irmsd = 1.135
@@ -35,25 +42,39 @@ class TestSim(unittest.TestCase):
     ####################################################################
     # test i-rmsd
     ####################################################################
-    def test_irmsdfast_default(self):
-        """verify compute_irmsd_fast()"""
-        result = self.sim.compute_irmsd_fast()
-        self.assertEqual(result, self.irmsd)
+    #def test_irmsdfast_default(self):
+    #    """verify compute_irmsd_fast()"""
+    #    result = self.sim.compute_irmsd_fast()
+    #    self.assertEqual(result, self.irmsd)
 
     def test_irmsdfast_izone(self):
         """verify compute_irmsd_fast(izone='fast.izone)"""
-        result = self.sim.compute_irmsd_fast(izone=self.izone)
+        result = self.sim.compute_irmsd_fast(izone=self.sim.read_zone(self.izone))
         self.assertEqual(result, self.irmsd)
 
     def test_irmsdfast_method(self):
         """verify compute_irmsd_fast(method='quaternion')"""
-        result = self.sim.compute_irmsd_fast(method='quaternion')
+        izone = self.sim.compute_izone(chain_pairs=['A:B'])
+        result = self.sim.compute_irmsd_fast(izone = izone, method='quaternion')
         self.assertEqual(result, self.irmsd)
 
     def test_irmsdfast_check(self):
         """verify compute_irmsd_fast(check=False)"""
-        result = self.sim.compute_irmsd_fast(check=False)
+        result = self.sim.compute_irmsd_fast(izone=self.sim.read_zone(self.izone), check=False)
         self.assertEqual(result, self.irmsd)
+
+    def test_irmsdfast_multichn(self):
+        """verify compute_irmsd_fast() on multi-chain pdbs"""
+        # MHC: A and B
+        # peptide: C
+        # TCR: D and E
+        izone = self.sim2.compute_izone(chain_pairs=['ABC:DE'])
+        result = self.sim2.compute_irmsd_fast(izone=izone , cutoff=10)
+        self.assertEqual(result, self.irmsd_multichn)
+
+        izone = self.sim2.compute_izone(chain_pairs=['AB:DE', 'C:DE'])
+        result = self.sim2.compute_irmsd_fast(izone=izone , cutoff=10)
+        self.assertEqual(result, self.irmsd_multichn)
 
     def test_irmsdsql_default(self):
         """verify compute_irmsd_pdb2sql()"""
@@ -61,8 +82,8 @@ class TestSim(unittest.TestCase):
         self.assertEqual(result, self.irmsd)
 
     def test_irmsdsql_izone(self):
-        """verify compute_irmsd_pdb2sql(izone='sql.izone)"""
-        result = self.sim.compute_irmsd_pdb2sql(izone=self.izone)
+        """verify compute_irmsd_pdb2sql(izoneFL=sql.izone)"""
+        result = self.sim.compute_irmsd_pdb2sql(izoneFL=self.izone)
         self.assertEqual(result, self.irmsd)
 
     def test_irmssql_method(self):

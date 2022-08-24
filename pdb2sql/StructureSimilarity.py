@@ -243,7 +243,7 @@ class StructureSimilarity(object):
     #
     ##########################################################################
 
-    def compute_irmsd_fast(self, izone=None, method='svd',
+    def compute_irmsd_fast(self, izone, method='svd',
                            cutoff=10, check=True):
         """Fast method to compute the i-rmsd.
 
@@ -257,8 +257,7 @@ class StructureSimilarity(object):
         https://doi.org/10.1371/journal.pone.0161879
 
         Args:
-            izone (None, optional): file name of the zone.
-                if None the zones will be calculated automatically.
+            izone (dict, required): izone definition
             method (str, optional): Method to align the fragments,
                 'svd' or 'quaternion'.
             cutoff (float, optional): cutoff for the contact atoms
@@ -272,23 +271,15 @@ class StructureSimilarity(object):
             :meth:`compute_irmsd_pdb2sql`
         """
 
-        # read the izone file
-        if izone is None:
-            resData = self.compute_izone(cutoff, save_file=False)
-        elif not os.path.isfile(izone):
-            resData = self.compute_izone(
-                cutoff, save_file=True, filename=izone)
-        else:
-            resData = self.read_zone(izone)
 
         if check or self.enforce_residue_matching:
 
             self.check_residues()
 
             data_decoy = self.get_data_zone_backbone(
-                self.decoy, resData, return_not_in_zone=False)
+                self.decoy, izone, return_not_in_zone=False)
             data_ref = self.get_data_zone_backbone(
-                self.ref, resData, return_not_in_zone=False)
+                self.ref, izone, return_not_in_zone=False)
 
             atom_common = data_ref.intersection(data_decoy)
             xyz_contact_decoy = self._get_xyz(self.decoy, atom_common)
@@ -297,9 +288,9 @@ class StructureSimilarity(object):
         # extract the xyz
         else:
             xyz_contact_decoy = self.get_xyz_zone_backbone(
-                self.decoy, resData)
+                self.decoy, izone)
             xyz_contact_ref = self.get_xyz_zone_backbone(
-                self.ref, resData)
+                self.ref, izone)
 
         # superpose the fragments
         xyz_contact_decoy = superpose_selection(xyz_contact_decoy,
@@ -309,11 +300,12 @@ class StructureSimilarity(object):
         # return the RMSD
         return self.get_rmsd(xyz_contact_decoy, xyz_contact_ref)
 
-    def compute_izone(self, cutoff=10.0, save_file=True, filename=None):
+    def compute_izone(self, chain_pairs, cutoff=10.0, save_file=True, filename=None):
         """Compute the zones for i-rmsd calculationss.
 
         Args:
             cutoff (float, optional): cutoff for the contact atoms
+            chain_pairs (list): specify chain pairs for izone. e.g., ['AB:DE', 'C:E']
             save_file (bool, optional): svae file containing the zone
             filename (str, optional): filename
 
@@ -322,25 +314,17 @@ class StructureSimilarity(object):
         """
 
         sql_ref = interface(self.ref)
-        chains = list(sql_ref.get_chains())
-        if len(chains) != 2:
-            raise ValueError(
-                'exactly two chains are needed for irmsd calculation but we found %d' % len(chains), chains)
 
-        contact_ref = sql_ref.get_contact_atoms(
-            cutoff=cutoff, extend_to_residue=True, chain1=chains[0], chain2=chains[1])
+        contactID_ref = [] # [('X', 2, 'ARG'), ('X', 3, 'GLY')]
+        for chn_grp in chain_pairs:
+            #chn_grp ="AB:C"
+            chns_1, chns_2 = chn_grp.split(':') #chns_1='AB', chns_2='C'
+            for chain1 in [*chns_1]:
+                for chain2 in [*chns_2]:
+                    contact = sql_ref.get_contact_residues(cutoff=cutoff,  chain1= chain1, chain2= chain2)
+                    contactID_ref = contactID_ref + sum(list(contact.values()), []) #flatten the list of lists
 
-        index_contact_ref = []
-        for _, v in contact_ref.items():
-            index_contact_ref += v
-
-        # get the xyz and atom identifier of the decoy contact atoms
-        data_test = [tuple(data) for data in sql_ref.get(
-            'chainID,resSeq',
-            rowID=index_contact_ref,
-            name=sql_ref.backbone_atoms)]
-
-        data_test = sorted(set(data_test))
+        contactID_ref = sorted (set(contactID_ref))
 
         # close the sql
         sql_ref._close()
@@ -352,14 +336,16 @@ class StructureSimilarity(object):
             else:
                 f = open(filename, 'w')
 
-            for res in data_test:
+            for res in contactID_ref:
+                # res = ('X',2,'ARG')
                 chain = res[0]
                 num = res[1]
                 f.write('zone %s%d-%s%d\n' % (chain, num, chain, num))
             f.close()
 
         resData = {}
-        for res in data_test:
+        for res in contactID_ref:
+            #res = ('X', 2, 'ARG')
             chain = res[0]
             num = res[1]
 
@@ -708,7 +694,7 @@ class StructureSimilarity(object):
             self,
             cutoff=10,
             method='svd',
-            izone=None,
+            izoneFL=None,
             exportpath=None):
         """Slow method to compute the i-rmsd.
 
@@ -722,7 +708,7 @@ class StructureSimilarity(object):
         https://doi.org/10.1371/journal.pone.0161879
 
         Args:
-            izone (None, optional): file name of the zone.
+            izoneFL (None, optional): file name of the zone.
                 if None the zones will be calculated first.
             method (str, optional): Method to align the fragments,
                 'svd' or 'quaternion'.
@@ -750,7 +736,7 @@ class StructureSimilarity(object):
                 'Chains are different in decoy and reference structure')
 
         # get the contact atoms
-        if izone is None:
+        if izoneFL is None:
 
             contact_ref = sql_ref.get_contact_atoms(
                 cutoff=cutoff,
@@ -765,7 +751,7 @@ class StructureSimilarity(object):
                 'rowID', rowID=index_contact_ref, name=sql_ref.backbone_atoms)
         else:
             index_contact_ref = self.get_izone_rowID(
-                sql_ref, izone, return_only_backbone_atoms=True)
+                sql_ref, izoneFL, return_only_backbone_atoms=True)
 
         # get the xyz and atom identifier of the decoy contact atoms
         xyz_contact_ref = sql_ref.get(
