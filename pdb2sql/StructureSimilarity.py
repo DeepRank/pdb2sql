@@ -274,10 +274,10 @@ class StructureSimilarity(object):
 
 
         if izone is None:
-            resData = self.compute_izone(cutoff, save_file=False)
+            resData = self.compute_izone(cutoff=cutoff, chain_pairs=chain_pairs, save_file=False)
         elif not os.path.isfile(izone):
             resData = self.compute_izone(
-                cutoff, save_file=True, filename=izone)
+                cutoff=cutoff, chain_pairs=chain_pairs, save_file=True, filename=izone)
         else:
             resData = self.read_zone(izone)
 
@@ -286,9 +286,9 @@ class StructureSimilarity(object):
             self.check_residues()
 
             data_decoy = self.get_data_zone_backbone(
-                self.decoy, izone, return_not_in_zone=False)
+                self.decoy, resData, return_not_in_zone=False)
             data_ref = self.get_data_zone_backbone(
-                self.ref, izone, return_not_in_zone=False)
+                self.ref, resData, return_not_in_zone=False)
 
             atom_common = data_ref.intersection(data_decoy)
             xyz_contact_decoy = self._get_xyz(self.decoy, atom_common)
@@ -297,9 +297,9 @@ class StructureSimilarity(object):
         # extract the xyz
         else:
             xyz_contact_decoy = self.get_xyz_zone_backbone(
-                self.decoy, izone)
+                self.decoy, resData)
             xyz_contact_ref = self.get_xyz_zone_backbone(
-                self.ref, izone)
+                self.ref, resData)
 
         # superpose the fragments
         xyz_contact_decoy = superpose_selection(xyz_contact_decoy,
@@ -329,12 +329,15 @@ class StructureSimilarity(object):
                 raise ValueError(
                     'exactly two chains are needed if chain_pairs is not specified')
             chain_pairs = [':'.join(chain_pairs)]
+        else:
+            if not isinstance(chain_pairs, list):
+                chain_pairs = [chain_pairs]
 
         contactID_ref = [] # [('X', 2, 'ARG'), ('X', 3, 'GLY')]
         for chn_grp in chain_pairs:
             #chn_grp ="AB:C"
             chns_1, chns_2 = chn_grp.split(':') #chns_1='AB', chns_2='C'
-            contact = sql_ref.get_contact_residues(cutoff=cutoff,  chain1=list(chns_1), chain2=list(chns_2))
+            contact = sql_ref.get_contact_residues(cutoff=cutoff,  chain1=chns_1, chain2=chns_2)
             contactID_ref = contactID_ref + sum(list(contact.values()), []) #flatten the list of lists
 
         contactID_ref = sorted (set(contactID_ref))
