@@ -43,14 +43,14 @@ class pdb2sql_base(object):
                     'iCode': 'TEXT',
                     'x': 'REAL',
                     'y': 'REAL',
-                    'z': 'REAL'}
+                    'z': 'REAL',
+                    'model': 'INT'}
 
         self.extra_col = {  'occ': 'REAL',
                             'temp': 'REAL',
-                            'element': 'TEXT',
-                            'model': 'INT'}
+                            'element': 'TEXT'}
 
-        self.col = NON_AUTHORITATIVE_INFORMATION
+        self.col = None
 
         # delimtier of the column format
         # taken from

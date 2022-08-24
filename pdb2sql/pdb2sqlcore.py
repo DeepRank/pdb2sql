@@ -12,7 +12,7 @@ from .pdb2sql_base import pdb2sql_base
 
 class pdb2sql(pdb2sql_base):
 
-    def __init__(self, pdbfile, tablename='atom', **kwargs):
+    def __init__(self, pdbfile, flexible_format = False, tablename='atom', **kwargs):
         """Create a SQL database with PDB data.
 
         Notes:
@@ -29,6 +29,7 @@ class pdb2sql(pdb2sql_base):
 
         # create the database
         self._create_sql()
+        self._check_pdb_format(pdbfile, flexible_format)
         self._create_table(pdbfile, tablename=tablename)
 
         # fix the chain ID
@@ -90,15 +91,36 @@ class pdb2sql(pdb2sql_base):
             self.conn = sqlite3.connect(sqlfile)
         self.c = self.conn.cursor()
 
+
+    def _check_pdb_format(self, pdbfile, flexible_format):
+
+        # get pdb data
+        pdbdata = self.read_pdb(pdbfile)
+
+        for line in pdbdata:
+            line = str(line)
+
+            if line.startswith('ATOM'):
+                line = line.split('\n')[0]
+
+            elif line.startswith('ENDMDL'):
+                self._nModel += 1
+                continue
+
+            else:
+                continue
+  
+            # set the column we want to read
+            self._set_col_values(line, flexible_format)
+            break 
+        
+
     def _create_table(self, pdbfile, tablename='ATOM'):
 
-        # check the length of the 1st line to see if we can
-        # read all data
-        check_line_length = False
 
         # size of the things
         ncol = len(self.col)
-
+        
         # clean up tablename
         for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_+":
             tablename = tablename.replace(c, '_')
@@ -136,10 +158,6 @@ class pdb2sql(pdb2sql_base):
             else:
                 continue
 
-            if not check_line_length:
-                # set the column we want to read
-                self._set_col_values(line)
-                check_line_length = True
 
             # format
             line = self._format_pdb_linelength(line)
@@ -152,7 +170,7 @@ class pdb2sql(pdb2sql_base):
                 if colname in self.delimiter.keys():
                     data = line[self.delimiter[colname][0]:
                                 self.delimiter[colname][1]].strip()
-
+                    
                     # check pdb format and reset values if necessary
                     # Empty chainID, occ, temp and element are not allowed
                     if not data:
@@ -257,13 +275,16 @@ class pdb2sql(pdb2sql_base):
     @staticmethod
     def _format_pdb_linelength(pdb_line):
         linelen = len(pdb_line)
+
+        if linelen > 80:
+            pdb_line = pdb_line[:54]
+
         if linelen < 80:
             pdb_line = pdb_line + ' ' * (80 - linelen)
-        elif linelen > 80:
-            pdb_line = pdb_line[:54]
+
         return pdb_line
 
-    def _set_col_values(self, pdb_line):
+    def _set_col_values(self, pdb_line, flexible_format):
         linelen = len(pdb_line)
 
         # if the line is less than 80 char
@@ -278,8 +299,10 @@ class pdb2sql(pdb2sql_base):
             pdb_line = pdb_line + ' ' * (80 - linelen)
             self.col = self.base_col
             self.delimiter = self.base_delimiter
-            raise Warning(
-                f'pdb line is longer than 80:\n{pdb_line}')
+
+            if not flexible_format:
+                raise ValueError(
+                    f'pdb line is longer than 80:\n{pdb_line}')
 
         return pdb_line
 
