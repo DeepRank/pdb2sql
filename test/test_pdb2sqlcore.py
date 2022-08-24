@@ -12,6 +12,7 @@ class TestCreateSQL(unittest.TestCase):
 
     def setUp(self):
         self.pdbfile = Path(pdb_folder, "3CRO.pdb")
+        self.zdockfile = Path(pdb_folder, "zdock.pdb")
         self.sqlfile = Path(test_folder, "sql_3CRO.db")
 
         self.pdb_longline = Path(pdb_folder, "dummy_longline.pdb")
@@ -43,6 +44,18 @@ class TestCreateSQL(unittest.TestCase):
         last_line = (1859, "O", "", "GLY", "R", 62, "",
                      -32.180, -32.765, 46.907, 1.00, 38.84, "O", 0)
         self.assertEqual(result[-1], last_line)
+
+    def test_zdockfile_Path(self):
+        """Verify input as Path instance"""
+        p = Path(self.zdockfile)
+        db = pdb2sql(p)
+        db.c.execute('SELECT * FROM ATOM')
+        result = db.c.fetchall()
+        self.assertIsInstance(result, list)
+        # self.assertEqual(len(result), 1856)
+        # last_line = (1859, "O", "", "GLY", "R", 62, "",
+        #              -32.180, -32.765, 46.907, 1.00, 38.84, "O", 0)
+        # self.assertEqual(result[-1], last_line)
 
     def test_pdbfile_strings(self):
         """Verify input with a string of pdb content"""

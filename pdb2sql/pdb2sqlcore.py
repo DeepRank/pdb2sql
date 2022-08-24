@@ -29,8 +29,7 @@ class pdb2sql(pdb2sql_base):
 
         # create the database
         self._create_sql()
-        self._check_pdb_format(pdbfile, flexible_format)
-        self._create_table(pdbfile, tablename=tablename)
+        self._create_table(pdbfile, flexible_format, tablename=tablename)
 
         # fix the chain ID
         if self.fix_chainID:
@@ -115,8 +114,9 @@ class pdb2sql(pdb2sql_base):
             break 
         
 
-    def _create_table(self, pdbfile, tablename='ATOM'):
+    def _create_table(self, pdbfile, flexible_format, tablename='ATOM'):
 
+        self._check_pdb_format(pdbfile, flexible_format)
 
         # size of the things
         ncol = len(self.col)
