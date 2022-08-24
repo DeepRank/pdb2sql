@@ -272,14 +272,22 @@ class StructureSimilarity(object):
             :meth:`compute_irmsd_pdb2sql`
         """
 
-
+        # izone not provided
         if izone is None:
             resData = self.compute_izone(cutoff=cutoff, chain_pairs=chain_pairs, save_file=False)
-        elif not os.path.isfile(izone):
-            resData = self.compute_izone(
-                cutoff=cutoff, chain_pairs=chain_pairs, save_file=True, filename=izone)
-        else:
-            resData = self.read_zone(izone)
+
+        # izone passed directly
+        elif isinstance(izone, dict):
+            resData = izone
+
+        # izone in a file
+        elif isinstance(izone, str):
+
+            if not os.path.isfile(izone):
+                resData = self.compute_izone(
+                    cutoff=cutoff, chain_pairs=chain_pairs, save_file=True, filename=izone)
+            else:
+                resData = self.read_zone(izone)
 
         if check or self.enforce_residue_matching:
 
