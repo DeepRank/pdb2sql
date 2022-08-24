@@ -77,7 +77,7 @@ class interface(pdb2sql):
             chainIDs = [chain1, chain2]
 
         chains = self.get_chains()
-        for c in chainIDs:
+        for c in list(chain1)+list(chain2):
             if c not in chains:
                 raise ValueError(
                     'chain %s not found in the structure' % c)
@@ -90,7 +90,7 @@ class interface(pdb2sql):
         for chain in chainIDs:
 
             data = np.array(
-                self.get('x,y,z,rowID,resName,name', chainID=chain))
+                self.get('x,y,z,rowID,resName,name', chainID=list(chain)))
             xyz[chain] = data[:, :3].astype(float)
             index[chain] = data[:, 3].astype(int)
             resName[chain] = data[:, -2]
