@@ -139,7 +139,7 @@ class TestCreateSQL(unittest.TestCase):
         os.remove(self.sqlfile)
     # The test below is not deemed necessary
     # It was updated since the atom list per residue is now sorted to prevent wrong comparisons
-    
+
     #def test_call(self):
     #    sqldb = pdb2sql(self.pdbfile)
     #    cpy = sqldb(chainID='A')
