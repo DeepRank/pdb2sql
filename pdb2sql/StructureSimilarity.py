@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import warnings
 import numpy as np
 from .pdb2sqlcore import pdb2sql
@@ -243,7 +244,7 @@ class StructureSimilarity(object):
     #
     ##########################################################################
 
-    def compute_irmsd_fast(self, izone, method='svd',
+    def compute_irmsd_fast(self, chain_pairs=None, izone=None, method='svd',
                            cutoff=10, check=True):
         """Fast method to compute the i-rmsd.
 
@@ -271,6 +272,14 @@ class StructureSimilarity(object):
             :meth:`compute_irmsd_pdb2sql`
         """
 
+
+        if izone is None:
+            resData = self.compute_izone(cutoff, save_file=False)
+        elif not os.path.isfile(izone):
+            resData = self.compute_izone(
+                cutoff, save_file=True, filename=izone)
+        else:
+            resData = self.read_zone(izone)
 
         if check or self.enforce_residue_matching:
 
@@ -300,7 +309,7 @@ class StructureSimilarity(object):
         # return the RMSD
         return self.get_rmsd(xyz_contact_decoy, xyz_contact_ref)
 
-    def compute_izone(self, chain_pairs, cutoff=10.0, save_file=True, filename=None):
+    def compute_izone(self, chain_pairs=None, cutoff=10.0, save_file=True, filename=None):
         """Compute the zones for i-rmsd calculationss.
 
         Args:
@@ -314,15 +323,19 @@ class StructureSimilarity(object):
         """
 
         sql_ref = interface(self.ref)
+        if chain_pairs is None:
+            chain_pairs = list(sql_ref.get_chains())
+            if len(chain_pairs) != 2:
+                raise ValueError(
+                    'exactly two chains are needed if chain_pairs is not specified')
+            chain_pairs = [':'.join(chain_pairs)]
 
         contactID_ref = [] # [('X', 2, 'ARG'), ('X', 3, 'GLY')]
         for chn_grp in chain_pairs:
             #chn_grp ="AB:C"
             chns_1, chns_2 = chn_grp.split(':') #chns_1='AB', chns_2='C'
-            for chain1 in [*chns_1]:
-                for chain2 in [*chns_2]:
-                    contact = sql_ref.get_contact_residues(cutoff=cutoff,  chain1= chain1, chain2= chain2)
-                    contactID_ref = contactID_ref + sum(list(contact.values()), []) #flatten the list of lists
+            contact = sql_ref.get_contact_residues(cutoff=cutoff,  chain1=list(chns_1), chain2=list(chns_2))
+            contactID_ref = contactID_ref + sum(list(contact.values()), []) #flatten the list of lists
 
         contactID_ref = sorted (set(contactID_ref))
 
