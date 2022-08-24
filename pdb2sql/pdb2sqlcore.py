@@ -92,6 +92,10 @@ class pdb2sql(pdb2sql_base):
 
     def _create_table(self, pdbfile, tablename='ATOM'):
 
+        # check the length of the 1st line to see if we can
+        # read all data
+        check_line_length = False
+
         # size of the things
         ncol = len(self.col)
 
@@ -132,8 +136,13 @@ class pdb2sql(pdb2sql_base):
             else:
                 continue
 
-            # check pdb line format
-            line = pdb2sql._format_pdb_linelength(line)
+            if not check_line_length:
+                # set the column we want to read
+                self._set_col_values(line)
+                check_line_length = True
+
+            # format
+            line = self._format_pdb_linelength(line)
 
             # browse all attribute of each atom
             at = ()
@@ -251,8 +260,27 @@ class pdb2sql(pdb2sql_base):
         if linelen < 80:
             pdb_line = pdb_line + ' ' * (80 - linelen)
         elif linelen > 80:
-            raise ValueError(
+            pdb_line = pdb_line[:54]
+        return pdb_line
+
+    def _set_col_values(self, pdb_line):
+        linelen = len(pdb_line)
+
+        # if the line is less than 80 char
+        # we read all
+        if linelen < 80:
+            pdb_line = pdb_line + ' ' * (80 - linelen)
+            self.col = self.base_col.update(self.extra_col)
+            self.delimiter = self.base_delimiter.update(self.extra_delimiter)
+
+        # otherwise we only read the data up to the xyz col
+        elif linelen > 80:
+            pdb_line = pdb_line + ' ' * (80 - linelen)
+            self.col = self.base_col
+            self.delimiter = self.base_delimiter
+            raise Warning(
                 f'pdb line is longer than 80:\n{pdb_line}')
+
         return pdb_line
 
     @staticmethod

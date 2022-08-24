@@ -1,3 +1,4 @@
+from http.client import NON_AUTHORITATIVE_INFORMATION
 import os
 
 
@@ -33,7 +34,7 @@ class pdb2sql_base(object):
         self.max_sql_values = 950
 
         # column names and types
-        self.col = {'serial': 'INT',
+        self.base_col = {'serial': 'INT',
                     'name': 'TEXT',
                     'altLoc': 'TEXT',
                     'resName': 'TEXT',
@@ -42,16 +43,19 @@ class pdb2sql_base(object):
                     'iCode': 'TEXT',
                     'x': 'REAL',
                     'y': 'REAL',
-                    'z': 'REAL',
-                    'occ': 'REAL',
-                    'temp': 'REAL',
-                    'element': 'TEXT',
-                    'model': 'INT'}
+                    'z': 'REAL'}
+
+        self.extra_col = {  'occ': 'REAL',
+                            'temp': 'REAL',
+                            'element': 'TEXT',
+                            'model': 'INT'}
+
+        self.col = NON_AUTHORITATIVE_INFORMATION
 
         # delimtier of the column format
         # taken from
         # http://www.wwpdb.org/documentation/file-format-content/format33/sect9.html#ATOM
-        self.delimiter = {
+        self.base_delimiter = {
             'serial': [6, 11],
             'name': [12, 16],
             'altLoc': [16, 17],
@@ -61,11 +65,14 @@ class pdb2sql_base(object):
             'iCode': [26, 27],
             'x': [30, 38],
             'y': [38, 46],
-            'z': [46, 54],
-            'occ': [54, 60],
-            'temp': [60, 66],
-            'element': [76, 78]}
+            'z': [46, 54]}
 
+        self.extra_delimiter = {'occ': [54, 60],
+                                'temp': [60, 66],
+                                'element': [76, 78]}
+
+        self.delimiter = None
+ 
     ##########################################################################
     #
     #   CREATION AND PRINTING
