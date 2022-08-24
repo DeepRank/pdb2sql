@@ -29,7 +29,7 @@ class pdb2sql(pdb2sql_base):
 
         # create the database
         self._create_sql()
-        self._create_table(pdbfile, flexible_format, tablename=tablename)
+        self._create_table(pdbfile, flexible_format=flexible_format, tablename=tablename)
 
         # fix the chain ID
         if self.fix_chainID:
@@ -93,6 +93,11 @@ class pdb2sql(pdb2sql_base):
 
     def _check_pdb_format(self, pdbfile, flexible_format):
 
+        # default value of something goes wrong
+        self.col = self.base_col
+        self.delimiter = self.base_delimiter
+  
+
         # get pdb data
         pdbdata = self.read_pdb(pdbfile)
 
@@ -111,12 +116,14 @@ class pdb2sql(pdb2sql_base):
   
             # set the column we want to read
             self._set_col_values(line, flexible_format)
+ 
             break 
         
 
-    def _create_table(self, pdbfile, flexible_format, tablename='ATOM'):
+    def _create_table(self, pdbfile, flexible_format=False, tablename='ATOM'):
 
         self._check_pdb_format(pdbfile, flexible_format)
+       
 
         # size of the things
         ncol = len(self.col)
@@ -289,10 +296,12 @@ class pdb2sql(pdb2sql_base):
 
         # if the line is less than 80 char
         # we read all
-        if linelen < 80:
+        if linelen <= 80:
             pdb_line = pdb_line + ' ' * (80 - linelen)
-            self.col = self.base_col.update(self.extra_col)
-            self.delimiter = self.base_delimiter.update(self.extra_delimiter)
+            self.col = self.base_col
+            self.col.update(self.extra_col)
+            self.delimiter = self.base_delimiter
+            self.delimiter.update(self.extra_delimiter)
 
         # otherwise we only read the data up to the xyz col
         elif linelen > 80:
