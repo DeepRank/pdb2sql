@@ -284,7 +284,7 @@ class Test_3_PDB2SQLInstanceInput(unittest.TestCase):
         self.assertEqual(len(contact_residues['B']), 20)
 
     def test_database_consistency(self):
-        """"verify initilizing interface with updated pdb2sql database"""
+        """"verify initializing interface with updated pdb2sql database"""
         pdb_db = pdb2sql(self.pdb)
         pdb_db.update_column('temp', [99]*10)
         target = pdb_db.get('*')

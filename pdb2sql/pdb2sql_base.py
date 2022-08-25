@@ -43,8 +43,9 @@ class pdb2sql_base(object):
                     'iCode': 'TEXT',
                     'x': 'REAL',
                     'y': 'REAL',
-                    'z': 'REAL',
-                    'model': 'INT'}
+                    'z': 'REAL'}
+
+        self.model_col = {'model': 'INT'}
 
         self.extra_col = {  'occ': 'REAL',
                             'temp': 'REAL',

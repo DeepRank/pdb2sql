@@ -124,7 +124,6 @@ class pdb2sql(pdb2sql_base):
 
         self._check_pdb_format(pdbfile, flexible_format)
        
-
         # size of the things
         ncol = len(self.col)
         
@@ -300,6 +299,7 @@ class pdb2sql(pdb2sql_base):
             pdb_line = pdb_line + ' ' * (80 - linelen)
             self.col = self.base_col
             self.col.update(self.extra_col)
+            self.col.update(self.model_col)
             self.delimiter = self.base_delimiter
             self.delimiter.update(self.extra_delimiter)
 
@@ -307,6 +307,7 @@ class pdb2sql(pdb2sql_base):
         elif linelen > 80:
             pdb_line = pdb_line + ' ' * (80 - linelen)
             self.col = self.base_col
+            self.col.update(self.model_col)
             self.delimiter = self.base_delimiter
 
             if not flexible_format:

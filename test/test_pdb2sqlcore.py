@@ -45,17 +45,25 @@ class TestCreateSQL(unittest.TestCase):
                      -32.180, -32.765, 46.907, 1.00, 38.84, "O", 0)
         self.assertEqual(result[-1], last_line)
 
-    def test_zdockfile_Path(self):
+    @unittest.expectedFailure
+    def test_zdockfile_rigid_format_Path(self):
         """Verify input as Path instance"""
         p = Path(self.zdockfile)
         db = pdb2sql(p)
+
+    def test_zdockfile_flexible_format_Path(self):
+        """Verify input as Path instance"""
+        p = Path(self.zdockfile)
+        db = pdb2sql(p, flexible_format=True)
         db.c.execute('SELECT * FROM ATOM')
         result = db.c.fetchall()
         self.assertIsInstance(result, list)
-        # self.assertEqual(len(result), 1856)
-        # last_line = (1859, "O", "", "GLY", "R", 62, "",
-        #              -32.180, -32.765, 46.907, 1.00, 38.84, "O", 0)
-        # self.assertEqual(result[-1], last_line)
+        self.assertEqual(len(result), 5628)
+        last_line = (2288, "OXT", "", "LEU", "M", 4009, "",
+                     20.422, 9.482, 15.313, 0)
+        self.assertEqual(result[-1], last_line)
+
+
 
     def test_pdbfile_strings(self):
         """Verify input with a string of pdb content"""
