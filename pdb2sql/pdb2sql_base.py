@@ -1,4 +1,3 @@
-from http.client import NON_AUTHORITATIVE_INFORMATION
 import os
 
 
@@ -73,7 +72,7 @@ class pdb2sql_base(object):
                                 'element': [76, 78]}
 
         self.delimiter = None
- 
+
     ##########################################################################
     #
     #   CREATION AND PRINTING

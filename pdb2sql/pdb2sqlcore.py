@@ -96,7 +96,7 @@ class pdb2sql(pdb2sql_base):
         # default value of something goes wrong
         self.col = self.base_col
         self.delimiter = self.base_delimiter
-  
+
 
         # get pdb data
         pdbdata = self.read_pdb(pdbfile)
@@ -118,7 +118,6 @@ class pdb2sql(pdb2sql_base):
             self._set_col_values(line, flexible_format)
  
             break 
-        
 
     def _create_table(self, pdbfile, flexible_format=False, tablename='ATOM'):
 

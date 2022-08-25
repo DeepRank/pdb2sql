@@ -49,7 +49,7 @@ class TestCreateSQL(unittest.TestCase):
     def test_zdockfile_rigid_format_Path(self):
         """Verify input as Path instance"""
         p = Path(self.zdockfile)
-        db = pdb2sql(p)
+        _ = pdb2sql(p)
 
     def test_zdockfile_flexible_format_Path(self):
         """Verify input as Path instance"""
