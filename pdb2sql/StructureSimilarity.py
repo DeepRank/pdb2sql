@@ -86,6 +86,9 @@ class StructureSimilarity(object):
             else:
                 warnings.warn('Residue numbering not identical in ref and decoy.')
 
+            return False
+
+        return True
     ##########################################################################
     #
     #   FAST ROUTINE TO COMPUTE THE L-RMSD
@@ -164,6 +167,8 @@ class StructureSimilarity(object):
 
             xyz_ref_long, xyz_ref_short = self.get_xyz_zone_backbone(
                 self.ref, resData, return_not_in_zone=True, name=name)
+
+        # print(xyz_decoy_long)
 
         xyz_decoy_short = superpose_selection(
             xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method)
@@ -534,6 +539,7 @@ class StructureSimilarity(object):
         See also:
             :meth:`compute_lrmsd_fast`
         """
+
         backbone = ['CA', 'C', 'N', 'O']
         if 'name' not in kwargs:
             kwargs['name'] = backbone
@@ -545,6 +551,7 @@ class StructureSimilarity(object):
         # create the sql
         sql_decoy = pdb2sql(self.decoy, sqlfile='decoy.db')
         sql_ref = pdb2sql(self.ref, sqlfile='ref.db')
+
 
         # get the chains
         chains_decoy = sql_decoy.get_chains()
@@ -570,11 +577,10 @@ class StructureSimilarity(object):
             'x,y,z', chainID=chain2, **kwargs))
 
         # check the lengthes
-        if len(xyz_decoy_A) != len(xyz_ref_A):
+        if self.check_residues() is False:
             xyz_decoy_A, xyz_ref_A = self.get_identical_atoms(
                 sql_decoy, sql_ref, chain1, **kwargs)
 
-        if len(xyz_decoy_B) != len(xyz_ref_B):
             xyz_decoy_B, xyz_ref_B = self.get_identical_atoms(
                 sql_decoy, sql_ref, chain2, **kwargs)
 
@@ -594,26 +600,10 @@ class StructureSimilarity(object):
             xyz_decoy_short = xyz_decoy_A
             xyz_ref_short = xyz_ref_A
 
-        # get the translation so that both A chains are centered
-        tr_decoy = get_trans_vect(xyz_decoy_long)
-        tr_ref = get_trans_vect(xyz_ref_long)
+        # print(xyz_decoy_long)
 
-        # translate everything for 1
-        xyz_decoy_short += tr_decoy
-        xyz_decoy_long += tr_decoy
-
-        # translate everuthing for 2
-        xyz_ref_short += tr_ref
-        xyz_ref_long += tr_ref
-
-        # get the ideal rotation matrix
-        # to superimpose the A chains
-        U = get_rotation_matrix(
-            xyz_decoy_long, xyz_ref_long, method=method)
-
-        # rotate the entire fragment
-        xyz_decoy_short = transform.rotate(
-            xyz_decoy_short, U, center=self.origin)
+        xyz_decoy_short = superpose_selection(
+            xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method)      
 
         # compute the RMSD
         lrmsd = self.get_rmsd(xyz_decoy_short, xyz_ref_short)
@@ -684,7 +674,7 @@ class StructureSimilarity(object):
 
         # get the intersection
         shared_data = list(set(data1).intersection(data2))
-
+        
         # get the xyz
         xyz1, xyz2 = [], []
         for data in shared_data:
