@@ -600,13 +600,29 @@ class StructureSimilarity(object):
             xyz_decoy_short = xyz_decoy_A
             xyz_ref_short = xyz_ref_A
 
-        # print(xyz_decoy_long)
+        # get the translation so that both A chains are centered
+        tr_decoy = get_trans_vect(xyz_decoy_long)
+        tr_ref = get_trans_vect(xyz_ref_long)
 
-        xyz_decoy_short = superpose_selection(
-            xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method)      
+        # translate everything for 1
+        xyz_decoy_short += tr_decoy
+        xyz_decoy_long += tr_decoy
+
+        # translate everuthing for 2
+        xyz_ref_short += tr_ref
+        xyz_ref_long += tr_ref
+
+        # get the ideal rotation matrix
+        # to superimpose the A chains
+        U = get_rotation_matrix(
+            xyz_decoy_long, xyz_ref_long, method=method)
+
+        # rotate the entire fragment
+        xyz_decoy_short = transform.rotate(
+            xyz_decoy_short, U, center=self.origin)
 
         # compute the RMSD
-        lrmsd = self.get_rmsd(xyz_decoy_short, xyz_ref_short)
+        lrmsd = self.get_rmsd(xyz_decoy_short, xyz_ref_short)    
 
         # export the pdb for verifiactions
         if exportpath is not None:
