@@ -92,7 +92,6 @@ class StructureSimilarity(object):
             return False
 
         for r_dec, r_ref in zip(res_dec, res_ref):
- 
             at_ref = sql_ref.get('name', chainID=r_ref[0], resName=r_ref[1], resSeq=r_ref[2])
             at_dec = sql_dec.get('name', chainID=r_dec[0], resName=r_dec[1], resSeq=r_dec[2])
 
