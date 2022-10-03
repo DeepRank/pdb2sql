@@ -13,7 +13,7 @@ class TestSim(unittest.TestCase):
         self.ref = Path(pdb_folder, '1AK4', 'target.pdb')
         self.izone = Path(pdb_folder, '1AK4', 'target.izone')
         self.lzone = Path(pdb_folder, '1AK4', 'target.lzone')
-        self.sim = StructureSimilarity(self.decoy, self.ref)
+        self.sim = StructureSimilarity(self.decoy, self.ref, enforce_residue_matching=False)
         # target values are calcualted using scripts from
         # https://github.com/haddocking/BM5-clean
         self.irmsd = 1.135
