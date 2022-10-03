@@ -66,8 +66,11 @@ class StructureSimilarity(object):
     def check_residues(self):
         """Check if the residue numbering matches."""
 
-        res_ref = pdb2sql(self.ref).get_residues()
-        res_dec = pdb2sql(self.decoy).get_residues()
+        sql_ref = pdb2sql(self.ref)
+        sql_dec = pdb2sql(self.decoy)
+
+        res_ref = sql_ref.get_residues()
+        res_dec = sql_dec.get_residues()
 
         if res_ref != res_dec:
             print('Residues are different in the reference and decoy.')
@@ -87,6 +90,21 @@ class StructureSimilarity(object):
                 warnings.warn('Residue numbering not identical in ref and decoy.')
 
             return False
+
+        for r_dec, r_ref in zip(res_dec, res_ref):
+            
+            at_ref = sql_ref.get('name', chainID=r_ref[0], resName=r_ref[1], resSeq=r_ref[2])
+            at_dec = sql_dec.get('name', chainID=r_dec[0], resName=r_dec[1], resSeq=r_dec[2])
+
+            if at_ref != at_dec:
+                if self.enforce_residue_matching == True:
+                    raise ValueError(
+                        'Atoms not identical in ref and decoy.\n Set enforce_residue_matching=False to bypass this error.')
+                else:
+                    warnings.warn('Atoms not identical in ref and decoy.')
+
+                return False
+     
 
         return True
     ##########################################################################
