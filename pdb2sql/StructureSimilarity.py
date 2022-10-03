@@ -258,6 +258,7 @@ class StructureSimilarity(object):
         https://doi.org/10.1371/journal.pone.0161879
 
         Args:
+            chain_pairs (list): specify chain pairs for izone. e.g., 'AB:DE'
             izone (dict, required): izone definition
             method (str, optional): Method to align the fragments,
                 'svd' or 'quaternion'.
@@ -322,7 +323,7 @@ class StructureSimilarity(object):
 
         Args:
             cutoff (float, optional): cutoff for the contact atoms
-            chain_pairs (list): specify chain pairs for izone. e.g., ['AB:DE', 'C:E']
+            chain_pairs (list): specify chain pairs for izone. e.g., 'AB:DE'
             save_file (bool, optional): svae file containing the zone
             filename (str, optional): filename
 
