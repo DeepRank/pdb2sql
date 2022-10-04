@@ -63,14 +63,14 @@ class StructureSimilarity(object):
     def __repr__(self):
         return f'{self.__module__}.{self.__class__.__name__}({self.decoy}, {self.ref}, {self.verbose})'
 
-    def check_residues(self):
+    def check_residues(self, **kwargs):
         """Check if the residue numbering matches."""
 
         sql_ref = pdb2sql(self.ref)
         sql_dec = pdb2sql(self.decoy)
 
-        res_ref = sql_ref.get_residues()
-        res_dec = sql_dec.get_residues()
+        res_ref = sql_ref.get_residues(**kwargs)
+        res_dec = sql_dec.get_residues(**kwargs)
 
         if res_ref != res_dec:
             print('Residues are different in the reference and decoy.')
@@ -90,12 +90,12 @@ class StructureSimilarity(object):
                 warnings.warn('Residue numbering not identical in ref and decoy.')
 
             return False
-
+        
         for r_dec, r_ref in zip(res_dec, res_ref):
  
-            at_ref = sql_ref.get('name', chainID=r_ref[0], resName=r_ref[1], resSeq=r_ref[2])
-            at_dec = sql_dec.get('name', chainID=r_dec[0], resName=r_dec[1], resSeq=r_dec[2])
-
+            at_ref = sql_ref.get('name', chainID=r_ref[0], resName=r_ref[1], resSeq=r_ref[2], **kwargs)
+            at_dec = sql_dec.get('name', chainID=r_dec[0], resName=r_dec[1], resSeq=r_dec[2], **kwargs)
+            
             if at_ref != at_dec:
                 if self.enforce_residue_matching == True:
                     raise ValueError(
@@ -161,7 +161,7 @@ class StructureSimilarity(object):
             #  here the in_zone defines the zone for fitting,
             #  and not_in_zone defines the zone for rms calculation.
 
-            self.check_residues()
+            self.check_residues(name=name)
 
             data_decoy_long, data_decoy_short = self.get_data_zone_backbone(
                 self.decoy, resData, return_not_in_zone=True, name=name)
@@ -595,7 +595,7 @@ class StructureSimilarity(object):
             'x,y,z', chainID=chain2, **kwargs))
 
         # check the lengthes
-        if self.check_residues() is False:
+        if self.check_residues(**kwargs) is False:
             xyz_decoy_A, xyz_ref_A = self.get_identical_atoms(
                 sql_decoy, sql_ref, chain1, **kwargs)
 
