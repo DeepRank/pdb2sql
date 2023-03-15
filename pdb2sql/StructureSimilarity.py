@@ -63,11 +63,14 @@ class StructureSimilarity(object):
     def __repr__(self):
         return f'{self.__module__}.{self.__class__.__name__}({self.decoy}, {self.ref}, {self.verbose})'
 
-    def check_residues(self):
+    def check_residues(self, **kwargs):
         """Check if the residue numbering matches."""
 
-        res_ref = pdb2sql(self.ref).get_residues()
-        res_dec = pdb2sql(self.decoy).get_residues()
+        sql_ref = pdb2sql(self.ref)
+        sql_dec = pdb2sql(self.decoy)
+
+        res_ref = sql_ref.get_residues(**kwargs)
+        res_dec = sql_dec.get_residues(**kwargs)
 
         if res_ref != res_dec:
             print('Residues are different in the reference and decoy.')
@@ -86,6 +89,24 @@ class StructureSimilarity(object):
             else:
                 warnings.warn('Residue numbering not identical in ref and decoy.')
 
+            return False
+        
+        for r_dec, r_ref in zip(res_dec, res_ref):
+ 
+            at_ref = sql_ref.get('name', chainID=r_ref[0], resName=r_ref[1], resSeq=r_ref[2], **kwargs)
+            at_dec = sql_dec.get('name', chainID=r_dec[0], resName=r_dec[1], resSeq=r_dec[2], **kwargs)
+            
+            if at_ref != at_dec:
+                if self.enforce_residue_matching == True:
+                    raise ValueError(
+                        'Atoms not identical in ref and decoy.\n Set enforce_residue_matching=False to bypass this error.')
+                else:
+                    warnings.warn('Atoms not identical in ref and decoy.')
+
+                return False
+     
+
+        return True
     ##########################################################################
     #
     #   FAST ROUTINE TO COMPUTE THE L-RMSD
@@ -140,7 +161,7 @@ class StructureSimilarity(object):
             #  here the in_zone defines the zone for fitting,
             #  and not_in_zone defines the zone for rms calculation.
 
-            self.check_residues()
+            self.check_residues(name=name)
 
             data_decoy_long, data_decoy_short = self.get_data_zone_backbone(
                 self.decoy, resData, return_not_in_zone=True, name=name)
@@ -164,6 +185,8 @@ class StructureSimilarity(object):
 
             xyz_ref_long, xyz_ref_short = self.get_xyz_zone_backbone(
                 self.ref, resData, return_not_in_zone=True, name=name)
+
+        # print(xyz_decoy_long)
 
         xyz_decoy_short = superpose_selection(
             xyz_decoy_short, xyz_decoy_long, xyz_ref_long, method)
@@ -534,6 +557,7 @@ class StructureSimilarity(object):
         See also:
             :meth:`compute_lrmsd_fast`
         """
+
         backbone = ['CA', 'C', 'N', 'O']
         if 'name' not in kwargs:
             kwargs['name'] = backbone
@@ -545,6 +569,7 @@ class StructureSimilarity(object):
         # create the sql
         sql_decoy = pdb2sql(self.decoy, sqlfile='decoy.db')
         sql_ref = pdb2sql(self.ref, sqlfile='ref.db')
+
 
         # get the chains
         chains_decoy = sql_decoy.get_chains()
@@ -570,11 +595,10 @@ class StructureSimilarity(object):
             'x,y,z', chainID=chain2, **kwargs))
 
         # check the lengthes
-        if len(xyz_decoy_A) != len(xyz_ref_A):
+        if self.check_residues(**kwargs) is False:
             xyz_decoy_A, xyz_ref_A = self.get_identical_atoms(
                 sql_decoy, sql_ref, chain1, **kwargs)
 
-        if len(xyz_decoy_B) != len(xyz_ref_B):
             xyz_decoy_B, xyz_ref_B = self.get_identical_atoms(
                 sql_decoy, sql_ref, chain2, **kwargs)
 
@@ -684,7 +708,7 @@ class StructureSimilarity(object):
 
         # get the intersection
         shared_data = list(set(data1).intersection(data2))
-
+        
         # get the xyz
         xyz1, xyz2 = [], []
         for data in shared_data:
